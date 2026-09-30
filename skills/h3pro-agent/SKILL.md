@@ -1,57 +1,75 @@
 ---
 name: mvh3-agent
 description: >
-  mvH3-onlyno999 专职视频生成与调度 Agent 规范。集成 MiniMax H3 官方规范、
-  RunningHub 终极版调度模型 (https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q)
-  以及 Bernini Director rv2v 多图矩阵与分段连续参考机制。
+  mvH3-onlyno999 专职视频生成与调度 Agent 规范 (V2.3 终极满血版)。
+  集成 MiniMax H3 官方满血加速工作流 (https://www.runninghub.cn/workflow/2105127972431818753)、
+  Node 31 MiniMaxH3ReferenceToVideo 全模态调度算子、
+  9图 + 3视频 + 3音频全维度参考矩阵、以及 15s 尾帧接力零重影剪辑体系。
 ---
 
-# mvH3-onlyno999 Agent 核心技能规范
+# mvH3-onlyno999 Agent 核心技能规范 (V2.3 满血版)
 
 ## 1. 架构总则：前两步焊死 + 第三步云端一键调度插拔
-- **Skill 1【焊死】创意分镜构思内核**：解析自然语言与故事设定，输出时间轴结构化镜头大纲。
+- **Skill 1【焊死】创意分镜构思内核**：解析自然语言与故事设定，输出时间轴结构化镜头大纲、台词与音效。
 - **Skill 2【焊死】MiniMax H3 Ref2VA 规范编译器**：
   - 自动编译六段式结构：`[subject_definitions]` ➔ `[summary]` ➔ `[retention_analysis]` ➔ `[detailed_description]` ➔ `[overall_soundscape]` ➔ `[non_diegetic_music]`。
-  - 角色音色 `(Sx)` 与 `<d>` 口型发音标签，防裁头中景定位，零字幕文本安全清洗。
+  - 角色音色 `(Sx)` 与 `<d>` 口型发音标签，防裁头中近景定位，零字幕反向词敏感清洗。
   - 影视级大白话脱敏引擎（规避 `integrity_check_failed`）。
-- **Skill 3【插拔】RunningHub 云端一键调度接口**：
-  - **默认主模型**：RunningHub Bernini Director rv2v
-  - **工作流地址**：`https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q`
-  - **邀请码**：`zedwxo2q`
-  - **核心调度节点**：Node 22 (`ComfyBerniniDirector`)，配合 UNETLoader (Node 17/18)、ModelSamplingSD3 (Node 11/12) 及 VHS_VideoCombine (Node 5)。
+- **Skill 3【插拔】RunningHub 云端一键调度接口 (全新满血版替换上线)**：
+  - **当前主工作流**：MiniMax H3 满血版 多模态生视频加速
+  - **工作流地址**：`https://www.runninghub.cn/workflow/2105127972431818753`
+  - **工作流 ID**：`2105127972431818753`
+  - **核心调度节点**：Node 31 (`MiniMaxH3ReferenceToVideo`)，直连 UNETLoader (Node 41/58)、CLIPLoader (Node 3/59)、VAELoader (Node 4/12)、SamplerCustomAdvanced (Node 6) 与 VHS_VideoCombine (Node 17)。
+  - **帧数对齐**：Node 28 (`PrimitiveFloat`) 输入时长秒数，直连 Node 29 (`ComfyMathExpression`) 执行 `17n+5` 网格对齐。
 
 ---
 
-## 2. 参考图与多模态输入支持机制 (Reference Input Specification)
+## 2. 全模态多维参考矩阵支持机制 (Full Multimodal Reference Matrix)
 
-### 2.1 支持机制与底层结构
-在 Node 22 (`ComfyBerniniDirector`) 的 `timeline_data` 核心状态结构中，支持以下层级的分层参考注入：
+在最新满血版工作流中，Node 31 具备**9 张图片 + 3 路参考视频 + 3 路参考音频**的超强多模态注入能力：
 
-1. **全局参考图槽位 (Global `refs`)**：
-   - 贯穿整个视频生成的全局参考底图。
-   - 映射到 `<Picture 1>` ~ `<Picture 6>`：
-     - `<Picture 1>` / `ref_image_0`: 主角三视图或正脸高保真定妆卡（1:1 锁面容与服装质感）。
-     - `<Picture 2>` / `ref_image_1`: 第二主体 / 配角 / 核心道具卡（如交通工具、特写物件）。
-     - `<Picture 3>` / `ref_image_2`: 场景母本图（环境空间、光照色温、背景虚化锚定）。
-     - `<Picture 4~6>` / `ref_image_3~5`: 起始帧构图参考图、特定动作姿态或辅助光影卡。
+### 2.1 🖼️ 9 张图片参考支持机制 (Image Reference Matrix)
+| 参考模态 | 槽位与真实节点 | 可参考维度 | 注入内容与业务功能 | 示例 / 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **图片** | `ref_image_0` (Node 18) | **角色 / 人物** | 外貌特征、面部细节、服装穿搭、姿势动作 | 参考人物立绘卡，让全片角色保持绝对同一长相、穿搭与发型 |
+| **图片** | `ref_image_1` (Node 23) | **场景 / 环境** | 整体环境布局、空间关系、氛围基调 | 参考一张街景/宴会图，锁定故事发生的背景母本与空间结构 |
+| **图片** | `ref_image_2` (Node 22) | **光影 / 色调** | 光照方向、色温、胶片质感、视觉风格 | 参考“情绪色调”（如暖黄昏、冷科幻、赛博朋克），生成同风格画面 |
+| **图片** | `ref_image_3` (Node 24) | **物体 / 产品** | 具体物品形态、材质、颜色、细节 | 参考一款包袋/手机/道具图，在视频中 3D 动态高保真复现资产 |
+| **图片** | `ref_image_4` (Node 32) | **品牌 / 标识** | Logo 图形、品牌色、片尾锁屏 | 参考品牌 Logo 图，在片头或片尾生成无损品牌展示画面 |
+| **图片** | `ref_image_5` (Node 33) | **风格 / 美术** | 视觉艺术风格（写实/插画/水墨/赛博等） | 参考一幅插画或经典剧照，生成艺术风格完全一致的质感 |
+| **图片** | `ref_image_6` (Node 34) | **UI / UX 界面** | 网页设计图、产品界面、交互原型 | 参考 APP 或网页界面图，生成动态的操作交互演示视频 |
+| **图片** | `ref_image_7` (Node 35) | **备用角色 / 姿势** | 第二角色/特写姿势/分身细节 | 辅助锁定副主角、群演或关键动作的肢体定位 |
+| **图片** | `ref_image_8` (Node 76) | **备用环境 / 微距** | 深度背景补充、道具微距特写 | 特写镜头下的微观细节增强 |
 
-2. **分镜头局部参考图 (Segment `refs`)**：
-   - 每个具体分镜头时间切片（例如 `0~81` 帧、`81~162` 帧等）均内置专有的 `refs` 数组。
-   - 可在分段中独立覆盖或追加局部特有参考素材（如中途切换场景或道具特写）。
+### 2.2 🎬 3 路视频参考支持机制 (Video Reference Matrix)
+通过 Node 73、75、74 三路 `VHS_LoadVideo` 算子载入源视频参考：
+| 槽位与节点 | 可参考维度 | 注入内容与业务功能 | 示例 / 说明 |
+| :--- | :--- | :--- | :--- |
+| **视频 1** (Node 73) | **动作 / 运动** | 人物肢体动作、物体运动轨迹、行为模式 | 参考一段舞蹈/跑酷视频，让新角色无缝做出完全一致的复杂动作 |
+| **视频 2** (Node 75) | **运镜 / 镜头运动** | 推拉摇移、跟随、手持晃动、希区柯克变焦 | 学习好莱坞大片的镜头轨迹与运镜加速度，并应用到新场景中 |
+| **视频 3** (Node 74) | **节奏 / 角色一致性 / 首尾帧** | 视频剪辑节奏、转场方式、叙事快慢、首尾帧控制 | 指定起始帧与结束帧画面，让模型生成从 A 画面平滑过渡到 B 画面的连贯长镜头，并在多段接力中实现 100% 不变脸跨段直出 |
 
-3. **源视频连续引导 (Reference Video & `continuousReference`)**：
-   - 节点内置 `referenceVideo` 对象与 `continuousReference` 布尔开关。
-   - 可直接载入上一段出片作为动态时空引导，杜绝跨段变脸与光线跳变。
-
-### 2.2 一次能上传多少张参考图？（容量与工程标准）
-- **底层架构**：`refs` 数组采用动态列表设计， ComfyUI 节点底层**未设单一固定的硬性张数死限制**。
-- **最佳工程实践推荐容量**：**推荐一次配置 1 ~ 6 张**。
-- **原因与质检准则**：
-  - 1~6 张足以 100% 覆盖角色正面/侧面三视图、配角、场景母图与关键道具。
-  - 若单次注入超过 6 张以上，会导致扩散模型的 Cross-Attention 注意力权重过于分散，不同特征向量相互竞争稀释，可能引起画面背景噪点或细微伪影。因此系统默认提供并推荐 **6 张精细矩阵**。
+### 2.3 🎵 3 路音频参考支持机制 (Audio Reference Matrix)
+通过 Node 38、67、68 三路 `LoadAudio` 算子载入音频参考：
+| 槽位与节点 | 可参考维度 | 注入内容与业务功能 | 示例 / 说明 |
+| :--- | :--- | :--- | :--- |
+| **参考音 1** (Node 38) | **人声 / 音色** | 说话人的音色、语气、情绪、语速 | 注入角色声学指纹干声，生成相似人声对白与精准唇形同步 |
+| **参考音 2** (Node 67) | **歌声 / 演唱** | 歌唱音色、旋律律动、演唱风格 | 注入歌曲人声干声切片，让画面中的角色严格按该歌声“对口型”歌唱 |
+| **参考音 3** (Node 68) | **音乐风格 / 环境音效** | 摇滚/古典/电子配乐，雨声/风声/空间拟音 | 注入背景音乐风格或空间拟音（脚步、雷雨、电子嗡鸣），匹配音画合一氛围 |
 
 ---
 
-## 3. 跨段无缝接力与 15s 零冻结规则
-- 跨段必须提取第 1 段尾帧（如 15.00s / 第 362 帧）作为第 2 段首帧垫图。
-- 视频拼接时使用 FFmpeg 滤镜 `[1:v]select='gt(n\,0)',setpts=PTS-STARTPTS[v1]` 剔除第 2 段第 0 帧重复垫图，确保画面无停顿重影。
+## 3. 跨段无缝接力与 15s 零重影终剪规则
+- **首尾帧精准匹配**：在段与段接力时，将上一段成片的尾帧（如 15.00s / 第 362 帧）提取并注入下段作为首帧垫图，或直接挂入 Node 74 / Node 75 视频通道；
+- **FFmpeg 零重影拼接**：
+  ```bash
+  ffmpeg -y -v error \
+    -i P01.mp4 -i P02.mp4 -i P03.mp4 -i master_bgm.wav \
+    -filter_complex "
+      [0:v]setpts=PTS-STARTPTS[v0];
+      [1:v]select='gt(n\,0)',setpts=PTS-STARTPTS[v1];
+      [2:v]select='gt(n\,0)',setpts=PTS-STARTPTS[v2];
+      [v0][v1][v2]concat=n=3:v=1:a=0[vconcat]" \
+    -map "[vconcat]" -c:v libx264 -crf 18 -preset medium final_master.mp4
+  ```
+- **消灭叠影**：通过 `select='gt(n\,0)'` 剔除第 2 段起的第 0 帧重复垫图帧，实现 100% 电影级无缝连续出片。

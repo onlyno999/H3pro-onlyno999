@@ -382,10 +382,10 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
               >
                 <div className="font-bold flex items-center gap-1 text-[11px] text-emerald-300">
                   <Sparkles className="w-3 h-3 text-emerald-400 shrink-0" />
-                  <span>🌟 H3 官流终极版</span>
+                  <span>🌟 H3 满血多模态版</span>
                 </div>
-                <div className="text-[9px] text-slate-400 mt-0.5 truncate">官方 136 节点 · 双接力</div>
-                <div className="text-[8px] font-mono text-emerald-400/80 mt-0.5">2104734128657756162</div>
+                <div className="text-[9px] text-slate-400 mt-0.5 truncate">Node 31 · 9图+3视频+3音频</div>
+                <div className="text-[8px] font-mono text-emerald-400/80 mt-0.5">2105127972431818753</div>
               </button>
 
               <button
@@ -430,34 +430,35 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-emerald-300 font-mono flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>MiniMax H3 官流终极版拓扑核验 (Verified)</span>
+                  <span>MiniMax H3 满血版全模态拓扑核验 (Verified)</span>
                 </span>
                 <span className="text-[10px] text-emerald-400 font-mono bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
-                  Node 136 主算子
+                  Node 31 核心算子
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px] font-mono">
                 <div className="p-2 rounded bg-slate-900/90 border border-slate-800">
-                  <div className="text-[10px] text-slate-400">Node 136 视频核心</div>
-                  <div className="text-emerald-300 font-semibold truncate">MiniMaxH3ReferenceToVideo</div>
+                  <div className="text-[10px] text-slate-400">Node 31 调度核心</div>
+                  <div className="text-emerald-300 font-semibold truncate">RefToVideo 满血版</div>
                 </div>
                 <div className="p-2 rounded bg-slate-900/90 border border-slate-800">
-                  <div className="text-[10px] text-slate-400">Node 175 视频接力</div>
-                  <div className="text-cyan-300 font-semibold truncate">VHS_LoadVideo (跨段防漂移)</div>
+                  <div className="text-[10px] text-slate-400">9 张多维图片参考</div>
+                  <div className="text-amber-300 font-semibold truncate">Node 18~35, 76</div>
                 </div>
                 <div className="p-2 rounded bg-slate-900/90 border border-slate-800">
-                  <div className="text-[10px] text-slate-400">Node 137 & 139 多图矩阵</div>
-                  <div className="text-amber-300 font-semibold truncate">&lt;Picture 1&gt;全身 + &lt;Picture 2&gt;胸标</div>
+                  <div className="text-[10px] text-slate-400">3 路连续视频参考</div>
+                  <div className="text-cyan-300 font-semibold truncate">Node 73/75/74 动作运镜</div>
                 </div>
                 <div className="p-2 rounded bg-slate-900/90 border border-slate-800">
-                  <div className="text-[10px] text-slate-400">Node 131 帧数校验</div>
-                  <div className="text-purple-300 font-semibold truncate">严格 17n+5 数学公式</div>
+                  <div className="text-[10px] text-slate-400">3 路真实音频参考</div>
+                  <div className="text-purple-300 font-semibold truncate">Node 38/67/68 人声音色</div>
                 </div>
               </div>
 
               <p className="text-[10px] text-slate-400 leading-relaxed">
-                ✅ 已确认彻底绑定 RunningHub 官流终极版 <code>{RUNNINGHUB_CONFIG.workflowId}</code>。采用 Node 175 跨段潜空间视频接力与 Node 139 1:1 ImageGen 场景融入卡，从底层消除第 2 段角色变脸与“铁蛋”胸前文字消失问题！
+                ✅ 已确认彻底绑定 RunningHub 满血加速工作流 <code>{RUNNINGHUB_CONFIG.workflowId}</code> (<a href={RUNNINGHUB_CONFIG.postUrlFull} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline">点击查看云端工作流</a>)。
+                全面支持 9 大维度图片（角色/场景/光影/产品/品牌/美术/UI/姿势/细节）、3 路视频（动作/运镜/节奏首尾帧）与 3 路音频参考（人声/歌唱/环境拟音）！
               </p>
             </div>
           )}
@@ -931,19 +932,19 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
                   <div>
                     <div className="text-xs font-bold text-white flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                      <span>MiniMax H3 官流终极版完整拓扑 · ID: 2104734128657756162</span>
+                      <span>MiniMax H3 满血版完整拓扑 · ID: 2105127972431818753</span>
                     </div>
                     <div className="text-[11px] text-slate-400 mt-1">
-                      严格对齐 <code>rh3_h3.py</code> 与 RunningHub 官方规范，包含多图参考矩阵与跨段潜空间视频接力。
+                      严格对齐 <code>rh3_h3.py</code> 与 RunningHub 官方规范，包含 9 张图片、3 路视频与 3 路音频全模态参考矩阵。
                     </div>
                   </div>
                   <a
-                    href="https://www.runninghub.cn/post/2104734128657756162/?inviteCode=rh-v1221"
+                    href="https://www.runninghub.cn/workflow/2105127972431818753"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-mono flex items-center gap-1 shrink-0 hover:bg-emerald-500/30"
                   >
-                    <span>RunningHub 官帖</span>
+                    <span>RunningHub 工作流</span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
@@ -951,31 +952,31 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <div className="p-3 rounded-xl bg-slate-950 border border-emerald-500/30 space-y-1">
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="font-bold text-emerald-400">Node 136: MiniMaxH3ReferenceToVideo</span>
-                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40">核心出片</span>
+                      <span className="font-bold text-emerald-400">Node 31: MiniMaxH3ReferenceToVideo</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40">核心调度</span>
                     </div>
-                    <p className="text-[11px] text-slate-300">多模态视频生成总控枢纽，统筹提示词、多图矩阵、视频接力与音频</p>
+                    <p className="text-[11px] text-slate-300">多模态视频生成总控枢纽，统筹提示词、9 图矩阵、3 视频接力与 3 音频</p>
                   </div>
 
                   <div className="p-3 rounded-xl bg-slate-950 border border-cyan-500/30 space-y-1">
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="font-bold text-cyan-400">Node 175: VHS_LoadVideo</span>
-                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40">跨段潜空间接力</span>
+                      <span className="font-bold text-cyan-400">Node 73/75/74: VHS_LoadVideo</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-500/40">3 路视频参考</span>
                     </div>
-                    <p className="text-[11px] text-slate-300">载入上一段成片视频，双通道特征传递，从根源杜绝变脸断层</p>
+                    <p className="text-[11px] text-slate-300">视频1动作运动 + 视频2运镜轨迹 + 视频3节奏卡点首尾帧控制</p>
                   </div>
 
                   <div className="p-3 rounded-xl bg-slate-950 border border-amber-500/30 space-y-1">
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="font-bold text-amber-400">Node 137 & 139: LoadImage</span>
-                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40">多图定妆矩阵</span>
+                      <span className="font-bold text-amber-400">Node 18~35, 76: LoadImage</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40">9 图参考矩阵</span>
                     </div>
-                    <p className="text-[11px] text-slate-300">&lt;Picture 1&gt; 全身定妆卡 + &lt;Picture 2&gt; 胸前字/第二主体特写卡</p>
+                    <p className="text-[11px] text-slate-300">涵盖人物、场景母图、光影色调、产品资产、品牌色、美术风格、UI等</p>
                   </div>
 
                   <div className="p-3 rounded-xl bg-slate-950 border border-purple-500/30 space-y-1">
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="font-bold text-purple-400">Node 131: ComfyMathExpression</span>
+                      <span className="font-bold text-purple-400">Node 29: ComfyMathExpression</span>
                       <span className="text-[9px] px-1.5 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-500/40">17n+5 公式</span>
                     </div>
                     <p className="text-[11px] text-slate-300">精确换算：10 秒对齐 243 帧，15 秒对齐 362 帧，0 丢步</p>
@@ -983,18 +984,18 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
 
                   <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="font-bold text-slate-300">Node 138: PrimitiveStringMultiline</span>
+                      <span className="font-bold text-slate-300">Node 25: PrimitiveStringMultiline</span>
                       <span className="text-[9px] text-slate-500">文本提示词</span>
                     </div>
-                    <p className="text-[11px] text-slate-400">六段式标准提示词输入通道</p>
+                    <p className="text-[11px] text-slate-400">六段式标准提示词输入通道与约束控制</p>
                   </div>
 
                   <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="font-bold text-slate-300">Node 148: VHS_VideoCombine</span>
+                      <span className="font-bold text-slate-300">Node 17: VHS_VideoCombine</span>
                       <span className="text-[9px] text-slate-500">音画封包</span>
                     </div>
-                    <p className="text-[11px] text-slate-400">结合零重影切除首帧垫图 (select=gt(n\,0))，无缝拼接导出</p>
+                    <p className="text-[11px] text-slate-400">结合零重影切除首帧垫图 (select=gt(n\,0))，无缝拼接导出标准 24fps MP4</p>
                   </div>
                 </div>
               </div>

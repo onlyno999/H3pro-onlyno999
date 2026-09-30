@@ -38,7 +38,7 @@ export const ThreeWorkflowAssetStudio: React.FC = () => {
 
   // 15s to 16s Seam Synchronization & Notification State
   const [isSyncingAll, setIsSyncingAll] = useState(false);
-  const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>('已就绪：1:1 锁颜算法与 15s-16s 尾帧接缝切片已同步至 Python CLI (rh3_h3.py) 与 H3 工作流');
+  const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>('已就绪：1:1 锁颜算法与全模态 9 图参考矩阵已直通 Node 18~35/76，并同步至 Python CLI (rh3_h3.py) 与 H3 满血工作流');
   const [showSeamDeepDive, setShowSeamDeepDive] = useState<boolean>(true);
   const [selectedSeamFrame, setSelectedSeamFrame] = useState<'f361' | 'f362' | 'p02_f0' | 'p02_f1'>('f362');
 
@@ -167,7 +167,7 @@ export const ThreeWorkflowAssetStudio: React.FC = () => {
 
     setTimeout(() => {
       setIsSyncingAll(false);
-      setSyncStatusMsg('✅ 同步完成！1:1 高保真定妆卡已载入 Node 137/139/167，15秒尾帧垫图切片与 FFmpeg 零重影脚本已同步至 rh3_h3.py 与导演中台！');
+      setSyncStatusMsg('✅ 同步完成！1:1 高保真定妆卡已载入 Node 18/23/22 等 9 图矩阵，15秒尾帧垫图切片与 FFmpeg 零重影脚本已同步至 rh3_h3.py 与全模态中台！');
       setTimeout(() => {
         // keep badge active
       }, 5000);
@@ -617,7 +617,7 @@ export const ThreeWorkflowAssetStudio: React.FC = () => {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/80 text-[10px] font-mono text-cyan-300">
-                  Node 137 直通
+                  Node 18 直通 (图1角色)
                 </div>
               </div>
               <p className="text-[10px] text-slate-400">
@@ -727,31 +727,32 @@ export const ThreeWorkflowAssetStudio: React.FC = () => {
         </div>
       </div>
 
-      {/* 8-Slot Reference Matrix (8 张参考图全要素锁定矩阵) */}
+      {/* 9-Slot Reference Matrix (9 张图片全模态全要素参考矩阵) */}
       <div className="p-5 rounded-2xl bg-slate-900 border border-indigo-500/30 shadow-xl space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <Layers className="w-4 h-4 text-indigo-400" />
-            <span className="text-sm font-bold text-white">8 张参考图矩阵 (直通 Node 137 ~ 175)</span>
+            <span className="text-sm font-bold text-white">9 张图片全模态参考矩阵 (直通 Node 18~35, 76)</span>
             <span className="text-xs px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono">
-              包含主角 + 配角 + 场景环境母本 + 15s尾帧垫图
+              包含角色 + 场景母本 + 光影色调 + 产品资产 + 品牌Logo + 艺术风格 + UI界面 + 备用姿势 + 微距细节
             </span>
           </div>
           <span className="text-xs text-slate-400 font-mono">
-            拒绝文字脑补 · 空间特征全方位锁定
+            全维度空间特征绝对锁定 · 拒绝文字脑补走样
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-2.5">
           {[
-            { slot: 1, node: 'Node 137', name: 'Picture 1', label: '① 1:1 主角定妆卡', desc: '1:1 锁面容/五官/服装', img: fusedCompositeUrl || selectedCard.previewUrl },
-            { slot: 2, node: 'Node 139', name: 'Picture 2', label: '② 配角/第二主体', desc: '锁朋友/快递员/大黄狗', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80' },
-            { slot: 3, node: 'Node 167', name: 'Picture 3', label: '③ 老宅环境母本', desc: '锁红砖老房子/木桌光影', img: generatedSceneUrl || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=300&auto=format&fit=crop&q=80' },
-            { slot: 4, node: 'Node 173', name: 'Picture 4', label: '④ 空间透视构图', desc: '锁人物左右站位/距离', img: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=300&auto=format&fit=crop&q=80' },
-            { slot: 5, node: 'Node 172', name: 'Picture 5', label: '⑤ 核心关键道具', desc: '锁搪瓷茶杯/暖水壶/日历', img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=300&auto=format&fit=crop&q=80' },
-            { slot: 6, node: 'Node 171', name: 'Picture 6', label: '⑥ 起始画面参考', desc: '锁开场镜头仰角与画幅', img: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&auto=format&fit=crop&q=80' },
-            { slot: 7, node: 'Node 176', name: 'Picture 7', label: '⑦ 局部细节纹理', desc: '锁胸口印花/袖扣/鞋履', img: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=300&auto=format&fit=crop&q=80' },
-            { slot: 8, node: 'Node 175', name: 'Picture 8', label: '⑧ 15s尾帧垫图接力', desc: '锁第1段362帧末尾画面', img: mockSegments[0].tailFrame }
+            { slot: 1, node: 'Node 18', name: 'Picture 1', label: '① 角色/人物 (定妆)', desc: '外貌/五官/服装/发型', img: fusedCompositeUrl || selectedCard.previewUrl },
+            { slot: 2, node: 'Node 23', name: 'Picture 2', label: '② 场景/环境 (母本)', desc: '空间结构/布局/老宅', img: generatedSceneUrl || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=300&auto=format&fit=crop&q=80' },
+            { slot: 3, node: 'Node 22', name: 'Picture 3', label: '③ 光影/色调 (质感)', desc: '光照方向/色温/胶片感', img: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=300&auto=format&fit=crop&q=80' },
+            { slot: 4, node: 'Node 24', name: 'Picture 4', label: '④ 物体/产品 (道具)', desc: '3D 资产/材质/细节', img: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=300&auto=format&fit=crop&q=80' },
+            { slot: 5, node: 'Node 32', name: 'Picture 5', label: '⑤ 品牌/标识 (Logo)', desc: 'Logo图形/品牌色/片尾', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300&auto=format&fit=crop&q=80' },
+            { slot: 6, node: 'Node 33', name: 'Picture 6', label: '⑥ 风格/美术 (视效)', desc: '写实/插画/赛博/水墨', img: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=300&auto=format&fit=crop&q=80' },
+            { slot: 7, node: 'Node 34', name: 'Picture 7', label: '⑦ UI/UX界面 (原型)', desc: '网页设计/操作演示', img: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=300&auto=format&fit=crop&q=80' },
+            { slot: 8, node: 'Node 35', name: 'Picture 8', label: '⑧ 备用角色/姿势', desc: '第二姿势/分身/副主角', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80' },
+            { slot: 9, node: 'Node 76', name: 'Picture 9', label: '⑨ 备用环境/微距', desc: '深度背景/微观特写', img: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=300&auto=format&fit=crop&q=80' }
           ].map((item) => (
             <div key={item.slot} className="p-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-indigo-500/50 transition-all flex flex-col items-center group relative">
               <div className="w-full h-24 rounded-lg overflow-hidden border border-slate-800 bg-slate-900 relative">
@@ -836,7 +837,7 @@ export const ThreeWorkflowAssetStudio: React.FC = () => {
 
           <div className="p-4 rounded-xl bg-black border border-slate-800 font-mono text-xs space-y-2 h-64 overflow-y-auto">
             <div className="text-cyan-400 font-bold">[1:1 AUDIT] 正在监听 1:1 生图保真度与 15s-16s 跨段接缝...</div>
-            <div className="text-slate-400">• 用户三视图已自动完成正面切片与胸部特写切片 (Node 137 / 139)</div>
+            <div className="text-slate-400">• 用户三视图已自动完成正面切片与胸部特写切片 (Node 18 / 23)</div>
             <div className="text-slate-400">• 影棚反光消除算法 (Defringe) 已生效，灰底漏色率 0.0%</div>
             <div className="text-emerald-400">• 1:1 空间透视对齐已完成，残差距 0.8% (已从47.6%彻底修复)</div>
             <div className="text-slate-400">• 第 15 秒 (362 帧) 尾帧截图已生成，P02 首帧重复帧切除指令生效</div>

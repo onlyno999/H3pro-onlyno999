@@ -28,7 +28,7 @@ import ssl
 from typing import Dict, Any, Optional, List
 
 RUNNINGHUB_BASE_URL = "https://www.runninghub.cn"
-OFFICIAL_ULTIMATE_WORKFLOW_ID = "2104734128657756162"
+OFFICIAL_ULTIMATE_WORKFLOW_ID = "2105127972431818753"
 DEFAULT_INVITE_CODE = "rh-v1221"
 
 class RunningHubH3UltimateDispatcher:
@@ -214,33 +214,33 @@ class RunningHubH3UltimateDispatcher:
                 "msg": f"沙盒验证通过！已生成【多角度多细节人物定妆矩阵】(全身定妆卡+上半身特写+下半身腿套特写)。"
             }
 
-        # 构建官流终极版专属 nodeInfoList
+        # 构建满血版 2105127972431818753 专属 nodeInfoList
         node_info_list = [
-            {"nodeId": "138", "fieldName": "value", "fieldValue": prompt},
-            {"nodeId": "132", "fieldName": "value", "fieldValue": duration},
-            {"nodeId": "115", "fieldName": "aspect_ratio", "fieldValue": aspect_ratio},
-            {"nodeId": "129", "fieldName": "noise_seed", "fieldValue": seed}
+            {"nodeId": "25", "fieldName": "value", "fieldValue": prompt},
+            {"nodeId": "28", "fieldName": "value", "fieldValue": duration},
+            {"nodeId": "26", "fieldName": "aspect_ratio", "fieldValue": aspect_ratio if "Widescreen" in aspect_ratio else "16:9 (Widescreen)"},
+            {"nodeId": "5", "fieldName": "noise_seed", "fieldValue": seed}
         ]
 
         if ref_image_0:
-            node_info_list.append({"nodeId": "137", "fieldName": "image", "fieldValue": ref_image_0})
+            node_info_list.append({"nodeId": "18", "fieldName": "image", "fieldValue": ref_image_0})
         if ref_image_1:
-            node_info_list.append({"nodeId": "139", "fieldName": "image", "fieldValue": ref_image_1})
+            node_info_list.append({"nodeId": "23", "fieldName": "image", "fieldValue": ref_image_1})
         if ref_image_2:
-            node_info_list.append({"nodeId": "167", "fieldName": "image", "fieldValue": ref_image_2})
+            node_info_list.append({"nodeId": "22", "fieldName": "image", "fieldValue": ref_image_2})
         if ref_image_3:
-            node_info_list.append({"nodeId": "173", "fieldName": "image", "fieldValue": ref_image_3})
+            node_info_list.append({"nodeId": "24", "fieldName": "image", "fieldValue": ref_image_3})
         if ref_image_4:
-            node_info_list.append({"nodeId": "172", "fieldName": "image", "fieldValue": ref_image_4})
+            node_info_list.append({"nodeId": "32", "fieldName": "image", "fieldValue": ref_image_4})
         if ref_image_5:
-            node_info_list.append({"nodeId": "171", "fieldName": "image", "fieldValue": ref_image_5})
+            node_info_list.append({"nodeId": "33", "fieldName": "image", "fieldValue": ref_image_5})
 
         if ref_video_prev:
-            print(f"[+] 启用视频参考 (Video-to-Video Continuity): 载入上一段视频 {ref_video_prev} -> Node 175")
-            node_info_list.append({"nodeId": "175", "fieldName": "video", "fieldValue": ref_video_prev})
+            print(f"[+] 启用视频参考 (Video-to-Video Continuity): 载入上一段视频 {ref_video_prev} -> Node 75 (视频2: 运镜与接力)")
+            node_info_list.append({"nodeId": "75", "fieldName": "video", "fieldValue": ref_video_prev})
 
         if ref_audio:
-            node_info_list.append({"nodeId": "174", "fieldName": "audio", "fieldValue": ref_audio})
+            node_info_list.append({"nodeId": "38", "fieldName": "audio", "fieldValue": ref_audio})
 
         payload = {
             "apiKey": self.api_key,

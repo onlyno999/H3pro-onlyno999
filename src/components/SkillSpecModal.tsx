@@ -98,17 +98,30 @@ const SPEC_FILES = [
 - **定位**：可灵活更换的算力与执行管道（Pluggable Execution Provider）。
 - **特性**：**前两步焊死不变，第三步按需随时替换不同云端服务**。
 - **支持接入与替换的云端接口**：
-  * **接口 A（当前默认首选）**：RunningHub 官方 Bernini Director rv2v 调度模型 (地址：\`https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q\`，Node ID: 22 \`ComfyBerniniDirector\`)
+  * **接口 A（当前默认首选）**：RunningHub 官方 MiniMax H3 满血版 多模态生视频加速 (地址：\`https://www.runninghub.cn/workflow/2105127972431818753\`，Node ID: 31 \`MiniMaxH3ReferenceToVideo\`)
   * 接口 B：Qwen-Image / FLUX / SD 云端文生图与图像编辑接口 (生成 1:1 人物定妆卡与母本场景卡)
   * 接口 C：平台内置 ImageGen 图生图与 15s 尾帧垫图接力接口
   * 接口 D：第三方 Webhook / 自建 GPU ComfyUI 实例接口
-- **参考图输入支持机制与容量规格**：
-  * **结构化槽位 (Global & Segments)**：底层 \`ComfyBerniniDirector\` 采用动态 \`refs\` 数组及分镜头独立绑定机制；
-  * **全局参考图 (Global refs)**：支持传入 1~6 张参考图，分别覆盖主角三视图面容 (\`ref_image_0\`)、配角/道具 (\`ref_image_1\`)、场景母图 (\`ref_image_2\`) 及扩展光影构图 (\`ref_image_3~5\`)；
-  * **分段镜头参考图 (Segment refs)**：支持为特定时间切片 (如 0~81 帧、81~162 帧) 注入独立专有局部参考图；
-  * **源视频连续参考 (Reference Video)**：支持挂载源视频作为时空连续条件引导 (\`continuousReference: true\`)，实现 100% 不变脸跨段接力；
-  * **推荐容量最佳实践**：底层无硬性单张上限，系统工程标准推荐一次上传 **1 ~ 6 张**，防止过多注意力和冗余特征产生互斥噪点。
-- **契约规则**：只要接收到 Skill 2 编译好的标准 Payload，任何云端接口均可无缝消费并返回图片/视频 URL。
+- **全模态参考输入支持机制 (9 图 + 3 视频 + 3 音频)**：
+  * **9 张图片参考矩阵 (Node 18, 23, 22, 24, 32, 33, 34, 35, 76)**：
+    - 图1: 角色/人物 (外貌特征、面部细节、服装穿搭、姿势动作，全片统一长相)
+    - 图2: 场景/环境 (整体环境布局、空间关系、氛围基调母本)
+    - 图3: 光影/色调 (光照方向、色温、胶片质感、视觉情绪基调)
+    - 图4: 物体/产品 (具体物品形态、材质、颜色、3D 资产还原)
+    - 图5: 品牌/标识 (Logo 图形、品牌色、结尾展示画面)
+    - 图6: 风格/美术 (写实/插画/水墨/赛博朋克等艺术风格)
+    - 图7: UI/UX 界面 (网页设计图、产品界面、交互原型操作演示)
+    - 图8: 备用角色/姿势 (第二角色/肢体特写/分身细节)
+    - 图9: 备用环境/细节 (微距特写/深度空间背景补充)
+  * **3 路视频连续参考 (Node 73, 75, 74 VHS_LoadVideo)**：
+    - 视频1: 动作/运动 (人物肢体动作、物体运动轨迹、行为模式，如舞蹈或特技)
+    - 视频2: 运镜/镜头运动 (推拉摇移、跟随、手持晃动、希区柯克变焦轨迹)
+    - 视频3: 节奏/剪辑/角色一致性/首尾帧 (从 A 画面平滑过渡到 B 画面，消灭变脸与跳变)
+  * **3 路音频音色参考 (Node 38, 67, 68 LoadAudio)**：
+    - 参考音1: 人声/音色 (说话人声音声学指纹、语气语速，实现对白口型同步)
+    - 参考音2: 歌声/演唱 (歌唱旋律与音画“对口型”演唱)
+    - 参考音3: 音乐风格/音效环境 (背景音乐氛围、雨声/风声/空间拟音环境音)
+- **契约规则**：只要接收到 Skill 2 编译好的标准六段式 Payload，Node 31 均可精准挂接多模态输入并出片。
 
 ---
 
@@ -121,7 +134,7 @@ const SPEC_FILES = [
 | **"生成 15 秒短片"** | **1 段** 直出 (15s) | Node 132 = 15.0 (362 帧) | 单段直出，长镜头情绪拉满 |
 | **"生成 20 秒短片"** | **2 段 × 10 秒** (共 20s) | 每段 Node 132 = 10.0 (243 帧) | 第 1 段截取第 242 帧垫图 ➔ 喂给第 2 段 (Node 137) + 载入前视频 (Node 175) |
 | **"生成 30 秒短片"** | **2 段 × 15 秒** (共 30s) | 每段 Node 132 = 15.0 (362 帧) | 第 1 段截取第 362 帧垫图 ➔ 喂给第 2 段 (Node 137) + 载入前视频 (Node 175) |
-| **"生成 45 秒短片"** | **3 段 × 15 秒** (共 45s) | 每段 Node 132 = 15.0 (362 帧) | 逐段 15s 尾帧接力，FFmpeg select='gt(n\,0)' 消除接缝 |
+| **"生成 45 秒短片"** | **3 段 × 15 秒** (共 45s) | 每段 Node 132 = 15.0 (362 帧) | 逐段 15s 尾帧接力，FFmpeg select='gt(n,0)' 消除接缝 |
 | **"生成 60 秒 / 1分钟短剧"** | **4 段 × 15 秒** (共 60s) | 每段 Node 132 = 15.0 (362 帧) | **竖版微短剧工业标准一集**！4 段起承转合连续出片 |
 
 ---
@@ -339,33 +352,39 @@ def validate_h3_prompt(text: str) -> dict:
   },
   {
     id: 'director_spec_md',
-    name: 'Bernini 官方导演台架构规范 (MD)',
+    name: 'H3 满血版全模态工作流规范 (MD)',
     type: 'markdown',
     path: '/skills/mv-auto-pipeline/references/runninghub_workflow_spec.md',
-    content: `# Bernini Director · 官方导演台 rv2v 调度规范 (RunningHub 2079374352503631873)
+    content: `# MiniMax H3 满血版 · 多模态生视频加速工作流规范 (RunningHub 2105127972431818753)
 
 ## 核心拓扑架构与节点映射：
-1. **双 UNet 双噪声加载器 (Node 18 & Node 17)**：
-   - \`Bernini-R HIGH\` (\`Bernini_HIGH_fp8_e4m3fn_scaled.safetensors\`) + LoRA Node 9 (\`Bernini-R_LightX2V_high_noise\`)
-   - \`Bernini-R LOW\` (\`Bernini_LOW_fp8_e4m3fn_scaled.safetensors\`) + LoRA Node 10 (\`Bernini-R_LightX2V_low_noise\`)
-2. **时空采样调度 (Node 11 & Node 12 ModelSamplingSD3)**：
-   - 噪声位移 \`shift: 5\`，保障动态大范围运镜连贯稳定。
-3. **主导演台核心总控 (Node 22 ComfyBerniniDirector)**：
-   - 任务模式：\`rv2v — 参考素材改视频\`
-   - 内部集成 LLM 提示词增强模块 (可选 Ollama / OpenAI / Qwen3.5 接口)
-   - 默认规格：832×480 (长边 848)，总帧数 81 (24fps 3.375s) / 243 (10s) / 362 (15s)
-   - \`timeline_data\` 时间轴：全局注入 \`global.refs\` + 各分镜独立 \`segments[i].refs\`
-4. **多图参考输入机制与容量规范**：
-   - 动态数组机制，系统标准推荐一次上传 **1 ~ 6 张** 参考图：
-     * \`<Picture 1>\`：主角正面三视图立绘
-     * \`<Picture 2>\`：配角或关键交互道具
-     * \`<Picture 3>\`：母本场景底图
-     * \`<Picture 4~6>\`：分镜构图与动作引导
-5. **源视频连续引导 (Reference Video)**：
-   - 开启 \`continuousReference: true\`，将前段视频注入为动态时空引导，杜绝跨段变脸。
-6. **音画封包与报告输出 (Node 5 & Node 6)**：
-   - Node 5 \`VHS_VideoCombine\` 导出标准 H.264 24fps 封装；
-   - Node 6 \`PreviewAny\` 实时输出显存释放与时序报告。`
+1. **主算子核心总控 (Node 31 MiniMaxH3ReferenceToVideo)**：
+   - 官方核心调度枢纽，全面承接 9 张图片、3 路参考视频、3 路参考音频的多模态输入
+   - 内部直连 CLIP (Node 3 Qwen3-VL 32B AWQ) 与双 VAE (Node 4 视频 VAE + Node 12 音频 VAE)
+2. **底层模型与加速 LoRA (Node 41 & Node 47)**：
+   - UNET 模型：\`minimax_h3_fl2va_int8_convrot.safetensors\` / \`minimax_h3_ref2va_pruned_bf16.safetensors\`
+   - 加速补丁：\`T8-minimax_h3_turbo_4步加速_comfyui.safetensors\` (Node 47) + \`MiniMaxH3MemoryEfficientSageAttentionPatch\` (Node 48)
+3. **9 张图片多维参考矩阵 (LoadImage)**：
+   - Node 18: 图1 (角色/人物，锁定五官骨架与服饰)
+   - Node 23: 图2 (场景/环境，空间关系与氛围基调)
+   - Node 22: 图3 (光影/色调，光照方向与胶片色彩质感)
+   - Node 24: 图4 (物体/产品，3D 资产与道具细节)
+   - Node 32: 图5 (品牌/标识，Logo 图形与品牌色结尾)
+   - Node 33: 图6 (风格/美术，插画/写实/水墨/赛博视觉)
+   - Node 34: 图7 (UI/UX 界面，网页设计与交互原型)
+   - Node 35: 图8 (备用角色/姿势，副主角与分身动作)
+   - Node 76: 图9 (备用环境/细节，宏观背景与微距特写)
+4. **3 路参考视频连续引导 (Node 73, 75, 74 VHS_LoadVideo)**：
+   - Node 73 (视频1): 动作/运动 (肢体舞蹈动作、运动轨迹)
+   - Node 75 (视频2): 运镜/镜头运动 (推拉摇移、希区柯克变焦)
+   - Node 74 (视频3): 节奏/剪辑/角色一致性/首尾帧 (指定起始结束帧，100% 不变脸跨段接力)
+5. **3 路参考音频音色绑定 (Node 38, 67, 68 LoadAudio)**：
+   - Node 38 (参考音1): 人声/音色 (声学指纹干声，精准唇形发声)
+   - Node 67 (参考音2): 歌声/演唱 (歌唱节奏对口型)
+   - Node 68 (参考音3): 音乐风格/环境拟音 (背景音乐、雨声/风声/空间拟音)
+6. **数学公式与无损封包 (Node 29 & Node 17)**：
+   - Node 29: \`ComfyMathExpression\` 执行 \`17n+5\` 严格数学帧长计算；
+   - Node 17: \`VHS_VideoCombine\` 输出标准 24fps MP4 成片。`
   },
   {
     id: 'h3_native_audio_spec_md',

@@ -50,38 +50,38 @@
 
 ---
 
-## 🔗 RunningHub (RH) mvH3 官方导演台云端配置
+## 🔗 RunningHub (RH) mvH3 满血版全模态云端配置
 
 * **平台官网**：[RunningHub (www.runninghub.cn)](https://www.runninghub.cn)
-* **官方工作流地址**：[Bernini Director rv2v 导演台调度模型](https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q)
-* **工作流 ID**：`2079374352503631873`
-* **官方邀请码**：`zedwxo2q`（填写送 1000 RH 渲染币）
+* **官方工作流地址**：[MiniMax H3 满血版 多模态生视频加速](https://www.runninghub.cn/workflow/2105127972431818753)
+* **工作流 ID**：`2105127972431818753`
 * **核心节点与参数映射表**：
 
 | 模块 | 节点类型 | Node ID | 核心功能与字段配置 |
 | :--- | :--- | :--- | :--- |
-| **Bernini 导演总控** | `ComfyBerniniDirector` | **22** | **核心枢纽**：`rv2v` 任务、多图矩阵 `refs`、分段时空轴 `timeline_data`、LLM 增强 |
-| **双 UNet 模型载入** | `UNETLoader` | **18 / 17** | `Bernini_HIGH_fp8_e4m3fn_scaled` 与 `Bernini_LOW_fp8_e4m3fn_scaled` |
-| **高低噪 LoRA 加速** | `LoraLoaderModelOnly` | **9 / 10** | `Bernini-R_LightX2V_high_noise` 与 `low_noise` 模型专属加速 |
-| **时空位移采样** | `ModelSamplingSD3` | **11 / 12** | `shift: 5`，大幅强化复杂运动镜头稳定性 |
-| **多图主体参考矩阵** | `timeline_data.refs` | **22** | **支持动态多图（推荐 1~6 张）**：涵盖主角正面三视图、配角、道具与场景底图 |
-| **视频连续引导** | `referenceVideo` | **22** | `continuousReference: true`：载入上段视频动态引导，实现 100% 不变脸接力 |
-| **音画封包与导出** | `VHS_VideoCombine` | **5** | 输出标准 24fps MP4 视频成片 |
-| **运行报告输出** | `PreviewAny` | **6** | 输出实时显存占用与分段时序报告 |
+| **H3 视频参考核心** | `MiniMaxH3ReferenceToVideo` | **31** | **核心出片枢纽**：承接 9 张图片、3 路参考视频与 3 路参考音频的多模态输入 |
+| **提示词输入** | `PrimitiveStringMultiline` | **25** | `value`: 注入角色动作、光影场景描述与六段式提示词 |
+| **时长控制器** | `PrimitiveFloat` | **28** | `value`: 时长秒数，直连 Node 29 自动计算 17n+5 网格对齐帧数 |
+| **画幅选择器** | `ResolutionSelector` | **26** | `aspect_ratio`: 16:9 (Widescreen) / 9:16 (Portrait) / 1:1 (Square) |
+| **噪波种子** | `RandomNoise` | **5** | `noise_seed`: 随机噪声采样与重抽卡种子 |
+| **9 张图片多维参考** | `LoadImage` | **18, 23, 22, 24, 32, 33, 34, 35, 76** | 图1人物、图2场景、图3光影、图4产品、图5品牌、图6美术、图7UI、图8备用姿势、图9微距细节 |
+| **3 路视频连续参考** | `VHS_LoadVideo` | **73, 75, 74** | 视频1动作轨迹、视频2运镜轨迹、视频3节奏卡点与首尾帧控制 |
+| **3 路音频音色参考** | `LoadAudio` | **38, 67, 68** | 参考音1人声音色、参考音2歌声演唱、参考音3背景音乐与环境拟音 |
+| **音画封包与导出** | `VHS_VideoCombine` | **17** | 输出标准 24fps MP4 视频成片 |
 
 ---
 
 ## 🚀 命令行 CLI 派发与视频参考接力
 
 ```bash
-# 1. 生成第 1 段 (P01) - 使用多图参考：
+# 1. 生成第 1 段 (P01) - 启用多模态参考矩阵：
 python3 rh3_h3.py --shot P01 --duration 10.0 \
   --ref-image-0 "workspace/tiedan_character.png" \
-  --ref-image-1 "workspace/cow.png" \
-  --prompt "铁蛋在菜地拔菜，语调欢快..." \
+  --ref-image-1 "workspace/scene_village.png" \
+  --prompt "铁蛋在菜地拔菜，语调欢快，动作充满弹性节奏感..." \
   --api-key "你的RunningHub_Key"
 
-# 2. 生成第 2 段 (P02) - 直接将 P01 成片作为连续视频参考 (Node 22 referenceVideo) 连贯接力：
+# 2. 生成第 2 段 (P02) - 直接将 P01 成片作为连续视频参考 (Node 75) 连贯接力：
 python3 rh3_h3.py --shot P02 --duration 10.0 \
   --ref-video "workspace/tiedan_p01.mp4" \
   --prompt "承接上一段，铁蛋在木桥上被大黄奔跑追赶..." \
