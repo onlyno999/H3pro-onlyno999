@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-RunningHub OpenAPI v2 & MiniMax H3 官流终极版官方调度器 (rh_h3.py)
-工作流地址: https://www.runninghub.cn/post/2104734128657756162/?inviteCode=rh-v1221
-工作流 ID: 2104734128657756162 (H3 官流终极版)
+RunningHub OpenAPI v2 & MiniMax H3 导演台满血版官方调度器 (rh3_h3.py)
+工作流地址: https://www.runninghub.cn/post/2099679213619073025
+工作流 ID: 2099679213619073025 (MiniMax H3 导演台满血版｜Ref2va全能视频生成)
 
-支持全模态与自动抽帧链式接力体系：
-1. 10 秒/15 秒分段自动化生成与轮询
-2. 🎬 自动尾帧/人物关键帧抽卡接力 (Auto Keyframe & Character Extraction):
-   - 第 1 段 10 秒成片渲染完成后，自动从视频中抽取高清晰度末尾关键帧/人物特征图，自动作为第 2 段的 ref_image_0 (<Picture 1>)
-3. 🎨 缺失角色/物体文生图补全 (Qwen T2I Fallback):
-   - 若第 2 段引入了第 1 段中不存在的新角色/物体，自动调用文生图生成卡片作为 ref_image_1 (<Picture 2>)
-4. 多图主体参考矩阵 (Node 137, 139, 167, 173, 172, 171)
-5. 视频参考通道 (Node 175 VHS_LoadVideo)
+核心特性与全自动化链式接力：
+1. 10 秒 (243帧) / 15 秒 (362帧) 严格锁定标准节拍 (17n+5公式)
+2. 🎬 导演台 Node 12 MiniMaxH3Director + Node 75 Ref2VA 算子 + Node 109 二采惰性超分开关
+3. 锁颜与长视频生产铁律：
+   - 剧本提示词 ➔ ① 做角色定妆卡 ➔ ② 做多宫格场景图 ➔ ③ 做核心道具图
+   - 自动装载入 timeline_data，后续分镜段落 (P01, P02...) 自动继承调用
+4. 15 秒尾帧垫图 (第362帧) 与 FFmpeg 零重影终剪 (select='gt(n\,0)')
 """
 
 import os
@@ -28,7 +27,7 @@ import ssl
 from typing import Dict, Any, Optional, List
 
 RUNNINGHUB_BASE_URL = "https://www.runninghub.cn"
-OFFICIAL_ULTIMATE_WORKFLOW_ID = "2105127972431818753"
+OFFICIAL_ULTIMATE_WORKFLOW_ID = "2099679213619073025"
 DEFAULT_INVITE_CODE = "rh-v1221"
 
 class RunningHubH3UltimateDispatcher:
@@ -214,12 +213,39 @@ class RunningHubH3UltimateDispatcher:
                 "msg": f"沙盒验证通过！已生成【多角度多细节人物定妆矩阵】(全身定妆卡+上半身特写+下半身腿套特写)。"
             }
 
-        # 构建满血版 2105127972431818753 专属 nodeInfoList
+        # 构建 MiniMax H3 导演台满血版 2099679213619073025 专属 nodeInfoList
+        total_frames = 362 if duration >= 14 else 243
+        timeline_obj = {
+            "version": 4,
+            "editMode": "global",
+            "totalFrames": total_frames,
+            "frameRate": 24,
+            "output": {
+                "aspectRatio": "16:9 (宽屏)" if "16:9" in aspect_ratio else "9:16 (竖屏)",
+                "width": 1280 if "16:9" in aspect_ratio else 736,
+                "height": 736 if "16:9" in aspect_ratio else 1280
+            },
+            "global": {
+                "taskType": "r2v — 参考生视频(Ref to Video)",
+                "prompt": prompt,
+                "refs": [
+                    {"index": 0, "imageFile": ref_image_0 or "", "label": "① 角色1:1定妆卡"},
+                    {"index": 1, "imageFile": ref_image_1 or "", "label": "② 多宫格场景图"},
+                    {"index": 2, "imageFile": ref_image_2 or "", "label": "③ 关键道具图"}
+                ]
+            }
+        }
         node_info_list = [
-            {"nodeId": "25", "fieldName": "value", "fieldValue": prompt},
-            {"nodeId": "28", "fieldName": "value", "fieldValue": duration},
-            {"nodeId": "26", "fieldName": "aspect_ratio", "fieldValue": aspect_ratio if "Widescreen" in aspect_ratio else "16:9 (Widescreen)"},
-            {"nodeId": "5", "fieldName": "noise_seed", "fieldValue": seed}
+            {"nodeId": "12", "fieldName": "task_type", "fieldValue": "r2v — 参考生视频(Ref to Video)"},
+            {"nodeId": "12", "fieldName": "global_prompt", "fieldValue": prompt},
+            {"nodeId": "12", "fieldName": "timeline_data", "fieldValue": json.dumps(timeline_obj, ensure_ascii=False)},
+            {"nodeId": "12", "fieldName": "total_frames", "fieldValue": total_frames},
+            {"nodeId": "12", "fieldName": "frame_rate", "fieldValue": 24},
+            {"nodeId": "12", "fieldName": "seed", "fieldValue": seed},
+            {"nodeId": "75", "fieldName": "prompt", "fieldValue": prompt},
+            {"nodeId": "75", "fieldName": "length", "fieldValue": total_frames},
+            {"nodeId": "109", "fieldName": "boolean", "fieldValue": True},
+            {"nodeId": "100", "fieldName": "Input", "fieldValue": 2}
         ]
 
         if ref_image_0:
@@ -240,7 +266,7 @@ class RunningHubH3UltimateDispatcher:
             node_info_list.append({"nodeId": "75", "fieldName": "video", "fieldValue": ref_video_prev})
 
         if ref_audio:
-            node_info_list.append({"nodeId": "38", "fieldName": "audio", "fieldValue": ref_audio})
+            node_info_list.append({"nodeId": "4", "fieldName": "audio", "fieldValue": ref_audio})
 
         payload = {
             "apiKey": self.api_key,

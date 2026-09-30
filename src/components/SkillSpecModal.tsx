@@ -12,20 +12,21 @@ const SPEC_FILES = [
     name: 'README.md (系统详细使用与架构总览)',
     type: 'markdown',
     path: '/README.md',
-    content: `# mvH3-onlyno999：MiniMax H3 全自动化视频生成平台与导演工作台中台
+    content: `# H3Director-Pro：MiniMax H3 导演台满血版全自动化视频生成平台与长视频调度中台
 
 > **工业级 AI 视频生成 SOP 与云端调度系统**  
-> 统合 **【音乐 MV】**、**【竖版短剧 (Short Drama)】** 与 **【商业广告 (Commercials)】** 三大影视题材生产。  
-> 独创**「两段式规划法」**：文学剧本构思 ➔ 自动转译为 **MiniMax H3 官方 Ref2VA 规范**。  
-> **全面接入 RunningHub 官流终极版**（集成 Bernini Director rv2v 架构），搭载**影视级大白话安全脱敏**、**跨段多图矩阵参考接力（100% 杜绝变脸变装）**、**15s 尾帧垫图与 FFmpeg 零冻结缝合**，直通云端一键出片！
+> 统合 **【竖版短剧 (Short Drama)】**、**【影视长片 (Cinematic)】** 与 **【商业广告 (Commercials)】** 三大影视题材生产。  
+> 独创长视频生产核心 SOP：**拿到剧本出提示词后 ➔ ① 定妆卡 ➔ ② 多宫格场景图 ➔ ③ 道具物品图 ➔ 后续各段全自动调用**。  
+> **全面接入 RunningHub 导演台满血版**（集成 MiniMax H3 Ref2va 架构），搭载**影视级大白话安全脱敏**、**跨段多图矩阵参考接力（100% 杜绝变脸变装）**、**15s 尾帧垫图与 FFmpeg 零冻结缝合**，直通云端一键出片！
 
 ---
 
 ## 🔗 云端调度与工作流核心地址
 - **平台官网**：[RunningHub 开放平台 (www.runninghub.cn)](https://www.runninghub.cn)
-- **最新云端调度模型地址**：[https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q](https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q)
-- **官方邀请码**：\`zedwxo2q\`（绑定即赠 1000 RH 渲染币）
-- **核心总控节点**：Node 22 (\`ComfyBerniniDirector\`)，双 UNet 高低噪采样与多分段连续时空控制。
+- **最新云端调度模型地址**：[https://www.runninghub.cn/post/2099679213619073025](https://www.runninghub.cn/post/2099679213619073025)
+- **主控工作流 ID**：\`2099679213619073025\` (MiniMax H3 导演台满血版｜Ref2va全能视频生成)
+- **官方邀请码**：\`rh-v1221\`
+- **核心总控节点**：Node 12 (\`MiniMaxH3Director\`) 时序总控 + Node 75 (\`MiniMaxH3ReferenceToVideo\`) + Node 109 (\`LazySwitch1way\` 二采惰性开关)
 
 ---
 
@@ -98,7 +99,7 @@ const SPEC_FILES = [
 - **定位**：可灵活更换的算力与执行管道（Pluggable Execution Provider）。
 - **特性**：**前两步焊死不变，第三步按需随时替换不同云端服务**。
 - **支持接入与替换的云端接口**：
-  * **接口 A（当前默认首选）**：RunningHub 官方 MiniMax H3 满血版 多模态生视频加速 (地址：\`https://www.runninghub.cn/workflow/2105127972431818753\`，Node ID: 31 \`MiniMaxH3ReferenceToVideo\`)
+  * **接口 A（当前默认首选）**：RunningHub 官方 MiniMax H3 导演台满血版工作流｜Ref2va全能视频生成 (地址：\`https://www.runninghub.cn/post/2099679213619073025\`，ID: \`2099679213619073025\`，Node 12 \`MiniMaxH3Director\` + Node 75 \`MiniMaxH3ReferenceToVideo\`)
   * 接口 B：Qwen-Image / FLUX / SD 云端文生图与图像编辑接口 (生成 1:1 人物定妆卡与母本场景卡)
   * 接口 C：平台内置 ImageGen 图生图与 15s 尾帧垫图接力接口
   * 接口 D：第三方 Webhook / 自建 GPU ComfyUI 实例接口
@@ -155,29 +156,30 @@ const SPEC_FILES = [
   },
   {
     id: 'skill_md',
-    name: 'SKILL.md (mvH3 终极版)',
+    name: 'SKILL.md (H3 Director 满血版)',
     type: 'markdown',
-    path: '/skills/mv-auto-pipeline/SKILL.md',
+    path: '/skills/h3-director-pipeline/SKILL.md',
     content: `---
-name: mvh3-agent
+name: h3-director-agent
 description: >
-  mvH3-onlyno999 专职视频生成与调度 Agent 规范 (V2.2 终极版)。全链打通【音乐 MV】、【竖版多段短剧 (Short Drama)】与【商业广告 (Commercials)】三大题材生产。
-  全面适配最新 RunningHub Bernini Director rv2v 调度架构 (https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q)，
-  严格落实 MiniMax H3 官方 Ref2VA 六段式提示词规范、多图参考矩阵 (1~6张)、分镜头独立局部参考与连续源视频接力、
+  H3Director-Pro 专职长视频生成与调度 Agent 规范 (V2.4 满血版)。全链打通【竖版短剧 (Short Drama)】、【影视长片 (Cinematic)】与【商业广告 (Commercials)】三大题材生产。
+  全面适配最新 RunningHub MiniMax H3 导演台满血版工作流｜Ref2va全能视频生成 (https://www.runninghub.cn/post/2099679213619073025)，
+  核心生产 SOP：拿到剧本出提示词后 ➔ ① 做定妆卡 ➔ ② 做多宫格场景图 ➔ ③ 做物品道具图 ➔ 后续各段全自动调用继承，
+  严格落实 MiniMax H3 官方 Ref2VA 六段式提示词规范、多图参考矩阵 (1~9张)、分镜头独立局部参考与连续源视频接力、
   无视觉像素级三验 (imgcheck/subprobe/vcheck) 与 15s 尾帧垫图零冻结 FFmpeg 终剪。
 ---
 
-# mvH3 全自动视频生成流水线 SOP (MV · 短剧 · 广告)
+# H3Director 全自动长视频生成流水线 SOP (短剧 · 影视长片 · 商业广告)
 
-> 核心使命：用 MV 的工程级严密流程（时间轴锚定、12步8关、对齐三验、成本台账、硬门禁拦截），
-> 统一扩展与赋能【音乐 MV】、【竖版短剧】与【商业广告】，全面接入 MiniMax H3 官方规范与 Bernini Director 资产中台，
-> 彻底解决「音画漂移」、「对白裁头」、「反向字幕敏感」与「背景人忽有忽无」等痛点，直通 RunningHub 出片。
+> 核心使命：用工程级严密流程（时间轴锚定、12步8关、对齐三验、成本台账、硬门禁拦截），
+> 统一扩展与赋能【竖版短剧】、【影视长片】与【商业广告】，全面接入 MiniMax H3 导演台满血版 (2099679213619073025) 与资产中台，
+> 彻底解决「长视频变脸变装」、「场景光影跳切」、「道具变形」与「音画漂移」等痛点，直通 RunningHub 出片。
 
 ## 六大铁律：
-A. 时间是唯一的时间基准（MV 依歌词、短剧依 15s/362 帧节拍、广告依分镜表，底层 17n+5 帧数公式）
+A. 时间是唯一的时间基准（短剧依 15s/362 帧节拍、广告与影视长片依分镜表，底层 17n+5 帧数公式）
 B. 只有中近景或宽景安全机位发声，发声时必须绑定 (Sx) 与 <d> 标签，人物嘴唇非发声时必须绝对静止
 C. 画面纯净与防反向陷阱：严禁在正负向中写 "no subtitles/no text"（H3 越点名越画字幕！）
-D. 多图矩阵同源锁定：主角三视图、配角道具、场景母图三位一体锁定，推荐配置 1~6 张参考图
+D. 三大前置资产锁死：拿到剧本出词后立即做定妆照、多宫格场景图、物品道具图，后续分镜段落全自动调用继承
 E. 防走廊构图：走道收窄至一张桌宽，圆桌与宾客铺满两侧，严禁单侧排布造成狭长走廊
 F. 零冻结接力与双关制：逐段 15s 截取第 362 帧作为下段首帧垫图，FFmpeg select='gt(n\,0)' 消除卡顿叠影`
   },
@@ -368,12 +370,13 @@ def validate_h3_prompt(text: str) -> dict:
     name: 'H3 满血版全模态工作流规范 (MD)',
     type: 'markdown',
     path: '/skills/mv-auto-pipeline/references/runninghub_workflow_spec.md',
-    content: `# MiniMax H3 满血版 · 多模态生视频加速工作流规范 (RunningHub 2105127972431818753)
+    content: `# MiniMax H3 导演台满血版工作流规范 (RunningHub 2099679213619073025)
 
 ## 核心拓扑架构与节点映射：
-1. **主算子核心总控 (Node 31 MiniMaxH3ReferenceToVideo)**：
-   - 官方核心调度枢纽，全面承接 9 张图片、3 路参考视频、3 路参考音频的多模态输入
-   - 内部直连 CLIP (Node 3 Qwen3-VL 32B AWQ) 与双 VAE (Node 4 视频 VAE + Node 12 音频 VAE)
+1. **主算子核心总控 (Node 12 MiniMaxH3Director & Node 75 Ref2VA)**：
+   - 官方核心调度枢纽，全面承接时序分段、17n+5 帧数公式、多图矩阵与视频参考
+   - 内部直连 CLIP (Node 2 Qwen3-VL 32B AWQ) 与双 VAE (Node 3 视频 VAE + Node 4 音频 VAE)
+   - 二采惰性开关 (Node 109 LazySwitch1way)，无缝实现 2MP 超清增强输出
 2. **底层模型与加速 LoRA (Node 41 & Node 47)**：
    - UNET 模型：\`minimax_h3_fl2va_int8_convrot.safetensors\` / \`minimax_h3_ref2va_pruned_bf16.safetensors\`
    - 加速补丁：\`T8-minimax_h3_turbo_4步加速_comfyui.safetensors\` (Node 47) + \`MiniMaxH3MemoryEfficientSageAttentionPatch\` (Node 48)

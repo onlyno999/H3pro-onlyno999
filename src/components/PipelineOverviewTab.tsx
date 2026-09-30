@@ -17,18 +17,18 @@ export const PipelineOverviewTab: React.FC<PipelineOverviewTabProps> = ({ onJump
         <div className="relative z-10 max-w-4xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>SOP 标准作业程序 · MV 严密工程流程 × H3 官方规范 × 竖版短剧/广告</span>
+            <span>长视频 SOP 标准作业程序 · 剧本出提示词 ➔ 定妆/多宫格场景/道具 ➔ 全段自动调用</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            全自动视频生成平台与实战工作台 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-purple-300">H3-AUTO-PIPELINE V2.0</span>
+            长视频与短剧全自动生成流水线 <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-purple-300">H3-DIRECTOR-PRO V2.3</span>
           </h1>
 
           <p className="text-sm text-slate-300 leading-relaxed">
-            AI 做视频最容易翻车的从来不是画面不够炫，而是<strong className="text-amber-300">「嘴和音对不上」</strong>、<strong className="text-amber-300">「近景对白裁头」</strong>、
-            <strong className="text-amber-300">「反向文字词越写越烧字幕」</strong>与<strong className="text-amber-300">「背景人忽有忽无」</strong>。
-            本流水线把音乐 MV 的<strong>十二步全链与八道门禁</strong>迁移扩展至<strong>竖版短剧</strong>与<strong>商业广告</strong>，
-            统一采用 <strong>MiniMax-H3 官方 Ref2VA 规范</strong>与<strong>三卡同源合成中台</strong>，直通 <strong>RunningHub 云端出片</strong>。
+            AI 做长视频最容易翻车的从来不是画面不够炫，而是<strong className="text-amber-300">「跨镜头变脸」</strong>、<strong className="text-amber-300">「场景光影漂移」</strong>、
+            <strong className="text-amber-300">「关键道具变形」</strong>与<strong className="text-amber-300">「跨段尾帧跳切」</strong>。
+            本流水线严格执行长视频工业级规范：<strong>拿到剧本出提示词后，第一件事锁死定妆卡、多宫格场景图与道具物品图，后续所有分段全自动调用继承</strong>，
+            统一采用 <strong>MiniMax H3 导演台满血版 (Ref2va 全能视频生成)</strong> 与 <strong>RunningHub 云端出片 (2099679213619073025)</strong>。
           </p>
 
           <div className="flex flex-wrap gap-3 pt-2">

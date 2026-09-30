@@ -219,10 +219,10 @@ export const CharacterFusionStudioTab: React.FC = () => {
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                 IMAGEGEN 1:1 UNIVERSAL FUSION
               </span>
-              <span className="text-xs text-slate-400">参考 MV-onlyno999 · 商业广告与短剧通用</span>
+              <span className="text-xs text-slate-400">长视频 / 商业广告与短剧通用定妆与场景融合</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-100 mt-2">
-              商业广告片 · 短剧 · 任意场景 1:1 图生图无损融入工作台
+              长视频剧情片 · 商业广告 · 短剧 1:1 图生图无损融入工作台
             </h2>
             <p className="text-xs text-slate-300 mt-1 max-w-3xl leading-relaxed">
               解决“首尾帧变脸、胸前文字不见”的终极机制：不再凭文本盲目撒噪重绘，而是使用平台内置 ImageGen 
@@ -283,17 +283,17 @@ export const CharacterFusionStudioTab: React.FC = () => {
 
           <button
             onClick={() => {
-              setActiveGenre('mv');
+              setActiveGenre('cinematic');
               setSelectedScene(COMPREHENSIVE_SCENE_PRESETS[6]); // cyberpunk street
             }}
             className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
-              activeGenre === 'mv'
+              activeGenre === 'cinematic'
                 ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <Music className="w-4 h-4 text-cyan-300" />
-            <span>音乐 MV 与舞台 (Music Video)</span>
+            <Film className="w-4 h-4 text-cyan-300" />
+            <span>影视长片与剧情舞台 (Cinematic)</span>
           </button>
         </div>
 

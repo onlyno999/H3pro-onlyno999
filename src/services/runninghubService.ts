@@ -2,209 +2,230 @@
  * RunningHub Integration Service (OpenAPI v2 & ComfyUI Workflow Client)
  * Target Platform: https://www.runninghub.cn
  *
- * Workflows Supported:
- * 1. 🌟 MiniMax H3 Director · 导演台全工作流 (ComfyUI_MiniMaxH3_Director) - Flagship Full Pipeline
- *    - Node 12: MiniMaxH3Director (Master Timeline & Multi-segment Engine)
- *    - Node 26: MiniMaxH3DirectorSelfLift (SelfLift Progressive 3D Sampling)
- *    - Node 18: MiniMaxH3DirectorRefine (2nd Pass Upscale & Refine)
- *    - Node 27: MiniMaxH3DirectorFaceRefine (YOLOv8 Face Detection & Refine)
- *    - Node 25: LoraLoaderModelOnly (Turbo 8-step LoRA)
- *    - Node 17 & 16: PathchSageAttentionKJ & MiniMaxH3MemoryEfficientSageAttentionPatch
- *    - Node 1: UNETLoader (Ref2VA / FL2VA)
- *    - Node 2, 3, 4: Qwen3-VL CLIP, Video VAE, Audio VAE
- *    - Node 6, 7, 8: CreateVideo, SaveVideo, PreviewAny (Director Report)
+ * Primary Cloud Interface:
+ * 🌟 MiniMax H3 导演台满血版工作流｜Ref2va全能视频生成
+ *    - Cloud Interface URL: https://www.runninghub.cn/post/2099679213619073025
+ *    - Target Workflow ID: 2099679213619073025
+ *    - Node 12: MiniMaxH3Director (Master Timeline, 17n+5 Frames, Multi-segment Engine, Refs)
+ *    - Node 75: MiniMaxH3ReferenceToVideo (Ref2VA Core Operator)
+ *    - Node 109: LazySwitch1way (二次采样惰性开关｜FALSE原片｜TRUE二采增强)
+ *    - Node 98: UNETLoader (MiniMax-H3-FL2VA-int8-convrot.safetensors)
+ *    - Node 99: UNETLoader (minimax_h3_ref2va_pruned_int8_convrot.safetensors)
+ *    - Node 100: CR Model Input Switch (1: FL2VA ｜ 2: Ref2VA)
+ *    - Node 16: LoraLoaderModelOnly (minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors)
+ *    - Node 58: ResolutionSelector (二采分辨率选择器)
+ *    - Node 103/104: ComfyMathExpression (二采 2MP 32倍数自适应计算)
+ *    - Node 72/150: VHS_VideoCombine (原片与二采超分输出)
+ *    - Node 8: PreviewAny (Director 运行报告)
  *
- * 2. 🎵 AI音乐MV数字人（ngualarith+Minimax H3 Selflift）新二采
- *    - Target Workflow ID: 2100506281638457345
+ * 2. 🌟 H3 9图多模态纯净版工作流
+ *    - Target Workflow ID: 2105127972431818753
  */
 
 import RAW_WORKFLOW_JSON from '../data/runninghubWorkflowConfig.json';
 import DIRECTOR_WORKFLOW_JSON from '../data/h3DirectorWorkflowConfig.json';
 import OFFICIAL_ULTIMATE_WORKFLOW_JSON from '../data/h3OfficialUltimateWorkflow.json';
 
-export const OFFICIAL_ULTIMATE_WORKFLOW_ID = '2105127972431818753';
-export const LEGACY_MV_WORKFLOW_ID = '2100506281638457345';
+export const DIRECTOR_ULTIMATE_WORKFLOW_ID = '2099679213619073025';
+export const OFFICIAL_ULTIMATE_WORKFLOW_ID = '2099679213619073025';
 
 export const RUNNINGHUB_CONFIG = {
-  workflowId: OFFICIAL_ULTIMATE_WORKFLOW_ID, // 2105127972431818753 MiniMax H3 满血版 多模态生视频加速
-  legacyMvWorkflowId: LEGACY_MV_WORKFLOW_ID,
+  workflowId: DIRECTOR_ULTIMATE_WORKFLOW_ID, // 2099679213619073025 MiniMax H3 导演台满血版工作流｜Ref2va全能视频生成
+  directorWorkflowId: DIRECTOR_ULTIMATE_WORKFLOW_ID,
   inviteCode: 'rh-v1221',
   postUrl: 'https://www.runninghub.cn',
-  postUrlFull: 'https://www.runninghub.cn/workflow/2105127972431818753',
-  workflowName: 'MiniMax H3 满血版 多模态生视频加速 (9图+3视频+3音频参考矩阵)',
-  workflowVersionId: 'official-ultimate-v2.3',
+  postUrlFull: 'https://www.runninghub.cn/post/2099679213619073025',
+  workflowName: 'MiniMax H3 导演台满血版工作流｜Ref2va全能视频生成',
+  workflowVersionId: 'h3-director-ref2va-full-v2.4',
   directorRepoUrl: 'https://github.com/onlyoyrao999/mvH3-onlyno999',
-  author: 'MiniMax 官方 / RunningHub 终极版',
+  author: 'MiniMax 官方 / RunningHub 导演台满血版',
   apiVersion: 'OpenAPI v2',
-  nodesCount: 28,
+  nodesCount: 42,
   models: [
-    'minimax_h3_fl2va_int8_convrot.safetensors',
-    'minimax_h3_ref2va_pruned_bf16.safetensors',
+    'minimax_h3_ref2va_pruned_int8_convrot.safetensors',
+    'MiniMax-H3-FL2VA-int8-convrot.safetensors',
+    'minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors',
     'qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors',
     'minimax_h3_video_vae_fp16.safetensors',
-    'minimax_h3_audio_vae_fp32.safetensors',
-    'T8-minimax_h3_turbo_4步加速_comfyui.safetensors'
+    'minimax_h3_audio_vae_fp32.safetensors'
   ],
   nodeMappings: {
-    coreOperator: {
-      nodeId: '31',
+    // 导演台核心节点
+    directorCore: {
+      nodeId: '12',
+      fieldName: 'MiniMaxH3Director',
+      nodeType: 'MiniMaxH3Director',
+      title: 'H3 导演台调度总控 (Node 12)',
+      desc: '时序分段、任务模式 (r2v/fl2v/t2v)、17n+5 帧数与 timeline_data 核心调度引擎'
+    },
+    refToVideoCore: {
+      nodeId: '75',
       fieldName: 'reference_to_video',
       nodeType: 'MiniMaxH3ReferenceToVideo',
-      title: 'H3 视频参考总控枢纽 (Node 31)',
-      desc: '满血版核心调度算子，支持 9 张图片、3 路参考视频、3 路参考音频的多模态输入矩阵'
+      title: 'Ref2VA 参考生视频核心算子 (Node 75)',
+      desc: '满血版核心调度算子，支持多模态多图参考、视频参考、CLIP 与双 VAE 潜在对齐'
+    },
+    lazySwitch2Pass: {
+      nodeId: '109',
+      fieldName: 'boolean',
+      nodeType: 'LazySwitch1way',
+      title: '二次采样惰性开关 (Node 109)',
+      desc: 'FALSE: 原片极速直出 ｜ TRUE: 二采 2MP 超分高清细节增强'
+    },
+    modelSwitch: {
+      nodeId: '100',
+      fieldName: 'Input',
+      nodeType: 'CR Model Input Switch',
+      title: 'Ref2VA / FL2VA 模型切换开关 (Node 100)',
+      desc: '1: MiniMax-H3-FL2VA-int8 ｜ 2: minimax_h3_ref2va_pruned_int8'
+    },
+    unetRef2va: {
+      nodeId: '99',
+      fieldName: 'unet_name',
+      nodeType: 'UNETLoader',
+      title: 'Ref2VA 基座模型 (Node 99)',
+      desc: 'minimax_h3_ref2va_pruned_int8_convrot.safetensors'
+    },
+    unetFl2va: {
+      nodeId: '98',
+      fieldName: 'unet_name',
+      nodeType: 'UNETLoader',
+      title: 'FL2VA 基座模型 (Node 98)',
+      desc: 'MiniMax-H3-FL2VA-int8-convrot.safetensors'
+    },
+    loraTurbo: {
+      nodeId: '16',
+      fieldName: 'lora_name',
+      nodeType: 'LoraLoaderModelOnly',
+      title: 'Turbo 8-Step LoRA 加速 (Node 16)',
+      desc: 'minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors'
+    },
+    resSelector2Pass: {
+      nodeId: '58',
+      fieldName: 'aspect_ratio',
+      nodeType: 'ResolutionSelector',
+      title: '二采分辨率选择器 (Node 58)',
+      desc: '9:16 (Portrait) / 16:9 (Landscape) / 1:1 (Square)'
+    },
+    mathWidth2Pass: {
+      nodeId: '103',
+      fieldName: 'expression',
+      nodeType: 'ComfyMathExpression',
+      title: '二采宽度：2MP·32倍数 (Node 103)',
+      desc: 'max(32, round(sqrt(c * d * a / max(1, b)) / 32) * 32)'
+    },
+    mathHeight2Pass: {
+      nodeId: '104',
+      fieldName: 'expression',
+      nodeType: 'ComfyMathExpression',
+      title: '二采高度：2MP·32倍数 (Node 104)',
+      desc: 'max(32, round(sqrt(c * d * b / max(1, a)) / 32) * 32)'
+    },
+    clipLoader: {
+      nodeId: '2',
+      fieldName: 'clip_name',
+      nodeType: 'CLIPLoader',
+      title: 'Qwen3-VL 文本理解分词 (Node 2)',
+      desc: 'qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors'
+    },
+    videoVae: {
+      nodeId: '3',
+      fieldName: 'vae_name',
+      nodeType: 'VAELoader',
+      title: '视频 VAE 编解码器 (Node 3)',
+      desc: 'minimax_h3_video_vae_fp16.safetensors'
+    },
+    audioVae: {
+      nodeId: '4',
+      fieldName: 'vae_name',
+      nodeType: 'VAELoader',
+      title: '音频 VAE 编解码器 (Node 4)',
+      desc: 'minimax_h3_audio_vae_fp32.safetensors'
+    },
+    outputVideo1: {
+      nodeId: '72',
+      fieldName: 'filename_prefix',
+      nodeType: 'VHS_VideoCombine',
+      title: 'H3 Ref2VA 原片视频输出 (Node 72)',
+      desc: '首轮快速合成输出'
+    },
+    outputVideo2: {
+      nodeId: '150',
+      fieldName: 'filename_prefix',
+      nodeType: 'VHS_VideoCombine',
+      title: 'H3 Ref2VA 二采超分视频输出 (Node 150)',
+      desc: '高清 2MP 终极成片输出'
+    },
+    directorReport: {
+      nodeId: '8',
+      fieldName: 'images',
+      nodeType: 'PreviewAny',
+      title: 'Director 运行报告预览 (Node 8)',
+      desc: '分段调度与时序对齐实时报告'
+    },
+    saveVideoNode: {
+      nodeId: '107',
+      fieldName: 'filename_prefix',
+      nodeType: 'SaveVideo',
+      title: '视频存储封包 (Node 107)',
+      desc: 'video/MiniMaxH3_Director'
+    },
+    coreOperator: {
+      nodeId: '75',
+      fieldName: 'reference_to_video',
+      nodeType: 'MiniMaxH3ReferenceToVideo',
+      title: 'H3 视频参考总控枢纽 (Node 75)',
+      desc: '满血版核心调度算子'
     },
     prompt: {
-      nodeId: '25',
-      fieldName: 'value',
-      nodeType: 'PrimitiveStringMultiline',
-      title: '官方提示词 (Node 25)',
+      nodeId: '12',
+      fieldName: 'global_prompt',
+      nodeType: 'MiniMaxH3Director',
+      title: '官方提示词 (Node 12)',
       desc: '支持角色替换、动作引导、光影场景描述与影视级细节'
     },
     duration: {
-      nodeId: '28',
-      fieldName: 'value',
-      nodeType: 'PrimitiveFloat',
-      title: '时间/时长秒数控制 (Node 28)',
-      desc: '输入时长秒数，经由 Node 29 自动换算为 17n+5 网格对齐帧数'
+      nodeId: '12',
+      fieldName: 'total_frames',
+      nodeType: 'MiniMaxH3Director',
+      title: '帧数控制 (Node 12)',
+      desc: '17n+5 网格对齐帧数 (10s=243帧, 15s=362帧)'
     },
     aspectRatio: {
-      nodeId: '26',
+      nodeId: '58',
       fieldName: 'aspect_ratio',
       nodeType: 'ResolutionSelector',
-      title: '画幅比例 (Node 26)',
+      title: '画幅比例 (Node 58)',
       desc: '16:9 (Widescreen) / 9:16 (Portrait) / 1:1 (Square)'
     },
     seed: {
-      nodeId: '5',
-      fieldName: 'noise_seed',
-      nodeType: 'RandomNoise',
-      title: '随机噪波种子 (Node 5)',
+      nodeId: '12',
+      fieldName: 'seed',
+      nodeType: 'MiniMaxH3Director',
+      title: '随机采样种子 (Node 12)',
       desc: '随机采样种子锁定或重抽卡'
     },
-    // 9 张图片参考输入
     refImage0: {
       nodeId: '18',
       fieldName: 'image',
       nodeType: 'LoadImage',
-      title: '图1: 角色/人物 (Node 18)',
+      title: '图1: 角色/人物 (定妆卡)',
       desc: '外貌特征、面部细节、服装穿搭、姿势动作'
     },
     refImage1: {
       nodeId: '23',
       fieldName: 'image',
       nodeType: 'LoadImage',
-      title: '图2: 场景/环境 (Node 23)',
-      desc: '整体环境布局、空间关系、氛围基调'
+      title: '图2: 多宫格场景/环境',
+      desc: '多宫格场景母本图、环境布局、空间关系、氛围基调'
     },
     refImage2: {
       nodeId: '22',
       fieldName: 'image',
       nodeType: 'LoadImage',
-      title: '图3: 光影/色调 (Node 22)',
-      desc: '光照方向、色温、胶片质感、视觉风格'
+      title: '图3: 物品/核心道具',
+      desc: '具体道具与物品的形态、材质、颜色、细节'
     },
-    refImage3: {
-      nodeId: '24',
-      fieldName: 'image',
-      nodeType: 'LoadImage',
-      title: '图4: 物体/产品 (Node 24)',
-      desc: '具体物品的形态、材质、颜色、细节'
-    },
-    refImage4: {
-      nodeId: '32',
-      fieldName: 'image',
-      nodeType: 'LoadImage',
-      title: '图5: 品牌/标识 (Node 32)',
-      desc: 'Logo图形、品牌色、结尾画面'
-    },
-    refImage5: {
-      nodeId: '33',
-      fieldName: 'image',
-      nodeType: 'LoadImage',
-      title: '图6: 风格/美术 (Node 33)',
-      desc: '视觉艺术风格 (写实/插画/赛博朋克/水墨等)'
-    },
-    refImage6: {
-      nodeId: '34',
-      fieldName: 'image',
-      nodeType: 'LoadImage',
-      title: '图7: UI/UX界面 (Node 34)',
-      desc: '网页设计图、产品界面、交互原型'
-    },
-    refImage7: {
-      nodeId: '35',
-      fieldName: 'image',
-      nodeType: 'LoadImage',
-      title: '图8: 备用角色/姿势 (Node 35)',
-      desc: '角色第二姿势/分身/特殊服饰'
-    },
-    refImage8: {
-      nodeId: '76',
-      fieldName: 'image',
-      nodeType: 'LoadImage',
-      title: '图9: 备用环境/细节 (Node 76)',
-      desc: '微距特写/空间背景补充'
-    },
-    // 3 路视频参考输入
-    refVideo0: {
-      nodeId: '73',
-      fieldName: 'video',
-      nodeType: 'VHS_LoadVideo',
-      title: '视频1: 动作/运动 (Node 73)',
-      desc: '人物肢体动作、物体运动轨迹、行为模式'
-    },
-    refVideo1: {
-      nodeId: '75',
-      fieldName: 'video',
-      nodeType: 'VHS_LoadVideo',
-      title: '视频2: 运镜/镜头运动 (Node 75)',
-      desc: '推拉摇移、跟随、手持晃动、希区柯克变焦等运镜轨迹'
-    },
-    refVideo2: {
-      nodeId: '74',
-      fieldName: 'video',
-      nodeType: 'VHS_LoadVideo',
-      title: '视频3: 节奏/剪辑/角色一致性/首尾帧 (Node 74)',
-      desc: '快节奏卡点、背景替换、锁定角色外貌与首尾帧控制'
-    },
-    // 3 路音频参考输入
-    refAudio0: {
-      nodeId: '38',
-      fieldName: 'audio',
-      nodeType: 'LoadAudio',
-      title: '参考音1: 人声/音色 (Node 38)',
-      desc: '说话人的音色、语气、情绪、语速 (配音或旁白)'
-    },
-    refAudio1: {
-      nodeId: '67',
-      fieldName: 'audio',
-      nodeType: 'LoadAudio',
-      title: '参考音2: 歌声/演唱 (Node 67)',
-      desc: '歌唱音色、旋律、演唱风格 (音画对口型演唱)'
-    },
-    refAudio2: {
-      nodeId: '68',
-      fieldName: 'audio',
-      nodeType: 'LoadAudio',
-      title: '参考音3: 音乐风格/音效环境 (Node 68)',
-      desc: '摇滚/古典/电子等背景音乐，雨声/风声/空间拟音环境音'
-    },
-    // 基础运算与封包
-    mathFormula: {
-      nodeId: '29',
-      fieldName: 'expression',
-      nodeType: 'ComfyMathExpression',
-      title: '17n+5 数学公式计算器 (Node 29)',
-      desc: 'max(5, round(a*24)) + (5 - (max(5, round(a*24)) % 17)) % 17'
-    },
-    outputVideo: {
-      nodeId: '17',
-      fieldName: 'filename_prefix',
-      nodeType: 'VHS_VideoCombine',
-      title: '音画合成输出 (Node 17)',
-      desc: '导出无损 24fps MP4 成片'
-    },
-    // Compatibility alias
     refVideo: {
       nodeId: '75',
       fieldName: 'video',
@@ -213,18 +234,17 @@ export const RUNNINGHUB_CONFIG = {
       desc: '连贯动作或运镜接力'
     },
     refAudio: {
-      nodeId: '38',
+      nodeId: '4',
       fieldName: 'audio',
-      nodeType: 'LoadAudio',
-      title: '人声音频参考 (Node 38)',
+      nodeType: 'VAELoader',
+      title: '人声音频参考 (Node 4)',
       desc: '角色专属音色干声'
     },
-    // Director alias mapping compatibility
     director: {
       nodeId: '12',
       fieldName: 'global_prompt',
       nodeType: 'MiniMaxH3Director',
-      title: 'H3 Director 备选主控中台 (Node 12)',
+      title: 'H3 Director 调度中台 (Node 12)',
       desc: '导演台多时序分段引擎'
     }
   },
@@ -770,19 +790,11 @@ export async function executeRunningHubDispatch(
   const isDirector = workflowType === 'director';
   const targetWorkflowId = isOfficialUltimate
     ? OFFICIAL_ULTIMATE_WORKFLOW_ID
-    : isDirector
-    ? OFFICIAL_ULTIMATE_WORKFLOW_ID
-    : LEGACY_MV_WORKFLOW_ID;
+    : DIRECTOR_ULTIMATE_WORKFLOW_ID;
 
   addLog(`[RunningHub OpenAPI v2] 正在派发任务 (${shot.id})...`);
-  if (isOfficialUltimate) {
-    addLog(`🌟 目标工作流: MiniMax H3 官流终极版 (Workflow ID: ${targetWorkflowId})`);
-    addLog(`🔗 官方工作流地址: ${RUNNINGHUB_CONFIG.postUrlFull}`);
-  } else if (isDirector) {
-    addLog(`🎬 目标工作流: MiniMax H3 导演台 (Node 12 MiniMaxH3Director)`);
-  } else {
-    addLog(`🎵 目标工作流: 音乐 MV 数字人基础工作流 (Workflow ID: ${targetWorkflowId})`);
-  }
+  addLog(`🎬 目标工作流: MiniMax H3 导演台满血版 (ID: ${targetWorkflowId})`);
+  addLog(`🔗 云端工作流地址: ${RUNNINGHUB_CONFIG.postUrlFull}`);
   addLog(`目标节点平台: ${RUNNINGHUB_CONFIG.postUrl}`);
   addLog(`鉴权模式: Bearer Token ${apiKey ? '•'.repeat(8) : '(沙箱体验模式)'}`);
 
@@ -792,23 +804,14 @@ export async function executeRunningHubDispatch(
   const width = directorSettings?.width || (shot.shotScale.includes('16:9') ? 864 : 480);
   const height = directorSettings?.height || (shot.shotScale.includes('16:9') ? 480 : 864);
 
-  if (isOfficialUltimate) {
-    addLog(`[Node 31 MiniMaxH3ReferenceToVideo] 载入 MiniMax H3 满血版核心调度算子...`);
-    addLog(`  -> 提示词通道 (Node 25): 注入提示词 (${shot.prompt.slice(0, 40)}...)`);
-    addLog(`  -> 时长通道 (Node 28): ${targetDuration.toFixed(1)} 秒 | 帧数换算 (Node 29 17n+5): ${gridFrames} 帧`);
-    addLog(`  -> 画幅通道 (Node 26): ${width > height ? '16:9 (Widescreen)' : '9:16 (Portrait)'}`);
-    addLog(`  -> 9 图参考矩阵: 角色/人物(Node 18), 场景环境(Node 23), 光影色调(Node 22), 品牌/产品(Node 24/32), 风格美术(Node 33), UI/交互(Node 34)`);
-    addLog(`  -> 3 路参考视频: 动作轨迹(Node 73), 运镜轨迹(Node 75), 节奏卡点/首尾帧(Node 74)`);
-    if (shot.isLipSync) {
-      addLog(`  -> 3 路参考音频: 人声音色(Node 38), 歌声演唱(Node 67), 音乐环境(Node 68)`);
-    }
-  } else if (isDirector) {
-    addLog(`[Director Node 12] Master Timeline Controller initializing...`);
-    addLog(`  -> Task Type: ${directorSettings?.taskType || 'r2v — 参考主体生视频(Reference to Video)'}`);
-    addLog(`  -> Dimensions: ${width}x${height} (${width > height ? '16:9' : '9:16'}) | 24fps | 17n+5 Total Frames: ${gridFrames}`);
-    addLog(`  -> SelfLift 渐进采样 (Node 26): ${directorSettings?.enableSelflift ? '✅ ACTIVE' : '⚪ BYPASS'}`);
-    addLog(`  -> 二采高清放大 Refine (Node 18): ${directorSettings?.enableRefine ? '✅ ACTIVE' : '⚪ BYPASS'}`);
-    addLog(`  -> YOLOv8 脸部修复 (Node 27): ${directorSettings?.enableFaceRefine ? '✅ ACTIVE' : '⚪ BYPASS'}`);
+  if (isDirector || isOfficialUltimate) {
+    addLog(`[Node 12 MiniMaxH3Director] 满血版导演台主控初始化 (Workflow: ${targetWorkflowId})...`);
+    addLog(`  -> 任务模式: ${directorSettings?.taskType || 'r2v — 参考生视频(Ref to Video)'}`);
+    addLog(`  -> 画幅尺寸: ${width}x${height} (${width > height ? '16:9 (横屏)' : '9:16 (竖屏)'}) | 24fps | 17n+5 帧数: ${gridFrames} 帧`);
+    addLog(`  -> Node 75 Ref2VA 算子: 载入 Qwen3-VL (Node 2) + Video VAE (Node 3) + Audio VAE (Node 4)`);
+    addLog(`  -> Node 109 二采惰性开关: ${directorSettings?.enableRefine !== false ? '✅ 启用 2MP 高清超分增强' : '⚪ 原片极速直出'}`);
+    addLog(`  -> Node 100 模型切换: 自动切入 Ref2VA (Node 99) 搭配 Turbo 8步 LoRA (Node 16)`);
+    addLog(`  -> 长视频核心资产接力: ① 角色 1:1 定妆卡 + ② 多宫格场景图 + ③ 物品道具图 自动编入 timeline_data`);
   }
 
   onProgressUpdate?.({
@@ -897,25 +900,29 @@ export async function executeRunningHubDispatch(
     apiVersion: 'v2',
     status: 'SUCCESS',
     progress: 100,
-    stageName: isOfficialUltimate
-      ? `MiniMax H3 官流终极版 (${targetWorkflowId}) 出片成功`
+    stageName: isDirector || isOfficialUltimate
+      ? `MiniMax H3 导演台满血版 (${targetWorkflowId}) 出片成功`
       : '导演台全工作流渲染完成 · 通过 Gate 8 对齐三验',
     videoUrl: mockVideoUrl,
-    costPoints: isOfficialUltimate ? 40 : isDirector ? 45 : 35,
-    costUsd: isOfficialUltimate ? 0.40 : isDirector ? 0.45 : 0.35,
+    costPoints: isDirector || isOfficialUltimate ? 40 : 35,
+    costUsd: isDirector || isOfficialUltimate ? 0.40 : 0.35,
     directorReport: {
-      taskType: isOfficialUltimate ? 'MiniMax H3 官流终极版 (Ref2VA 多图+视频双接力)' : directorSettings?.taskType || 'r2v — 参考主体生视频',
+      taskType: isDirector || isOfficialUltimate ? 'MiniMax H3 导演台满血版 (Ref2va全能视频生成)' : directorSettings?.taskType || 'r2v — 参考主体生视频',
       totalFrames: gridFrames,
       fps: 24,
       resolution: `${width}x${height}`,
-      modulesActive: isOfficialUltimate
+      modulesActive: isDirector || isOfficialUltimate
         ? [
-            `MiniMaxH3ReferenceToVideo (Node 136 · 工作流 ${targetWorkflowId})`,
-            '多图定妆矩阵 (Node 137/139/167)',
-            '跨段视频接力 VHS_LoadVideo (Node 175)',
-            '17n+5 数学公式校验器 (Node 131)',
-            '六段式提示词输入 (Node 138)',
-            'VHS_VideoCombine (Node 148)'
+            `MiniMaxH3Director 时序总控 (Node 12 · 工作流 ${targetWorkflowId})`,
+            'MiniMaxH3ReferenceToVideo 参考生视频 (Node 75)',
+            'LazySwitch1way 二次采样惰性开关 (Node 109)',
+            'CR Model Input Switch 模型切换 (Node 100)',
+            'UNETLoader Ref2VA / FL2VA (Node 98/99)',
+            'Turbo 8step LoRA 加速 (Node 16)',
+            'ResolutionSelector 二采画幅选择器 (Node 58)',
+            'Qwen3-VL CLIP + 双 VAE 编解码 (Node 2/3/4)',
+            'VHS_VideoCombine 原片与二采输出 (Node 72/150)',
+            'PreviewAny 导演运行报告 (Node 8)'
           ]
         : [
             'MiniMaxH3Director (Node 12)',
@@ -926,8 +933,8 @@ export async function executeRunningHubDispatch(
             directorSettings?.enableRefine ? '二采精修 Refine (Node 18)' : '',
             directorSettings?.enableFaceRefine ? 'YOLOv8 脸部修复 (Node 27)' : ''
           ].filter(Boolean),
-      faceRefineStats: isOfficialUltimate ? '1:1 ImageGen 角色融合锁定 · 胸标字符 100% 留存' : 'Standard',
-      selfliftStats: isOfficialUltimate ? `RunningHub 官流终极版 ID: ${targetWorkflowId}` : 'Director Sampler'
+      faceRefineStats: '1:1 人物定妆卡 + 多宫格场景母本 + 道具图 100% 自动装载锁定',
+      selfliftStats: `RunningHub 云端工作流: ${targetWorkflowId} (${RUNNINGHUB_CONFIG.postUrlFull})`
     },
     gate8Validation: {
       lagMs,

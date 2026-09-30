@@ -1,4 +1,4 @@
-export type ProductionGenre = 'short_drama' | 'mv' | 'commercial';
+export type ProductionGenre = 'short_drama' | 'commercial' | 'cinematic';
 
 export interface GenreMeta {
   id: ProductionGenre;
@@ -14,7 +14,7 @@ export interface GenreMeta {
 export const PRODUCTION_GENRES: Record<ProductionGenre, GenreMeta> = {
   short_drama: {
     id: 'short_drama',
-    name: '竖屏微短剧',
+    name: '竖屏连续短剧',
     badge: '4段式接力',
     tagline: '15秒362帧标准 · 跨段尾帧垫图',
     defaultDuration: 60.33,
@@ -22,25 +22,25 @@ export const PRODUCTION_GENRES: Record<ProductionGenre, GenreMeta> = {
     keyFeature: '1:1 锁颜定妆 + 15s尾帧无缝拼合',
     description: '4段×15.08秒 (362帧/段) 竖屏连续叙事，严格锁定角色长相与环境光影。'
   },
-  mv: {
-    id: 'mv',
-    name: '音乐 MV',
-    badge: '音频锁+节拍',
-    tagline: '节奏节拍对齐 · 音频音色锁',
-    defaultDuration: 32.0,
-    segmentCount: 2,
-    keyFeature: '纯现场拟音 + Master BGM 外部铺底',
-    description: '精准音画同步，非发声段嘴唇自然闭合，零杂音无缝拼剪。'
-  },
   commercial: {
     id: 'commercial',
-    name: '电影广告片',
+    name: '商业广告/TVC',
     badge: '3D 质感锁',
     tagline: '单段高精渲染 · 3D 产品材质',
     defaultDuration: 15.08,
     segmentCount: 1,
-    keyFeature: '金属与高光反光质感 · 零杂音',
+    keyFeature: '金属与高光反光质感 · 纯净无杂音',
     description: '单段高精渲染，金属微距与环境光泽严密咬合，画质纯净。'
+  },
+  cinematic: {
+    id: 'cinematic',
+    name: '电影剧情短片',
+    badge: '16:9 胶片影调',
+    tagline: '宽屏叙事 · 物理拟音全覆盖',
+    defaultDuration: 30.16,
+    segmentCount: 2,
+    keyFeature: '纯电影级画面 + 镜头级真实物理拟音',
+    description: '16:9 宽屏电影叙事，严格执行无旁白时不乱说话、无背景BGM污染的现场纯拟音。'
   }
 };
 

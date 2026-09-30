@@ -275,7 +275,7 @@ export function validateH3Prompt(promptText: string, options?: { duration?: numb
 import { AspectRatioType, ASPECT_RATIO_CONFIGS } from '../data/h3PipelineData';
 
 export interface ConvertOptions {
-  genre: 'mv' | 'short_drama' | 'commercial';
+  genre: 'cinematic' | 'short_drama' | 'commercial';
   aspectRatio?: AspectRatioType;
   shotScale?: string;
   speakerId?: string;
@@ -288,7 +288,7 @@ export interface ConvertOptions {
 export interface StoryArchetype {
   id: string;
   title: string;
-  genre: 'short_drama' | 'mv' | 'commercial';
+  genre: 'short_drama' | 'cinematic' | 'commercial';
   aspectRatio: AspectRatioType;
   speakerId?: 'S1' | 'S2' | 'S3' | 'NONE';
   seedanceProse: string;
@@ -348,14 +348,14 @@ export const STORY_ARCHETYPES: StoryArchetype[] = [
     whySeedanceFailsInH3: '1. 特写 close-up 导致 50% 概率头顶裁切；2. "no subtitles" 诱发 H3 反向敏感烧出两道乱码假字幕；3. 散文描述缺少 [subject_definitions] 导致换镜头男主变脸；4. 模型自带 BGM 导致每段接缝出现爆音断层。'
   },
   {
-    id: 'mv_cyber_rain',
-    title: '雨夜赛博：霓虹下的未寄之信',
-    genre: 'mv',
+    id: 'cinematic_cyber_rain',
+    title: '影视短片：雨夜赛博与霓虹叙事',
+    genre: 'cinematic',
     aspectRatio: '16:9',
     speakerId: 'S2',
-    seedanceProse: 'A futuristic rainy cyberpunk skybridge illuminated by saturated teal and amber neon lights reflecting on wet asphalt puddles. The melancholic female artist in a shimmering holographic trench coat sings passionately by the highway railing with intense emotional expressions. The camera moves in a smooth circular tracking orbit around her as glowing hovercars speed past in the background. Ultra realistic 8k, masterpiece, singing vocals, intimate close-up framing, no watermark, no text.',
+    seedanceProse: 'A futuristic rainy cyberpunk skybridge illuminated by saturated teal and amber neon lights reflecting on wet asphalt puddles. The melancholic female character in a shimmering holographic trench coat stands pensively by the highway railing with intense emotional expressions. The camera moves in a smooth circular tracking orbit around her as glowing hovercars speed past in the background. Ultra realistic 8k, masterpiece, cinematic dialogue, intimate close-up framing, no watermark, no text.',
     dialogue: '雨水冲刷掉所有的诺言，唯独留下你转身的背影。',
-    whySeedanceFailsInH3: '1. 缺少歌词时间戳对齐与 45% 发声率控制，全程张嘴会导致口型油腻崩解；2. 16:9 横屏未做黄金三分法防裁边声明；3. 特写镜头在第 3 秒向斜上方漂移导致下巴出画；4. "no watermark" 触发字符生成。'
+    whySeedanceFailsInH3: '1. 缺少对白时间戳对齐与 45% 发声率控制，全程张嘴会导致口型油腻崩解；2. 16:9 横屏未做黄金三分法防裁边声明；3. 特写镜头在第 3 秒向斜上方漂移导致下巴出画；4. "no watermark" 触发字符生成。'
   },
   {
     id: 'commercial_watch',

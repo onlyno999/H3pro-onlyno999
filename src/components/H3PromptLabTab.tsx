@@ -25,13 +25,14 @@ import { planDurationPartition, extractDurationFromPrompt } from '../utils/durat
 
 interface H3PromptLabTabProps {
   onJumpToDispatch?: () => void;
+  onJumpToAssetStudio?: () => void;
 }
 
-export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch }) => {
+export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch, onJumpToAssetStudio }) => {
   // Step & Mode State
-  const [activeStep, setActiveStep] = useState<'step1_seedance' | 'step2_h3_ref2va' | 'step3_mv_negative'>('step1_seedance');
+  const [activeStep, setActiveStep] = useState<'step1_seedance' | 'step2_h3_ref2va' | 'step3_negative_shield'>('step1_seedance');
   const [aspectRatio, setAspectRatio] = useState<AspectRatioType>('9:16');
-  const [targetGenre, setTargetGenre] = useState<'short_drama' | 'commercial' | 'mv'>('short_drama');
+  const [targetGenre, setTargetGenre] = useState<'short_drama' | 'commercial' | 'cinematic'>('short_drama');
   const [selectedArchetype, setSelectedArchetype] = useState<StoryArchetype>(STORY_ARCHETYPES[0]);
   const [selectedSpeakerId, setSelectedSpeakerId] = useState<'S1' | 'S2' | 'S3' | 'NONE'>('NONE');
 
@@ -404,15 +405,15 @@ export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch
         </button>
 
         <button
-          onClick={() => setActiveStep('step3_mv_negative')}
+          onClick={() => setActiveStep('step3_negative_shield')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-            activeStep === 'step3_mv_negative'
+            activeStep === 'step3_negative_shield'
               ? 'bg-red-500/20 text-red-300 border-red-500/50 shadow-sm'
               : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
           }`}
         >
           <span className="w-5 h-5 rounded-full bg-red-500/30 text-red-300 flex items-center justify-center text-[10px] font-mono">3</span>
-          <span>阶段三：MV 禁令护盾 (静止/背景音乐/字幕负向)</span>
+          <span>阶段三：防杂音与纯净负向护盾 (杜绝私加BGM/乱码字幕)</span>
         </button>
       </div>
 
@@ -730,20 +731,59 @@ export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch
               </div>
             </div>
           </div>
+
+          {/* Prompt Ready -> Long Video Step 1 Action Banner */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-amber-950/60 via-indigo-950/60 to-cyan-950/60 border border-amber-500/40 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xl">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5 text-amber-400" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                  <span>剧本提示词已就绪！长视频制作第一要务：</span>
+                  <span className="text-amber-300 font-mono">锁定三大前置资产</span>
+                </h4>
+                <p className="text-[11px] text-slate-300 mt-0.5">
+                  ① 做定妆 ➔ ② 做多宫格场景图 ➔ ③ 做物品道具图 ➔ 后面所有分镜段落（P01~P04...）全自动调用继承！
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+              {onJumpToAssetStudio && (
+                <button
+                  type="button"
+                  onClick={onJumpToAssetStudio}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 via-indigo-600 to-cyan-600 hover:from-amber-500 hover:to-cyan-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg transition-all"
+                >
+                  <span>立即做定妆/场景/道具图</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+              {onJumpToDispatch && (
+                <button
+                  type="button"
+                  onClick={onJumpToDispatch}
+                  className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all"
+                >
+                  <span>直通 RunningHub 出片</span>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
-      {/* STEP 3: MV Negative Constraints & Suppression Shield */}
-      {activeStep === 'step3_mv_negative' && (
+      {/* STEP 3: Anti-Leak Negative Constraints & Suppression Shield */}
+      {activeStep === 'step3_negative_shield' && (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-base font-bold text-white flex items-center gap-2">
                 <Ban className="w-5 h-5 text-red-400" />
-                <span>阶段三：MV 负向禁令护盾 (静止出现 · 背景音乐 · 字幕 · 负向提示词词库)</span>
+                <span>阶段三：长视频防杂音与纯净负向护盾 (静止出现 · 杜绝模型私加BGM · 字幕负向 · 纯拟音)</span>
               </h2>
               <p className="text-xs text-slate-400">
-                严格继承音乐 MV 十二步八道关中铁律 C 与负向词库：杜绝模型乱加自带 BGM 导致拼片断层、杜绝画面乱码字幕、杜绝无声镜头乱动嘴。
+                严格执行长视频生产工程级规范：杜绝模型乱加自带 BGM 导致多段拼片断层、杜绝画面乱码字幕、杜绝无声镜头乱动嘴。
               </p>
             </div>
           </div>
