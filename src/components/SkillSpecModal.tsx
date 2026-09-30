@@ -37,10 +37,16 @@ const SPEC_FILES = [
 - **定位**：可灵活更换的算力与执行管道（Pluggable Execution Provider）。
 - **特性**：**前两步焊死不变，第三步按需随时替换不同云端服务**。
 - **支持接入与替换的云端接口**：
-  * 接口 A：RunningHub 云端 ComfyUI 生图/生视频接口 (Workflow ID: 2104734128657756162，节点 Node 138/137/139/175)
+  * **接口 A（当前默认首选）**：RunningHub 官方 Bernini Director rv2v 调度模型 (地址：\`https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q\`，Node ID: 22 \`ComfyBerniniDirector\`)
   * 接口 B：Qwen-Image / FLUX / SD 云端文生图与图像编辑接口 (生成 1:1 人物定妆卡与母本场景卡)
   * 接口 C：平台内置 ImageGen 图生图与 15s 尾帧垫图接力接口
   * 接口 D：第三方 Webhook / 自建 GPU ComfyUI 实例接口
+- **参考图输入支持机制与容量规格**：
+  * **结构化槽位 (Global & Segments)**：底层 \`ComfyBerniniDirector\` 采用动态 \`refs\` 数组及分镜头独立绑定机制；
+  * **全局参考图 (Global refs)**：支持传入 1~6 张参考图，分别覆盖主角三视图面容 (\`ref_image_0\`)、配角/道具 (\`ref_image_1\`)、场景母图 (\`ref_image_2\`) 及扩展光影构图 (\`ref_image_3~5\`)；
+  * **分段镜头参考图 (Segment refs)**：支持为特定时间切片 (如 0~81 帧、81~162 帧) 注入独立专有局部参考图；
+  * **源视频连续参考 (Reference Video)**：支持挂载源视频作为时空连续条件引导 (\`continuousReference: true\`)，实现 100% 不变脸跨段接力；
+  * **推荐容量最佳实践**：底层无硬性单张上限，系统工程标准推荐一次上传 **1 ~ 6 张**，防止过多注意力和冗余特征产生互斥噪点。
 - **契约规则**：只要接收到 Skill 2 编译好的标准 Payload，任何云端接口均可无缝消费并返回图片/视频 URL。
 
 ---
