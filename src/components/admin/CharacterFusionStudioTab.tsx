@@ -198,7 +198,7 @@ export const CharacterFusionStudioTab: React.FC = () => {
     navigator.clipboard.writeText(fusionResult.pythonCliCommand);
     setCopiedCli(true);
     setTimeout(() => setCopiedCli(false), 2000);
-    showToast('已复制 Python rh_h3.py 调度命令行');
+    showToast('已复制 Python rh3_h3.py 调度命令行');
   };
 
   return (

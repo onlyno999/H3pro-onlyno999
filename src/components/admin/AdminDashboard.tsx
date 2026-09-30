@@ -71,7 +71,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSwitchToStudio
               { id: 'safety', label: '大白话安全脱敏', icon: ShieldCheck, badge: '防拦截' },
               { id: 'api_quota', label: 'API 凭据与配额', icon: Key },
               { id: 'audit', label: '12步8关 SOP 审计', icon: CheckCircle, badge: '100%' },
-              { id: 'cli', label: 'CLI 脚本 (rh_h3.py)', icon: Terminal },
+              { id: 'cli', label: 'CLI 脚本 (rh3_h3.py)', icon: Terminal },
             ].map(tab => {
               const Icon = tab.icon;
               const isActive = activeAdminNav === tab.id;

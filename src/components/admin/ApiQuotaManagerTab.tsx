@@ -143,7 +143,7 @@ export const ApiQuotaManagerTab: React.FC = () => {
               <span>RunningHub OpenAPI 与 MiniMax H3 凭据配置</span>
             </h3>
             <p className="text-xs text-slate-400 mt-1">
-              配置调度器 `rh_h3.py` 与前端工作流直通 RunningHub 云端出片集群的通讯密钥与路由
+              配置调度器 `rh3_h3.py` 与前端工作流直通 RunningHub 云端出片集群的通讯密钥与路由
             </p>
           </div>
 

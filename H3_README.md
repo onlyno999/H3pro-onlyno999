@@ -75,14 +75,14 @@
 
 ```bash
 # 1. 生成第 1 段 (P01) - 使用多图参考：
-python3 rh_h3.py --shot P01 --duration 10.0 \
+python3 rh3_h3.py --shot P01 --duration 10.0 \
   --ref-image-0 "workspace/tiedan_character.png" \
   --ref-image-1 "workspace/cow.png" \
   --prompt "铁蛋在菜地拔菜，语调欢快..." \
   --api-key "你的RunningHub_Key"
 
 # 2. 生成第 2 段 (P02) - 直接将 P01 成片作为连续视频参考 (Node 22 referenceVideo) 连贯接力：
-python3 rh_h3.py --shot P02 --duration 10.0 \
+python3 rh3_h3.py --shot P02 --duration 10.0 \
   --ref-video "workspace/tiedan_p01.mp4" \
   --prompt "承接上一段，铁蛋在木桥上被大黄奔跑追赶..." \
   --api-key "你的RunningHub_Key"
@@ -114,7 +114,7 @@ ffmpeg -y -v error \
 ## 📁 目录结构速查
 
 ```
-├── rh_h3.py                                     # RunningHub 官流终极版 OpenAPI 调度客户端
+├── rh3_h3.py                                     # RunningHub 官流终极版 OpenAPI 调度客户端
 ├── skills/
 │   └── mv-auto-pipeline/
 │       ├── SKILL.md                             # 全自动流水线 SOP 规范

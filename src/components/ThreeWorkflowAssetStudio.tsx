@@ -38,7 +38,7 @@ export const ThreeWorkflowAssetStudio: React.FC = () => {
 
   // 15s to 16s Seam Synchronization & Notification State
   const [isSyncingAll, setIsSyncingAll] = useState(false);
-  const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>('已就绪：1:1 锁颜算法与 15s-16s 尾帧接缝切片已同步至 Python CLI (rh_h3.py) 与 H3 工作流');
+  const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>('已就绪：1:1 锁颜算法与 15s-16s 尾帧接缝切片已同步至 Python CLI (rh3_h3.py) 与 H3 工作流');
   const [showSeamDeepDive, setShowSeamDeepDive] = useState<boolean>(true);
   const [selectedSeamFrame, setSelectedSeamFrame] = useState<'f361' | 'f362' | 'p02_f0' | 'p02_f1'>('f362');
 
@@ -167,7 +167,7 @@ export const ThreeWorkflowAssetStudio: React.FC = () => {
 
     setTimeout(() => {
       setIsSyncingAll(false);
-      setSyncStatusMsg('✅ 同步完成！1:1 高保真定妆卡已载入 Node 137/139/167，15秒尾帧垫图切片与 FFmpeg 零重影脚本已同步至 rh_h3.py 与导演中台！');
+      setSyncStatusMsg('✅ 同步完成！1:1 高保真定妆卡已载入 Node 137/139/167，15秒尾帧垫图切片与 FFmpeg 零重影脚本已同步至 rh3_h3.py 与导演中台！');
       setTimeout(() => {
         // keep badge active
       }, 5000);

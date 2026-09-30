@@ -934,7 +934,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
                       <span>MiniMax H3 官流终极版完整拓扑 · ID: 2104734128657756162</span>
                     </div>
                     <div className="text-[11px] text-slate-400 mt-1">
-                      严格对齐 <code>rh_h3.py</code> 与 RunningHub 官方规范，包含多图参考矩阵与跨段潜空间视频接力。
+                      严格对齐 <code>rh3_h3.py</code> 与 RunningHub 官方规范，包含多图参考矩阵与跨段潜空间视频接力。
                     </div>
                   </div>
                   <a

@@ -61,7 +61,7 @@
 3. **节点拓扑配置 (ModelNodeConfigTab)**：实时核验 Node 22 (`ComfyBerniniDirector`)、Node 17/18 (`UNETLoader`) 等节点参数。
 4. **安全风控策略引擎 (SafetyPolicyEngineTab)**：维护与扩充脱敏词库（暴力、敏感动作平替库）。
 5. **合规审计与硬门禁 (GatekeeperAuditTab)**：时间轴 17n+5 帧数合规检查与防反向字幕硬门禁。
-6. **CLI 脚本调度中心 (CliScriptIntegrationTab)**：提供 `rh_h3.py` 脚本参数与一键终端触发命令。
+6. **CLI 脚本调度中心 (CliScriptIntegrationTab)**：提供 `rh3_h3.py` 脚本参数与一键终端触发命令。
 
 ---
 
@@ -69,7 +69,7 @@
 
 ```bash
 # 生成第 1 段 (P01) - 6 张多图矩阵参考输入：
-python3 rh_h3.py --shot P01 --duration 10.0 \
+python3 rh3_h3.py --shot P01 --duration 10.0 \
   --ref-image-0 "workspace/main_char.png" \
   --ref-image-1 "workspace/side_char.png" \
   --ref-image-2 "workspace/scene_base.png" \
@@ -77,7 +77,7 @@ python3 rh_h3.py --shot P01 --duration 10.0 \
   --api-key "你的_RunningHub_API_KEY"
 
 # 生成第 2 段 (P02) - 视频参考接力 (杜绝变脸)：
-python3 rh_h3.py --shot P02 --duration 10.0 \
+python3 rh3_h3.py --shot P02 --duration 10.0 \
   --ref-video "workspace/output_p01.mp4" \
   --prompt "承接上一镜头，主角抬起头望向走来的客人..." \
   --api-key "你的_RunningHub_API_KEY"
@@ -110,7 +110,7 @@ ffmpeg -y -v error \
 ```
 ├── README.md                                     # 本使用与架构详细介绍
 ├── H3_README.md                                  # H3 官流终极版核心 SOP 指南
-├── rh_h3.py                                     # RunningHub OpenAPI 调度脚本
+├── rh3_h3.py                                     # RunningHub OpenAPI 调度脚本
 ├── skills/
 │   └── h3pro-agent/
 │       └── SKILL.md                             # H3PRO 专职 Agent 技能规范
@@ -148,4 +148,7 @@ ffmpeg -y -v error \
      - `SKILL.md` 全面适配 Node 22 双 UNet 与分段时空架构；
      - 导演台工作流规范全面升级为 Bernini Director rv2v 技术拓扑；
      - `H3_README.md` 与前端工作台弹窗内 9 大 SOP 规范及质检脚本完成 100% 深度对齐。
+  5. **CLI 调度脚本规范命名升级**：
+     - 将原 Python 命令行调度客户端 `rh_h3.py` 重命名为 **`rh3_h3.py`**；
+     - 全站前端代码、CLI 管理中台下载路径与文档使用说明完成全面重定向同步。
 

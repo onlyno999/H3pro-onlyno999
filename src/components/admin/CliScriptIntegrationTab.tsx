@@ -26,7 +26,7 @@ export const CliScriptIntegrationTab: React.FC = () => {
   };
 
   const p01Command = `# 1. 生成第 1 段 (P01) - 使用多图参考矩阵与提示词：
-python3 rh_h3.py \\
+python3 rh3_h3.py \\
   --shot P01 \\
   --duration ${durationInput.toFixed(1)} \\
   --ref-image-0 "workspace/tiedan_character_full.png" \\
@@ -35,8 +35,8 @@ python3 rh_h3.py \\
   --prompt "铁蛋在菜地拔葱，语调欢快，动作充满弹性节奏感..." \\
   --api-key "${apiKeyInput}"`;
 
-  const p02Command = `# 2. 生成第 2 段 (P02) - 直接将 P01 成片作为视频参考 (Node 175) 连贯接力：
-python3 rh_h3.py \\
+  const p02Command = `# 2. 生成第 2 段 (P02) - 直接将 P01 成片作为视频参考连贯接力：
+python3 rh3_h3.py \\
   --shot P02 \\
   --duration ${durationInput.toFixed(1)} \\
   --ref-video "workspace/tiedan_p01.mp4" \\
@@ -83,7 +83,7 @@ ffmpeg -y -v error \\
         <div>
           <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
             <Terminal className="w-5 h-5 text-cyan-400" />
-            <span>CLI 命令行调度器与 Python (rh_h3.py) 脚本集成中台</span>
+            <span>CLI 命令行调度器与 Python (rh3_h3.py) 脚本集成中台</span>
           </h3>
           <p className="text-xs text-slate-400 mt-1 max-w-2xl">
             提供与本地终端、CI/CD 自动化流水线及云端 GPU 任务调度器完全一致的 Python CLI 脚本调用命令与零重影终剪命令。
@@ -92,12 +92,12 @@ ffmpeg -y -v error \\
 
         <div className="flex items-center gap-2">
           <a
-            href="/rh_h3.py"
-            download="rh_h3.py"
+            href="/rh3_h3.py"
+            download="rh3_h3.py"
             className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5"
           >
             <Download className="w-4 h-4 text-cyan-400" />
-            <span>下载 rh_h3.py 脚本</span>
+            <span>下载 rh3_h3.py 脚本</span>
           </a>
         </div>
       </div>
