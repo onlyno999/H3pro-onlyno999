@@ -104,3 +104,69 @@ description: >
 - **动态运镜与变速齿轮**：低角度跟拍、接触瞬间微慢动作 (0.3x 定格强化)、受击瞬间画面轻微震颤 (camera shake)；
 - **打斗脱敏引擎联动**：在保证暴力美学与打击感的同时，自动转译为“影视级特技动作戏剧化表现”，100% 规避平台风控。
 
+---
+
+## 6. 纯净画面与杜绝声音乱入铁律规范 (Strict Silent-Action & Foley-Only Iron Law)
+
+### 核心铁律（ABSOLUTE IRONCLAD RULES）
+**只要没有指定谁说的话，或没有写对白台词时，生成结果必须且只能是：【画面 + 物理动作拟音/环境音】，绝对没有背景 BGM，绝对零人声对白与零画外旁白！**
+
+### 痛点根源分析
+H3 是原生的**音画一体模型**（Video + Audio 同步生成），具有极强的音频生成自主性。当分镜中**没有写台词、没有旁白、也没有指定谁说话**时：
+1. 若不进行显式嘴唇与声学封锁，H3 会自动“脑溢”出莫名其妙的女声喘息、呻吟、叽里咕噜对话或画外旁白；
+2. 若不强制压制非剧情音乐，H3 会自动混入廉价合成器罐头 BGM，破坏电影级纯净度。
+
+### 彻底执行铁律的五重死锁 (The 5-Layer Iron Lock)
+
+1. **【铁律 1】正向提示词：显式声明【画面+物理拟音，无台词对白，无画外旁白】**
+   - 在 `detailed_description` 容器内，每个未指明发声者的镜头必须强制写入：
+     `【动作】人物嘴唇自然紧闭，全程完全静止不发声（lips completely still and naturally closed, strictly no speaking, no vocalization, no voiceover, no singing, silent character）。`
+   - 在 `【音效】` 中必须 100% 详写**具体动作拟音与环境底噪**，同时写明无对白：
+     `【音效】仅有动作物理拟音与环境空间底噪（如：急促粗重呼吸声、衣服摩擦声、脚步踩在地面沙沙声、山风呼啸声）；绝无人物台词对白，无画外旁白，无人声呢喃（strictly no dialogue, no voiceover, no human speech, no phantom vocal）。`
+
+2. **【铁律 2】声音设定区：明确封死非发声状态**
+   - 若本分镜没有指定谁说话，在提示词前置区必须显式声明：
+     ```text
+     声音设定：
+     本视频为无对白动作与环境音镜头，全片无指定说话人，无任何对白台词，无画外旁白；仅保留现场物理动作拟音与环境底噪贯穿。
+     ```
+
+3. **【铁律 3】背景 BGM 彻底清零 (Zero Background Music)**：
+   - 当没有显式要求配乐时，音乐通道必须严格锁死为 `None`：
+     `[non_diegetic_music] None. There is no non-diegetic background music in this video track, absolute silence on the music channel to allow clean external master score mixing.`
+
+4. **【铁律 4】负向提示词 (Negative Prompt)：强制死锁 20 项发声与 BGM 抑制词**
+   - 必须强力注入负向死锁矩阵：
+     `dialogue, speaking, talking, voiceover, narration, monologue, whispering, screaming, female vocal, male vocal, phantom voices, muttering, human voice, mouth moving, parted lips, open mouth, vocalization, background music, noisy score, bgm, humming`
+
+5. **【铁律 5】口型视觉死锁 (Visual Lip Lock)**：
+   - 负向压制 `moving mouth, parted lips, talking head, lip flap`；
+   - 确保模型即便在人物做大动作时，嘴唇也始终保持自然闭合，从视觉源头彻底掐断触发语音合成的可能。
+
+---
+
+## 7. 长视频全自动化生产 SOP：前置三大资产锁定与后段自动继承调用机制 (Long-Video Asset Pre-Lock & Auto-Inheritance Pipeline)
+
+### 核心生产法则
+**制作长视频（多段式短剧/广告长片）：刚拿到剧本，出了提示词之后，第 1 件事就是做人物定妆卡，然后做多宫格场景图，还有物品道具图。前置资产制作完毕后，后续所有分段自动继承并全局调用！**
+
+### 生产流水线四部曲：
+1. **第一步：做人物 1:1 定妆卡 (Character Makeup & Identity Lock)**：
+   - 提取三视图正面、侧面、半身特写，做 1:1 融光与去影棚灰底处理；
+   - 锁定主角/配角五官骨架、发型、肤色与固定服装穿搭，鞋底留地防漂浮；
+   - 注入 ComfyUI **Node 18 (`ref_image_0`)** 与 **Node 35 (`ref_image_7`)**，保证全剧所有分段人物绝对同一张脸、穿同一套衣服。
+
+2. **第二步：做多宫格场景母本图 (Multi-Grid Scene Benchmark)**：
+   - 生成主场景的四宫格或九宫格多视角母本（全景大景、中景对峙、局部陈设、景深纵深）；
+   - 锁定环境色温、自然采光方向、空间物理结构与建筑质感，防止换分镜场景发生剧烈漂移；
+   - 注入 ComfyUI **Node 23 (`ref_image_1`)** 与 **Node 76 (`ref_image_8`)**，全剧各段统一空间光影。
+
+3. **第三步：做关键物品图与道具图 (Key Items & Props Asset Lock)**：
+   - 对剧情核心物件（武器兵器、手机腕表、车钥匙、公文包、关键信件等）做高保真微距形态渲染；
+   - 注入 ComfyUI **Node 24 (`ref_image_3`)** 与 **Node 32 (`ref_image_4`)**，确保关键道具跨分段交互时材质稳定、不形变、不消失。
+
+4. **第四步：后续所有视频分段全局自动调用 (Auto-Inheritance Across All Downstream Segments)**：
+   - **后段无需重复做图**：P01 (0~15s)、P02 (15~30s)、P03 (30~45s)、P04 (45~60s)... 后续分段的提示词与调度引擎直接自动挂载已锁定的三大资产矩阵（`<Subject 1>` ~ `<Subject 4>`）；
+   - **首尾帧接力自动咬合**：第 1 段尾帧截图自动作为第 2 段首帧垫图，配合 FFmpeg `select='gt(n\,0)'` 剔除重影，实现全剧长视频“人物不变脸、场景不跳变、道具不走样、接缝零重影”的一键出片闭环！
+
+

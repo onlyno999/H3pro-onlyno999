@@ -33,7 +33,7 @@ export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch
   const [aspectRatio, setAspectRatio] = useState<AspectRatioType>('9:16');
   const [targetGenre, setTargetGenre] = useState<'short_drama' | 'commercial' | 'mv'>('short_drama');
   const [selectedArchetype, setSelectedArchetype] = useState<StoryArchetype>(STORY_ARCHETYPES[0]);
-  const [selectedSpeakerId, setSelectedSpeakerId] = useState<'S1' | 'S2' | 'S3'>('S1');
+  const [selectedSpeakerId, setSelectedSpeakerId] = useState<'S1' | 'S2' | 'S3' | 'NONE'>('NONE');
 
   // Input & Output
   const [customStoryInput, setCustomStoryInput] = useState<string>(STORY_ARCHETYPES[0].seedanceProse);
@@ -42,10 +42,10 @@ export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch
     return convertAwesomeSeedanceToH3(STORY_ARCHETYPES[0].seedanceProse, {
       genre: STORY_ARCHETYPES[0].genre,
       aspectRatio: '9:16',
-      speakerId: 'S1',
+      speakerId: 'NONE',
       dialogue: STORY_ARCHETYPES[0].dialogue,
       suppressBgm: true,
-      enforceLipsStill: false
+      enforceLipsStill: true
     });
   });
 
@@ -53,10 +53,10 @@ export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch
     const initialPrompt = convertAwesomeSeedanceToH3(STORY_ARCHETYPES[0].seedanceProse, {
       genre: STORY_ARCHETYPES[0].genre,
       aspectRatio: '9:16',
-      speakerId: 'S1',
+      speakerId: 'NONE',
       dialogue: STORY_ARCHETYPES[0].dialogue,
       suppressBgm: true,
-      enforceLipsStill: false
+      enforceLipsStill: true
     });
     return validateH3Prompt(initialPrompt);
   });
@@ -64,7 +64,7 @@ export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch
   // Suppression Switches (User Request: 静止出现, 背景音乐, 字幕 · 参考 MV 中的禁止提示词)
   const [suppressBgm, setSuppressBgm] = useState<boolean>(true); // 默认静止/禁用模型自带 BGM
   const [suppressScreenText, setSuppressScreenText] = useState<boolean>(true); // 默认禁止出现字幕与文字
-  const [enforceLipsStill, setEnforceLipsStill] = useState<boolean>(false); // 强制嘴唇绝对静止闭合
+  const [enforceLipsStill, setEnforceLipsStill] = useState<boolean>(true); // 默认嘴唇绝对静止闭合（铁律防护）
 
   const [copiedPrompt, setCopiedPrompt] = useState<boolean>(false);
   const [copiedNegative, setCopiedNegative] = useState<boolean>(false);
@@ -88,17 +88,20 @@ export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch
     setSelectedArchetype(arch);
     setTargetGenre(arch.genre);
     setAspectRatio(arch.aspectRatio);
-    setSelectedSpeakerId(arch.speakerId);
+    const effectiveSpeaker = arch.speakerId || 'NONE';
+    const effectiveLips = effectiveSpeaker === 'NONE' ? true : enforceLipsStill;
+    setSelectedSpeakerId(effectiveSpeaker);
+    setEnforceLipsStill(effectiveLips);
     setCustomStoryInput(arch.seedanceProse);
     setCustomDialogue(arch.dialogue);
 
     const converted = convertAwesomeSeedanceToH3(arch.seedanceProse, {
       genre: arch.genre,
       aspectRatio: arch.aspectRatio,
-      speakerId: arch.speakerId,
+      speakerId: effectiveSpeaker,
       dialogue: arch.dialogue,
       suppressBgm,
-      enforceLipsStill
+      enforceLipsStill: effectiveLips
     });
     setConvertedOutput(converted);
     setValidationResult(validateH3Prompt(converted));
@@ -268,7 +271,7 @@ export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-white font-mono">{cfg.label}</span>
                     <span className="text-[10px] text-slate-400">
-                      {cfg.orientation === 'vertical' ? '竖屏' : cfg.orientation === 'horizontal' ? '横屏' : '方形'}
+                      {cfg.orientation === 'portrait' ? '竖屏' : cfg.orientation === 'landscape' ? '横屏' : '方形'}
                     </span>
                   </div>
                   <div className="text-[10px] text-slate-400 truncate mt-1">
@@ -348,7 +351,7 @@ export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 pt-1">
-              {durationPartitionPlan.segments.map((seg) => (
+              {durationPartitionPlan.segments.map((seg: any) => (
                 <div
                   key={seg.segmentIndex}
                   className="p-2.5 rounded-lg bg-slate-950 border border-slate-800/90 space-y-1 relative overflow-hidden"
@@ -502,14 +505,34 @@ export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch
                     <label className="text-[11px] font-semibold text-slate-400 block mb-1">
                       主讲说话人音色绑定:
                     </label>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <button
+                        key="NONE"
+                        type="button"
+                        onClick={() => {
+                          setSelectedSpeakerId('NONE');
+                          setEnforceLipsStill(true);
+                          setCustomDialogue('');
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition border ${
+                          selectedSpeakerId === 'NONE'
+                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/60 ring-1 ring-emerald-500/40'
+                            : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-slate-200'
+                        }`}
+                      >
+                        【铁律】未指定说话人
+                      </button>
                       {(['S1', 'S2', 'S3'] as const).map((sId) => (
                         <button
                           key={sId}
-                          onClick={() => setSelectedSpeakerId(sId)}
-                          className={`flex-1 py-1.5 rounded-lg text-xs font-mono font-bold transition border ${
+                          type="button"
+                          onClick={() => {
+                            setSelectedSpeakerId(sId);
+                            setEnforceLipsStill(false);
+                          }}
+                          className={`flex-1 min-w-[50px] py-1.5 rounded-lg text-xs font-mono font-bold transition border ${
                             selectedSpeakerId === sId
-                              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50'
+                              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50 ring-1 ring-cyan-500/40'
                               : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-slate-200'
                           }`}
                         >
@@ -519,6 +542,24 @@ export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch
                     </div>
                   </div>
                 </div>
+
+                {/* Ironclad Rule Status Alert Banner */}
+                {(selectedSpeakerId === 'NONE' || !customDialogue.trim()) && (
+                  <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/50 flex items-start gap-2.5 text-xs text-emerald-300 shadow-md">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <div className="space-y-0.5 leading-relaxed">
+                      <div className="font-bold flex items-center gap-2">
+                        <span>【铁律生效】未指定说话人：纯画面 + 物理动作拟音，绝对零背景BGM！</span>
+                        <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-[10px] font-mono border border-emerald-500/40">
+                          严禁声音乱入
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-emerald-200/80">
+                        当前分镜未指定谁说话或无台词，系统强制启动音学死锁：正向详写脚步/摩擦/碰撞/环境空间物理拟音，嘴唇静止闭合；音乐设为 None，负向词库硬封锁 20 项对白、旁白、人声与 BGM 词汇！
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between pt-3 border-t border-slate-800">
                   <span className="text-xs text-slate-400">
@@ -709,28 +750,21 @@ export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch
 
           {/* 4 Interactive Suppression Controls */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Control 1: Suppress BGM */}
+            {/* Control 1: Suppress BGM - 永久铁律锁死 */}
             <div
-              onClick={() => handleApplySuppression(!suppressBgm, enforceLipsStill)}
-              className={`p-4 rounded-xl border transition-all cursor-pointer space-y-3 ${
-                suppressBgm
-                  ? 'bg-purple-950/30 border-purple-500/60 ring-1 ring-purple-500/30 shadow-lg'
-                  : 'bg-slate-900/60 border-slate-800 hover:bg-slate-900'
-              }`}
+              className="p-4 rounded-xl border transition-all cursor-pointer space-y-3 bg-purple-950/40 border-purple-500/80 ring-2 ring-purple-500/40 shadow-xl"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-white">
                   <VolumeX className="w-4 h-4 text-purple-400" />
-                  <span>1. 静止/禁止出现背景音乐</span>
+                  <span>1. 【铁律】严禁背景 BGM 乱入</span>
                 </div>
-                <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${
-                  suppressBgm ? 'bg-purple-500/20 text-purple-300' : 'bg-slate-800 text-slate-500'
-                }`}>
-                  {suppressBgm ? '已开启压制' : '已关闭'}
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-purple-500/30 text-purple-200 border border-purple-500/50">
+                  纯画面+物理拟音
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                将 <code>[non_diegetic_music]</code> 强制设为 <strong>None</strong>，在 Negative 中加入 <code>background music, noisy score...</code>，为后期无损全曲 Master BGM 铺底让路。
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                <strong>未指定配乐一律清零：</strong>将 <code>[non_diegetic_music]</code> 强制设为 <strong>None (零BGM)</strong>，负向死锁 <code>background music, noisy score, bgm...</code>，确保只有纯净现场动作拟音与环境底噪。
               </p>
             </div>
 
@@ -753,28 +787,28 @@ export const H3PromptLabTab: React.FC<H3PromptLabTabProps> = ({ onJumpToDispatch
               </p>
             </div>
 
-            {/* Control 3: Enforce Mouth Still */}
+            {/* Control 3: Enforce Mouth Still & Phantom Voice Suppression */}
             <div
               onClick={() => handleApplySuppression(suppressBgm, !enforceLipsStill)}
               className={`p-4 rounded-xl border transition-all cursor-pointer space-y-3 ${
                 enforceLipsStill
-                  ? 'bg-cyan-950/30 border-cyan-500/60 ring-1 ring-cyan-500/30 shadow-lg'
+                  ? 'bg-cyan-950/40 border-cyan-500/80 ring-2 ring-cyan-500/40 shadow-xl'
                   : 'bg-slate-900/60 border-slate-800 hover:bg-slate-900'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-bold text-white">
                   <MicOff className="w-4 h-4 text-cyan-400" />
-                  <span>3. 嘴唇静止 / 禁止开口</span>
+                  <span>3. 嘴唇静止 / 严禁声音乱入</span>
                 </div>
                 <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${
-                  enforceLipsStill ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-800 text-slate-500'
+                  enforceLipsStill ? 'bg-cyan-500/30 text-cyan-200 border border-cyan-500/50' : 'bg-slate-800 text-slate-500'
                 }`}>
-                  {enforceLipsStill ? '强制闭嘴' : '正常发声'}
+                  {enforceLipsStill ? '严禁乱讲话·锁死人声' : '允许人物开口'}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                非对白镜强制注入 <code>mouth naturally closed, lips completely still</code>，负向压制 <code>singing, mouth open</code>。
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                <strong>无台词/无旁白时彻底封死：</strong>正向强制注入 <code>mouth naturally closed, lips completely still, strictly no voiceover, no dialogue</code>；负向死锁 <code>phantom voices, voiceover, female vocal, male vocal, muttering...</code>，杜绝模型随机脑补乱入人声！
               </p>
             </div>
 

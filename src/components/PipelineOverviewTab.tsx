@@ -162,9 +162,9 @@ export const PipelineOverviewTab: React.FC<PipelineOverviewTabProps> = ({ onJump
                     硬门禁
                   </span>
                 )}
-                <div className="text-[10px] text-slate-400 font-mono">STEP {gate.stepIndex}</div>
-                <div className="text-xs font-bold mt-1 line-clamp-1">{gate.shortName}</div>
-                <div className="text-[10px] text-cyan-400/80 mt-1">{gate.phase}</div>
+                <div className="text-[10px] text-slate-400 font-mono">STEP {gate.stepIndex ?? gate.id}</div>
+                <div className="text-xs font-bold mt-1 line-clamp-1">{gate.shortName ?? gate.name}</div>
+                <div className="text-[10px] text-cyan-400/80 mt-1">{gate.phase ?? gate.stageName}</div>
               </button>
             );
           })}
@@ -176,7 +176,7 @@ export const PipelineOverviewTab: React.FC<PipelineOverviewTabProps> = ({ onJump
             <div>
               <div className="flex items-center gap-2.5">
                 <span className="px-2.5 py-1 rounded-md bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-bold font-mono">
-                  GATE {selectedGate.id} · {selectedGate.phase}
+                  GATE {selectedGate.id} · {selectedGate.phase ?? selectedGate.stageName}
                 </span>
                 {selectedGate.isHardBarrier && (
                   <span className="px-2.5 py-1 rounded-md bg-red-500/20 text-red-300 border border-red-500/30 text-xs font-bold flex items-center gap-1">
@@ -191,7 +191,7 @@ export const PipelineOverviewTab: React.FC<PipelineOverviewTabProps> = ({ onJump
 
             <div className="flex items-center gap-2">
               <span className="text-xs px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 font-mono">
-                模式: {selectedGate.reviewMode}
+                模式: {selectedGate.reviewMode ?? '自动化质检'}
               </span>
             </div>
           </div>

@@ -57,11 +57,34 @@ subject_definitions（主体定义）:
 <Subject 2> 是 <Picture 2> 中的反派打手：身形魁梧、手持黑色钢管；
 <Subject 3> 是 <Picture 3> 中的废弃仓库：昏暗空间、水泥立柱、地面有积水与散落木箱；
 
+声音设定（铁律：未指定说话人，严禁对白与声音乱入，纯画面+现场格斗拟音，无背景BGM）：
+全片未指定说话人，严禁生成任何人物对白、台词、画外旁白或幽灵人声；全片人物嘴唇自然紧闭全程完全静止不发声。声音通道仅保留现场物理格斗动作拟音（钢管破空、肉体闷响、撞击、骨骼受压）与空间底噪，绝无背景音乐（Zero BGM）。
+
 detailed_description:
 【Shot 1｜0–4秒｜近景跟拍·侧闪重拳击肋】
 【主体】<Subject 1> 画面中心偏左，<Subject 2> 右侧挥动钢管横扫。
-【动作】<Subject 2> 怒吼着双手挥钢管自右向左横抡扫向头部，破空声凌厉；<Subject 1> 上半身极速后仰下潜闪避，钢管带风险险擦过鼻尖；紧接着 <Subject 1> 左脚拧地蹬转，借扭腰发力，右勾拳如炮弹般自下而上重击 <Subject 2> 左肋软肋部。<Subject 2> 被击中瞬间胸腹肌肉剧烈凹陷，眼球瞪大、嘴里喷出一蓬唾液水雾，身体被横向巨力击得离地半尺、失控横撞向后方水泥柱。
+【动作】<Subject 2> 怒吼着双手挥钢管自右向左横抡扫向头部，破空声凌厉；<Subject 1> 上半身极速后仰下潜闪避，钢管带风险险擦过鼻尖；紧接着 <Subject 1> 左脚拧地蹬转，借扭腰发力，右勾拳如炮弹般自下而上重击 <Subject 2> 左肋软肋部。<Subject 2> 被击中瞬间胸腹肌肉剧烈凹陷，眼球瞪大、嘴里喷出一蓬唾液水雾，身体被横向巨力击得离地半尺、失控横撞向后方水泥柱。<Subject 1> 眼神冷峻如冰，全程嘴唇自然紧闭完全静止不发声（lips completely still and naturally closed, silent character, strictly no speaking, no dialogue, no voiceover）；其余人物全程嘴唇完全紧闭静止。
 【镜头】9:16 动态手持低角度跟拍，伴随击打瞬间 0.2 秒轻微画面震颤 (camera shake)，击中瞬间微慢动作定格强化打击点。
-【音效】钢管呼啸破空尖啸、肉体重拳剧烈闷响沉音 (heavy punch thud)、骨骼受压闷响、受击者肺部呛咳闷哼声、重重撞击水泥立柱崩裂声。
+【音效】钢管呼啸破空尖啸、肉体重拳剧烈闷响沉音 (heavy punch thud)、骨骼受压闷响、受击者肺部受压短促闷哼、重重撞击水泥立柱崩裂声；绝无人物对白台词，绝无画外旁白，绝无BGM背景音乐。
 【约束】肢体动作连贯硬朗，无多余肢体生成，关节折叠自然，击打落点精准对齐，面部受击表情扭曲真实，光影稳定无闪烁。
+
+[overall_soundscape]
+Pure kinetic fight sound effects and heavy breathing; strictly zero human speech, zero voiceover, zero phantom vocal.
+
+[non_diegetic_music]
+None. Strictly zero non-diegetic background music (no BGM, no score, no soundtrack). Absolute silence on music channel to guarantee pure kinetic fight foley.
 ```
+
+---
+
+## 4. 动作打斗戏声音铁律规范 (Ironclad Fight-Action Sound Law)
+
+### 核心铁律（ABSOLUTE IRONCLAD RULES）
+**只要没有指定谁说的话，或没有写对白台词时，生成结果必须且只能是：【画面 + 物理动作拟音】，绝对没有背景 BGM。这些是铁律！**
+
+### 动作戏具体执行准则
+1. **画面纯净度**：专注刻画骨骼发力、重心转移、受力位移、粒子火花与镜头变速齿轮；
+2. **拟音矩阵详写 (Foley In)**：必须详写破空声 (whoosh)、拳脚钝击沉音 (flesh impact thud)、兵器金属交鸣 (metallic clashing)、骨骼受力脆响、受击闷哼与撞击碎裂拟音；
+3. **严禁声音乱入 (Strictly No Voice Leakage)**：未指定说话人时，严禁自行编造对白台词、严禁自言自语、严禁画外旁白！角色嘴唇全过程自然紧闭（lips completely still and naturally closed, silent character）；
+4. **背景 BGM 彻底归零 (Zero BGM)**：`[non_diegetic_music]` 必须显式声明为 `None`，负向提示词强制封锁 `background music, bgm, soundtrack, score, melody`，为真实物理打击感留出纯净声学通道。
+

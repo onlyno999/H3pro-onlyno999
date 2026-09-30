@@ -218,6 +218,35 @@ export function validateH3Prompt(promptText: string, options?: { duration?: numb
         : '台词需用 <d>[Chinese] 台词</d> 并标注说话人 (S1)/(S2)/(S3) 以固定音色。',
       tip: '说话人编号全局固定（S1男主/S2女主/S3女配），跨段复用以保证音色一致。'
     });
+  } else {
+    // 8. Non-Dialogue Voice Leakage Trap Check (严防无台词时模型脑溢幽灵人声/旁白乱入)
+    const hasExplicitMouthLock = /mouth naturally closed|lips completely still|silent character|no singing or talking|no voiceover|嘴唇紧闭|不发声|无对白/i.test(text);
+    items.push({
+      id: 'voice_leakage_guard',
+      name: '无对白镜头声音乱入死锁检测 (Phantom Voice Guard)',
+      passed: hasExplicitMouthLock,
+      severity: hasExplicitMouthLock ? 'info' : 'error',
+      message: hasExplicitMouthLock
+        ? '已激活声音防乱入硬锁：已显式声明嘴唇自然紧闭且无画外音/对白，H3 音画模型不会随机脑补旁白。'
+        : '危险！本分镜未安排台词，但未显式写入【嘴唇紧闭、不发声、无对白】声明！H3 是音画一体模型，极易自动脑补生成杂乱女声哭喊、画外音或旁白乱入！',
+      tip: '无台词分镜必须在【动作】注入 "mouth naturally closed, lips completely still, strictly no voiceover, no dialogue"，彻底杜绝声音乱入。'
+    });
+
+    // 9. Ironclad Rule Check: Whenever no speaker is designated, generate ONLY Visuals + Foley, NO Background BGM!
+    const hasZeroBgmDeclaration = /\[non_diegetic_music\]\s*(None|none|无|绝对静止|zero bgm|Zero BGM)/i.test(text) ||
+      /无背景音乐|零bgm|zero background music|no non-diegetic|absolute silence on the music channel/i.test(text);
+    const compliesIronLaw = hasFoleyTag && !hasEmptyFoley && hasZeroBgmDeclaration && hasExplicitMouthLock;
+
+    items.push({
+      id: 'iron_law_foley_zero_bgm',
+      name: '铁律门禁：未指定说话人【画面+拟音·零BGM】核查 (Iron Law Guard)',
+      passed: compliesIronLaw,
+      severity: compliesIronLaw ? 'info' : 'error',
+      message: compliesIronLaw
+        ? '【铁律达标】未指定说话人时，已严格生成【画面+高精物理拟音】，背景BGM彻底归零（None），严禁任何对白旁白声音乱入！'
+        : '【违反铁律】未指定说话人时，必须生成【画面+物理拟音】，且绝对没有背景BGM！当前缺少具体动作拟音、嘴唇未锁死，或未将 [non_diegetic_music] 锁死为 None！',
+      tip: '铁律：只要没有指定谁说的话，生成画面+拟音。没有背景BGM。必须详写物理动作音效（脚步/呼吸/摩擦/碰撞），并将 [non_diegetic_music] 设为 None。'
+    });
   }
 
   // Calculate Frames
@@ -261,13 +290,23 @@ export interface StoryArchetype {
   title: string;
   genre: 'short_drama' | 'mv' | 'commercial';
   aspectRatio: AspectRatioType;
-  speakerId: 'S1' | 'S2' | 'S3';
+  speakerId?: 'S1' | 'S2' | 'S3' | 'NONE';
   seedanceProse: string;
   dialogue: string;
   whySeedanceFailsInH3: string;
 }
 
 export const STORY_ARCHETYPES: StoryArchetype[] = [
+  {
+    id: 'iron_law_silent_action',
+    title: '铁律标杆：未指定说话人 (纯画面 + 物理拟音 + 零BGM)',
+    genre: 'short_drama',
+    aspectRatio: '9:16',
+    speakerId: 'NONE',
+    seedanceProse: '暴雨倾盆的废弃机械厂区，特工身穿黑色防雨风衣潜行。雨水顺着战术风衣下摆滑落，皮靴踩碎积水水洼，发出清脆的踩水溅射声。特工停在集装箱后方，指节轻碰冰冷生锈的铁皮，呼吸深沉平缓，警惕环顾四周。全片无指定说话人，无台词，无旁白，无背景音乐；唯有密集雨声、水滴撞击铁桶声、脚步踏水拟音与深沉呼吸贯穿。',
+    dialogue: '',
+    whySeedanceFailsInH3: '【铁律硬门禁】：未指定说话人且未写台词时，若不进行硬锁定，H3 会脑溢出杂乱女声喘息、呻吟、旁白或廉价合成器BGM！本模板严格执行铁律：未指定说话人时，全量输出画面与具体物理拟音，嘴唇静止闭合，非剧情音乐设为 None，负向死锁 20 项声音乱入词与 BGM！'
+  },
   {
     id: 'tiedan_cow_safety',
     title: '乡村喜剧：机器人铁蛋放牛 (大白话安全脱敏实战)',
@@ -434,31 +473,47 @@ export function convertAwesomeSeedanceToH3(
     .replace(/masterpiece|8k|4k|photorealistic|high\s+quality|ultra\s+realistic/gi, '')
     .trim();
 
-  // Extract quotes as dialogue if not provided
+  // Determine if a dialogue is genuinely specified
+  const hasValidSpeaker = Boolean(speakerId && speakerId !== 'NONE');
+  const isDialogueSpecified = Boolean(dialogue && dialogue.trim().length > 0);
   let extractedDialogue = dialogue;
-  if (!extractedDialogue) {
+  if (!extractedDialogue && hasValidSpeaker) {
     const quoteMatch = rawPrompt.match(/["“](.*?)["”]/);
     if (quoteMatch) {
       extractedDialogue = quoteMatch[1];
     }
   }
 
+  // 核心铁律：只要没有指定谁说的话，或没有对白，强制开启纯动作+拟音，绝无BGM
+  const isSilentActionOnly = !hasValidSpeaker || !isDialogueSpecified || !extractedDialogue;
+  if (isSilentActionOnly) {
+    extractedDialogue = '';
+  }
+  const effectiveLipsStill = enforceLipsStill || isSilentActionOnly;
+  const effectiveSuppressBgm = true; // 铁律：永远压制非剧情 BGM，为纯物理拟音与后期铺底让路
+
   // Framing text tailored by Aspect Ratio to prevent Head Cutoff & Edge Clipping
   let framingRule = '';
-  if (arConfig.orientation === 'vertical') {
+  if (arConfig.orientation === 'portrait') {
     framingRule = `The camera framing maintains strict vertical safety: head is positioned at 6% below top border, feet are at 92% above bottom border with generous floor space visible under shoes. The whole body from head to feet remains completely inside the ${arConfig.label} picture with wide clearance. The camera stays far back and never pushes in.`;
-  } else if (arConfig.orientation === 'horizontal') {
+  } else if (arConfig.orientation === 'landscape') {
     framingRule = `The camera framing utilizes wide cinematic horizontal scope (${arConfig.label}): subjects are composed across horizontal golden thirds with generous side room. Full figures remain completely inside the frame from head to toe with zero edge cropping. The camera holds a steady wide perspective.`;
   } else {
     framingRule = `The camera framing utilizes balanced square symmetry (${arConfig.label}): central visual anchor with equal margins on all four borders. The whole subject remains fully within frame boundaries.`;
   }
 
-  const musicDirective = suppressBgm
-    ? FORBIDDEN_WORDS_LEXICON.bgmSuppressionPositivePhrase
-    : 'A low cinematic orchestral underscore with subtle acoustic strings building steady dramatic tension.';
+  const musicDirective = FORBIDDEN_WORDS_LEXICON.bgmSuppressionPositivePhrase;
 
   if (genre === 'short_drama') {
     if (rawPrompt.includes('铁蛋') || rawPrompt.includes('机器人') || rawPrompt.includes('放牛') || rawPrompt.includes('tiedan')) {
+      const tiedanVoiceSetting = isSilentActionOnly
+        ? `声音设定（铁律：未指定说话人，严禁对白与声音乱入，纯画面+现场拟音，零BGM）：\n全片未指定说话人，严禁生成任何人物对白、台词、画外旁白或幽灵人声；铁蛋黑色屏幕保持萌系表情，全程人物与角色嘴唇自然紧闭完全静止不发声。声音通道仅保留现场物理动作拟音与环境底噪，绝无背景音乐（Zero BGM）。`
+        : `声音设定：\n<Subject 1> 铁蛋使用 (${speakerId || 'S1'}) 标记，小孩般清脆稚嫩的机械童声，全片保持一致。`;
+
+      const tiedanAction = isSilentActionOnly
+        ? `【动作】<Subject 1> 蹲在菜地里拔起一颗翠绿大白菜，面部黑色屏幕上蓝色 Emoji 笑脸微微闪烁眨眼，全程保持安静不发声（strictly silent character, no dialogue, no voiceover）。`
+        : `【动作】<Subject 1> (${speakerId || 'S1'}) 蹲在菜地里拔起一颗翠绿大白菜，面部黑色屏幕上蓝色 Emoji 笑脸微微闪烁眨眼，语调欢快地说：\n<d>[中文] ${extractedDialogue || '老牛们乖乖吃草啊，今晚铁蛋加餐！'}</d>`;
+
       return `subject_definitions（主体定义）:
 <Subject 1> 是 <Picture 1> 中的银色机器人铁蛋：圆润可爱的智能机器人，银色机身，头盔圆滑。
 【面部死锁】：面部必须是纯平光滑的黑色椭圆显示屏，上面仅显示极简蓝色 2D 扁平 Emoji 发光线条表情（弯月眼睛与笑脸嘴角）。
@@ -470,20 +525,29 @@ export function convertAwesomeSeedanceToH3(
 <Subject 3> 是 <Picture 3> 中的乡村菜地与水塘山坡场景母本：红砖田垄，嫩绿白菜，远处竹篱笆与池塘，日光晴朗。
 <Subject 4> 是 <Picture 4> 作为起始画面参考图，控制开场构图与人物位置。
 
-声音设定：
-<Subject 1> 铁蛋使用 (S1) 标记，小孩般清脆稚嫩的机械童声，全片保持一致。
+${tiedanVoiceSetting}
 
 detailed_description:
 【Shot 1｜0–5秒｜宽景全景·铁蛋收菜放牛】
 【主体】<Subject 1> 铁蛋位于画面正中偏左，身旁放着麻布袋，<Subject 2> 大黄牛在右侧田垄旁低头吃草。
-【动作】<Subject 1> (S1) 蹲在菜地里拔起一颗翠绿大白菜，面部黑色屏幕上蓝色 Emoji 笑脸微微闪烁眨眼，语调欢快地说：
-<d>[中文] ${extractedDialogue || '老牛们乖乖吃草啊，今晚铁蛋加餐！'}</d>
+${tiedanAction}
 【镜头】${arConfig.label} 宽景全景安全框，头顶留空 6%，脚底留地 10%，镜头保持平稳宽画幅，绝不向前推近特写。
-【音效】微风吹拂菜叶沙沙声、拔菜清脆断根声、泥土摩擦声、远处犬吠；无背景音乐。
-【约束】严格锁定黑色屏幕与蓝色 2D Emoji 萌系表情，绝无写实人脸五官；"铁蛋"二字仅在胸前；动作幅度平稳自然。`;
+【音效】微风吹拂菜叶沙沙声、拔菜清脆断根声、泥土摩擦声、远处牛吃草咀嚼声（纯现场物理拟音；绝无对白台词，绝无画外音，无背景音乐BGM）。
+【约束】严格锁定黑色屏幕与蓝色 2D Emoji 萌系表情，绝无写实人脸五官；"铁蛋"二字仅在胸前；动作幅度平稳自然。
+
+[non_diegetic_music]
+${musicDirective}`;
     }
 
     if (rawPrompt.includes('格斗') || rawPrompt.includes('打斗') || rawPrompt.includes('厮杀') || rawPrompt.includes('铁棍') || rawPrompt.includes('肉搏') || rawPrompt.includes('fight') || rawPrompt.includes('拳击') || rawPrompt.includes('武打')) {
+      const fightVoiceSetting = isSilentActionOnly
+        ? `声音设定（铁律：未指定说话人，严禁对白与声音乱入，纯画面+现场格斗拟音，无背景BGM）：\n全片未指定说话人，严禁生成任何人物对白、台词、画外旁白或幽灵人声；全片人物嘴唇自然紧闭全程完全静止不发声。声音通道仅保留现场物理格斗动作拟音（钢管破空、肉体闷响、撞击、骨骼受压）与空间底噪，绝无背景音乐（Zero BGM）。`
+        : `声音设定：\n<Picture 1> 是说话人用 (${speakerId || 'S1'}) 标记，参考音频 1，冷冽低沉青年音，全片保持一致。\n<Picture 2> 仅在受击与挥击时发出闷哼咆哮，非对白镜头嘴唇保持完全紧闭静止。`;
+
+      const fightDialogueAction = isSilentActionOnly
+        ? `<Subject 1> 眼神冷峻如冰，全程嘴唇自然紧闭完全静止不发声（lips completely still and naturally closed, silent character, strictly no speaking, no dialogue, no voiceover）；其余人物全程嘴唇完全紧闭静止。`
+        : `说完眼神冰冷，语气低沉短促说：\n<d>[中文] ${extractedDialogue}</d>\n说完嘴唇立即闭拢并抿成一条线，保持冷酷沉默；其余人物全程嘴唇紧闭（mouths completely still）。`;
+
       return `[fight_fx_skill_active]
 MiniMax H3 动作打斗戏与特效锚定规范 (Fight FX Anchor) 已激活：启用物理轨迹三段式拆解、变速齿轮与镜头拟音！
 
@@ -493,19 +557,21 @@ subject_definitions（主体定义）:
 <Subject 3> 是 <Picture 3> 中的废弃仓库：昏暗空间，两根斑驳水泥立柱居中，地面散落碎砖与浅积水；
 <Subject 4> 是 <Picture 4> 作为起始画面参考图，控制开场对峙站位与空间纵深。
 
-声音设定：
-<Picture 1> 是说话人用 (S1) 标记，参考音频 1，冷冽低沉青年音，全片保持一致。
-<Picture 2> 仅在受击与挥击时发出闷哼咆哮，非对白镜头嘴唇保持完全紧闭静止。
+${fightVoiceSetting}
 
 detailed_description:
 【Shot 1｜0–4秒｜近景动态跟拍·侧闪下潜与重拳击肋】
 【主体】<Subject 1> 居画面中心，<Subject 2> 自右侧逼近，双手高举铁棍。
-【动作】<Subject 2> 怒吼着双手横抡铁棍横扫头部，破空呼啸凌厉；<Subject 1> 瞬间后仰下潜闪避，铁棍裹挟劲风贴着鼻尖呼啸擦过；紧接着 <Subject 1> 左脚蹬地拧腰转胯，右勾拳如出膛炮弹般自下而上重重轰中 <Subject 2> 左肋软骨。<Subject 2> 肋部肌肉受击瞬间剧烈凹陷，唾液与汗水向后爆散飞溅，整个人被横向巨力击得失控滑退两米，重重撞在水泥立柱上，激起一圈墙灰散落。说完眼神冰冷，语气低沉短促说：
-<d>[中文] ${extractedDialogue || '动我的人，你还没这个资格。'}</d>
-说完嘴唇立即闭拢并抿成一条线，保持冷酷沉默；其余人物全程嘴唇紧闭（mouths completely still）。
+【动作】<Subject 2> 怒吼着双手横抡铁棍横扫头部，破空呼啸凌厉；<Subject 1> 瞬间后仰下潜闪避，铁棍裹挟劲风贴着鼻尖呼啸擦过；紧接着 <Subject 1> 左脚蹬地拧腰转胯，右勾拳如出膛炮弹般自下而上重重轰中 <Subject 2> 左肋软骨。<Subject 2> 肋部肌肉受击瞬间剧烈凹陷，唾液与汗水向后爆散飞溅，整个人被横向巨力击得失控滑退两米，重重撞在水泥立柱上，激起一圈墙灰散落。${fightDialogueAction}
 【镜头】${arConfig.label} 动态手持低角度跟拍，击中瞬间微慢动作 (0.3x speed ramping) 放大冲击力，伴随 0.2 秒轻微震屏 (camera shake amplitude 3px)。
-【音效】铁棍破空呼啸声 (whooshing air drag)、沉重肉体闷击沉音 (heavy flesh impact thud)、肋骨受压迫闷响、受击者肺部剧烈换气闷哼、身体重重撞击水泥立柱崩裂声。
-【约束】五官面部稳定无走样，关节弯折完全符合人体运动学物理定律，击打点与受力反馈精确咬合，绝无多余肢体生成；光影色调稳定，严禁任何硬编码字幕与文字。`;
+【音效】铁棍破空呼啸声 (whooshing air drag)、沉重肉体闷击沉音 (heavy flesh impact thud)、肋骨受压迫闷响、受击者肺部剧烈换气闷哼、身体重重撞击水泥立柱崩裂声；绝无人物对白台词，绝无画外旁白，绝无BGM背景音乐。
+【约束】五官面部稳定无走样，关节弯折完全符合人体运动学物理定律，击打点与受力反馈精确咬合，绝无多余肢体生成；光影色调稳定，严禁任何硬编码字幕与文字。
+
+[overall_soundscape]
+Pure kinetic fight sound effects and heavy breathing; strictly zero human speech, zero voiceover, zero phantom vocal.
+
+[non_diegetic_music]
+${musicDirective}`;
     }
 
     if (rawPrompt.includes('校车费') || rawPrompt.includes('餐桌') || rawPrompt.includes('dining_room')) {
@@ -533,12 +599,19 @@ detailed_description:
 说完嘴唇抿成一条线，喉结滚一下，把更多话咽回去；不再接话，烟仍在指间搓着，选了沉默不抬眼。
 【镜头】${arConfig.label} 中景双人，餐桌侧面固定镜头，与 Shot 1 机位一致。
 【音效】搓烟纸细微沙沙声贯穿；说完后的换气与吞咽声；底噪贯穿；无对白外的言语。
-【约束】五官稳定，面部不扭曲，口型与台词同步，画面无跳变；人物外观与服装前后一致，暖黄偏暗光线一致；人物机体与衣物表面严格保持纯净一致，严禁出现任何额外贴纸、腰部徽标Logo、身体涂鸦、大腿挂件或杂质印花；画面纯净电影画质，画面严禁任何硬编码字幕与文字覆盖，无台词条，无水印；排除表情夸张、动作幅度过大或任何笑容轻松表情。`;
+【约束】五官稳定，面部不扭曲，口型与台词同步，画面无跳变；人物外观与服装前后一致，暖黄偏暗光线一致；人物机体与衣物表面严格保持纯净一致，严禁出现任何额外贴纸、腰部徽标Logo、身体涂鸦、大腿挂件或杂质印花；画面纯净电影画质，画面严禁任何硬编码字幕与文字覆盖，无台词条，无水印；排除表情夸张、动作幅度过大或任何笑容轻松表情。
+
+[non_diegetic_music]
+${musicDirective}`;
     }
 
-    const speechAction = enforceLipsStill
-      ? `All characters maintain ${FORBIDDEN_WORDS_LEXICON.mouthStillPositivePhrase}.`
-      : `<Subject 1> (${speakerId}) 眼神坚定平视前方，语气低沉有力、句尾利落收束说：${extractedDialogue ? `<d>[Chinese] ${extractedDialogue}</d>` : '<d>[Chinese] 见她如见我。谁敢动她分毫，就是跟我顾沉过不去。</d>'}。说完嘴唇立即闭拢并抿成一条线，不再接话，保持完全沉默闭唇；其余人物全程嘴唇完全紧闭静止（mouths completely still）。`;
+    const voiceSettingBlock = isSilentActionOnly
+      ? `声音设定（铁律：未指定说话人，严禁对白与声音乱入，纯画面+现场拟音，零BGM）：\n全片未指定说话人，严禁生成任何人物对白、台词、画外旁白或幽灵人声；全片人物嘴唇自然紧闭全程完全静止不发声。声音通道仅生成高保真现场物理动作拟音与空间环境底噪，绝无非剧情背景音乐（Zero BGM）。`
+      : `声音设定：\n<Subject 1> (${speakerId}) 始终使用一种固定的声音：约30岁成熟青年男性，中低音，声线磁性沉稳，常态语速有力，句尾利落收束。禁止播音腔与夹子音。\n<Subject 2> (S2) 始终使用一种固定的声音：青年女性，中高音，清柔坚韧。`;
+
+    const speechAction = isSilentActionOnly
+      ? `<Subject 1> 眼神冷峻平视前方，全程嘴唇自然紧闭完全静止不发声（lips completely still and naturally closed, silent character, strictly no speaking, no dialogue, no voiceover, no singing）。`
+      : `<Subject 1> (${speakerId}) 眼神坚定平视前方，语气低沉有力、句尾利落收束说：<d>[Chinese] ${extractedDialogue}</d>。说完嘴唇立即闭拢并抿成一条线，不再接话，保持完全沉默闭唇；其余人物全程嘴唇完全紧闭静止（mouths completely still）。`;
 
     return `## P01｜15.083秒 (362帧)｜豪门宴会冲突
 
@@ -551,9 +624,7 @@ ${arConfig.label} (${arConfig.name}) | ComfyUI Node 456: ${arConfig.comfyValue} 
 <Subject 3> is the wealthy antagonist woman from <Picture 3>.
 <Subject 4> is the grand banquet ballroom with five tiered crystal chandeliers and twenty round tables spread across both sides of the central aisle from <Picture 1>.
 
-声音设定：
-<Subject 1> (${speakerId}) 始终使用一种固定的声音：约30岁成熟青年男性，中低音，声线磁性沉稳，常态语速有力，句尾利落收束。禁止播音腔与夹子音。
-<Subject 2> (S2) 始终使用一种固定的声音：青年女性，中高音，清柔坚韧。
+${voiceSettingBlock}
 
 [summary]
 Inside the opulent ballroom, a tense confrontation unfolds along the marble aisle as characters exchange decisive words. (Total duration: 15.083s / 362 frames).
@@ -564,17 +635,17 @@ Inside the opulent ballroom, a tense confrontation unfolds along the marble aisl
 [detailed_description]
 The grade is locked and identical in every shot: the same exposure, warm amber highlights, and contrast curve from the first shot to the last. No two shots repeat the same framing. ${FORBIDDEN_WORDS_LEXICON.characterPurityPositivePhrase}
 ${framingRule}
-[Shot 1｜0–5秒] The shot opens on a wide shot of <Subject 4> taken from the far side of the room at chest height, the ivory-draped tables spread across both sides of the frame. <Subject 1> (${speakerId}) stands small in the aisle, the whole of his body from head to feet completely inside the picture. ${speechAction}
-【音效】皮鞋踏在光滑大理石上的沉稳脚步声、衣物轻微摩擦声、宴会远端低语底噪。
+[Shot 1｜0–5秒] The shot opens on a wide shot of <Subject 4> taken from the far side of the room at chest height, the ivory-draped tables spread across both sides of the frame. <Subject 1> stands small in the aisle, the whole of his body from head to feet completely inside the picture. ${speechAction}
+【音效】皮鞋踏在光滑大理石上的沉稳脚步声、衣料轻微摩擦沙沙声、宴会远端空间底噪（现场纯物理拟音；绝无对白台词，绝无画外旁白，绝无BGM）。
 
-[Shot 2｜5–10秒] The shot cuts to a medium two-shot showing listeners reacting across the aisle as the antagonist grips her glass.
-【音效】红酒杯轻微晃动声、倒吸一口凉气的抽气声、大厅吊灯电流微鸣。
+[Shot 2｜5–10秒] The shot cuts to a medium two-shot showing listeners reacting across the aisle as the antagonist grips her glass. All subjects keep lips closed and completely still.
+【音效】红酒杯轻微晃动声、倒吸一口凉气的抽气声、大厅吊灯电流微鸣（绝无人物言语，绝无背景音乐）。
 
 [Shot 3｜10–15.083秒] The shot cuts to a wide cinematic tableau. <Subject 1> steps forward shielding <Subject 2>. Final frame holds steady with character postures locked for seamless continuation.
-【音效】布料摩擦声、沉稳有力的呼吸换气声、远端低频回响。
+【音效】布料摩擦声、沉稳有力的呼吸换气声、远端低频回响；严格零BGM。
 
 [overall_soundscape]
-Muffled murmur of background ballroom guests, subtle clink of champagne flutes on distant tables, quiet room tone.
+Muffled murmur of background ballroom guests, subtle clink of champagne flutes on distant tables, quiet room tone; strictly zero dialogue, zero voiceover, zero phantom vocal.
 
 [non_diegetic_music]
 ${musicDirective}`;
@@ -599,28 +670,28 @@ The grade is locked and identical in every shot: rich filmic contrast with prist
 ${framingRule}
 [Shot 1] Macro tracking shot sweeping over precision mechanical facets, light glinting smoothly across the surface.
 [Shot 2] Smooth lateral slide revealing the product in its architectural environment.
-[Shot 3] Authoritative hero angle: the product bathed in dramatic rim lighting. An off-screen narrator voiceover speaks: ${extractedDialogue ? `<d>[Chinese] ${extractedDialogue}</d>` : '<d>[Chinese] 卓越非凡，掌控每一瞬间。</d>'} The camera stays locked and pristine.
+[Shot 3] Authoritative hero angle: the product bathed in dramatic rim lighting. ${isDialogueSpecified ? `An off-screen narrator voiceover speaks: <d>[Chinese] ${dialogue}</d>.` : 'All subjects remain completely silent, strictly zero voiceover, zero narration, zero dialogue.'} The camera stays locked and pristine.
 
 [overall_soundscape]
-Subtle ambient reverberation, crisp mechanical click of precision components.
+Subtle ambient reverberation, crisp mechanical click of precision components, quiet room tone; strictly no voiceover, no background music.
 
 [non_diegetic_music]
 ${musicDirective}`;
   }
 
   // Default MV
-  const mvSingingAction = enforceLipsStill
+  const mvSingingAction = effectiveLipsStill
     ? FORBIDDEN_WORDS_LEXICON.mouthStillPositivePhrase
-    : (extractedDialogue ? `Singing vocals: "${extractedDialogue}" with measured articulation` : 'Singing vocals: "雨水冲刷掉所有的诺言，唯独留下你转身的背影。" with measured articulation');
+    : (isDialogueSpecified ? `Singing vocals: "${dialogue}" with measured articulation` : FORBIDDEN_WORDS_LEXICON.mouthStillPositivePhrase);
 
   return `[aspect_ratio]
 ${arConfig.label} (${arConfig.name}) | ComfyUI Node 61: ${arConfig.comfyValue} | T2I Res: ${arConfig.image1MpRes} | H3 Video Res: ${arConfig.video04MpRes}
 
 [subject_definitions]
-<Subject 1> is the vocal artist. Her face, expressive emotional posture, reflective modern streetwear jacket, and dark flowing hair come from <Picture 1>, and <Picture 1> also carries the rain-slicked city bridge setting.
+<Subject 1> is the visual artist. Her face, expressive emotional posture, reflective modern streetwear jacket, and dark flowing hair come from <Picture 1>, and <Picture 1> also carries the rain-slicked city bridge setting.
 
 [summary]
-Under rain-soaked city lights, the artist delivers an emotionally resonant vocal performance against streaming highway light trails.
+Under rain-soaked city lights, cinematic visual tableau against streaming highway light trails.
 
 [retention_analysis]
 <Subject 1> is preserved from <Picture 1>.
@@ -628,11 +699,11 @@ Under rain-soaked city lights, the artist delivers an emotionally resonant vocal
 [detailed_description]
 The visual atmosphere maintains moody teal and warm sodium amber contrast with wet asphalt reflections.
 ${framingRule}
-[Shot 1] Fluid circular tracking orbit around <Subject 1> (${speakerId}). She performs with measured rhythmic emotion: ${mvSingingAction}.
-[Shot 2] Reaction tableau looking upward toward the neon sky with mouth naturally closed and still.
+[Shot 1] Fluid circular tracking orbit around <Subject 1> (${speakerId || 'S1'}). ${mvSingingAction}.
+[Shot 2] Reaction tableau looking upward toward the neon sky with mouth naturally closed and lips completely still.
 
 [overall_soundscape]
-Gentle falling rain patter on metal handrails, distant city ambient hum.
+Gentle falling rain patter on metal handrails, distant city ambient hum, splashing puddle footsteps; strictly no dialogue, no voiceover, no phantom vocal.
 
 [non_diegetic_music]
 ${musicDirective}`;
@@ -654,20 +725,31 @@ export const FORBIDDEN_WORDS_LEXICON = {
     'username', 'font', 'credits', 'timestamps',
     '字幕', '中文字幕', '双语字幕', '台词条', '压屏文字', '歌词字幕', '卡拉OK字幕', '滚动字幕', '黑底字幕条', '水印'
   ],
-  // 2. 嘴唇静止 / 禁止开口词 (非发声段负向压制)
+  // 2. 嘴唇静止 / 禁止开口与声音乱入词 (非发声段负向压制，彻底杜绝无对白时模型脑溢旁白或对话)
   mouthStillSuppression: [
     'singing', 'mouth open', 'lip-sync', 'talking', 'speaking', 'vocalizing',
-    'open lips', 'moving mouth', 'dialogue', 'chatting', 'parted lips'
+    'open lips', 'moving mouth', 'dialogue', 'chatting', 'parted lips',
+    'voiceover', 'narration', 'whispering', 'screaming', 'female vocal',
+    'male vocal', 'muttering', 'phantom voices', 'human voice', 'babbling',
+    'speech', 'chatter', 'yelling', 'crying sounds', 'moaning', 'grunting vocal',
+    '旁白', '画外音', '对白', '说话', '自言自语', '有人说话', '女声旁白', '男声独白', '乱入声音'
   ],
   // 嘴唇正向静止声明标准句 (必须注入分镜正面 Action 或 Detailed Description)
-  mouthStillPositivePhrase: 'mouth naturally closed, lips completely still, not moving along with vocals, no singing or talking',
+  mouthStillPositivePhrase: 'mouth naturally closed, lips completely still, not moving along with vocals, no singing or talking, strictly no voiceover, no dialogue, no narration, silent character',
   // 3. 背景音乐禁止生成声明 (当不需要模型自己生成配乐、为后期无损全曲 Master BGM 让路时)
   bgmSuppressionPositivePhrase: 'None. There is no non-diegetic background music in this video track, absolute silence on the music channel to allow clean external master score mixing.',
   bgmNegativeSuppression: [
     'background music', 'noisy score', 'discordant soundtrack', 'distorted audio',
     'bgm', 'humming', 'audio clipping', 'clashing instruments', 'cacophony'
   ],
-  // 4. 角色表面不可变性与防杂质涂鸦挂件禁令 (彻底杜绝环境注意力外溢导致的腰部Logo、大腿挂件、乱码贴纸、衣服印花)
+  // 4. 彻底杜绝幽灵人声与乱入声音专用矩阵 (严禁声音乱入硬死锁)
+  phantomVoiceSuppression: [
+    'voiceover', 'narration', 'spoken dialogue', 'speech', 'talking',
+    'female voice', 'male voice', 'child voice', 'whisper', 'conversations',
+    'phantom voice', 'audio leakage', 'unintended vocal', 'singing voice',
+    'monologue', 'chatter', 'vocalization', 'talking head', 'lip movement'
+  ],
+  // 5. 角色表面不可变性与防杂质涂鸦挂件禁令 (彻底杜绝环境注意力外溢导致的腰部Logo、大腿挂件、乱码贴纸、衣服印花)
   characterSurfacePurityAndDecals: [
     'stickers', 'decals', 'body graffiti', 'painted emblems', 'waist logo',
     'hanging charms', 'dangling ornaments', 'hanging accessories', 'cartoon decals',
@@ -697,6 +779,7 @@ export function buildCompliantNegativePrompt(options?: {
 
   if (!isLip) {
     tags.push(...FORBIDDEN_WORDS_LEXICON.mouthStillSuppression);
+    tags.push(...FORBIDDEN_WORDS_LEXICON.phantomVoiceSuppression);
   }
   if (suppressBgm) {
     tags.push(...FORBIDDEN_WORDS_LEXICON.bgmNegativeSuppression);

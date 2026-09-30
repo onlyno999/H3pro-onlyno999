@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Layers, ShieldCheck, CheckCircle2, AlertTriangle, Eye, Sparkles, Sliders, RefreshCw,
   Cpu, Download, ArrowRight, UserCheck, Upload, Image as ImageIcon, Film, PlayCircle,
-  FastForward, Scissors, Check, Zap, EyeOff, Scale, HelpCircle, ArrowDownCircle, RefreshCcw
+  FastForward, Scissors, Check, Zap, EyeOff, Scale, HelpCircle, ArrowDownCircle, RefreshCcw,
+  Grid, Box, Package, CheckCheck
 } from 'lucide-react';
 import { DRAMA_ASSET_CARDS, AssetCard } from '../data/h3PipelineData';
 import {
@@ -41,6 +42,11 @@ export const ThreeWorkflowAssetStudio: React.FC = () => {
   const [syncStatusMsg, setSyncStatusMsg] = useState<string | null>('已就绪：1:1 锁颜算法与全模态 9 图参考矩阵已直通 Node 18~35/76，并同步至 Python CLI (rh3_h3.py) 与 H3 满血工作流');
   const [showSeamDeepDive, setShowSeamDeepDive] = useState<boolean>(true);
   const [selectedSeamFrame, setSelectedSeamFrame] = useState<'f361' | 'f362' | 'p02_f0' | 'p02_f1'>('f362');
+
+  // Long-Video 3-Step Asset Pre-Lock & Auto-Inheritance States
+  const [multiGridMode, setMultiGridMode] = useState<'4-grid' | '9-grid'>('4-grid');
+  const [activeAssetStep, setActiveAssetStep] = useState<'character' | 'multigrid_scene' | 'props'>('character');
+  const [isAssetsSyncedToDownstream, setIsAssetsSyncedToDownstream] = useState<boolean>(true);
 
   const fidelityMetrics: Fidelity1To1Metrics = calculate1To1FidelityMetrics(!!uploadedUserImg);
 
@@ -206,6 +212,263 @@ export const ThreeWorkflowAssetStudio: React.FC = () => {
             {isSyncingAll ? <RefreshCw className="w-4 h-4 animate-spin" /> : <RefreshCcw className="w-4 h-4" />}
             <span>{isSyncingAll ? '正在全量同步中...' : '一键立即全量同步 (Sync All)'}</span>
           </button>
+        </div>
+      </div>
+
+      {/* LONG-VIDEO CORE PIPELINE: 拿到剧本出提示词后 ➔ 第1步定妆 ➔ 第2步多宫格场景 ➔ 第3步物品道具 ➔ 后段自动调用 */}
+      <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 border-2 border-indigo-500/50 shadow-2xl space-y-5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-indigo-500/20 text-amber-300 font-mono text-xs font-bold border border-amber-500/40 flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>长视频核心生产法则 · 前置三大资产锁定工坊</span>
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-mono">
+                前置做完 ➔ 后面所有分段 (P01~P04...) 全自动调用！
+              </span>
+            </div>
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <Package className="w-5 h-5 text-indigo-400" />
+              <span>做长视频流程：出提示词后 ➔ ① 做定妆 ➔ ② 做多宫格场景图 ➔ ③ 做物品道具图 ➔ 后面那些段自动调用</span>
+            </h3>
+            <p className="text-xs text-slate-300 leading-relaxed max-w-4xl">
+              <strong>制作长视频的核心铁律</strong>：刚拿到剧本出完提示词后，首要任务就是把<strong>「人物1:1定妆卡」</strong>、<strong>「多宫格场景图」</strong>和<strong>「物品道具图」</strong>做出来并锁定。资产做完后，后续各段（P01 0~15s、P02 15~30s、P03 30~45s、P04 45~60s）<strong>自动调用继承</strong>，无需重复做图，全剧长相统一、场景稳定、道具不走样！
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => {
+                setIsAssetsSyncedToDownstream(true);
+                handleSyncAll();
+              }}
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg transition-all"
+            >
+              <CheckCheck className="w-4 h-4 text-emerald-300" />
+              <span>一键将前置资产下发至全剧所有分段</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 3-Step Interactive Asset Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Step 1: 做人物 1:1 定妆卡 */}
+          <div className="p-4 rounded-xl bg-slate-950 border border-indigo-500/40 hover:border-indigo-400 transition-all space-y-3 relative group">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-indigo-300 font-mono flex items-center gap-1.5">
+                <span className="w-5 h-5 rounded-full bg-indigo-500/30 text-indigo-200 flex items-center justify-center text-[10px] font-bold">1</span>
+                <span>第 1 件事：做人物 1:1 定妆卡</span>
+              </span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                Node 18 (图1)
+              </span>
+            </div>
+
+            <div className="aspect-[9/16] max-h-48 w-full rounded-lg overflow-hidden bg-black relative border border-slate-800 mx-auto">
+              <img
+                src={fusedCompositeUrl || selectedCard.previewUrl}
+                alt="1:1 定妆卡"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+              />
+              <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/80 font-mono text-[9px] text-cyan-300">
+                1:1 融光定妆卡
+              </div>
+              <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-black/80 font-mono text-[9px] text-emerald-300">
+                残差 0.8% PASS
+              </div>
+            </div>
+
+            <div className="space-y-1.5 text-[11px]">
+              <div className="flex items-center justify-between text-slate-300 font-medium">
+                <span>角色与五官长相锁定:</span>
+                <span className="text-emerald-400 font-bold">同一张脸·同一套衣服</span>
+              </div>
+              <p className="text-slate-400 text-[10px] leading-relaxed">
+                提取三视图正面立绘与特写，去摄影棚灰底反光，生成地面接触阴影，鞋底留地防漂浮。
+              </p>
+            </div>
+
+            <label className="w-full py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 hover:text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors">
+              <Upload className="w-3.5 h-3.5" />
+              <span>重新上传 / 生成定妆卡</span>
+              <input type="file" className="hidden" accept="image/*" />
+            </label>
+          </div>
+
+          {/* Step 2: 做多宫格场景图 */}
+          <div className="p-4 rounded-xl bg-slate-950 border border-indigo-500/40 hover:border-indigo-400 transition-all space-y-3 relative group">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-amber-300 font-mono flex items-center gap-1.5">
+                <span className="w-5 h-5 rounded-full bg-amber-500/30 text-amber-200 flex items-center justify-center text-[10px] font-bold">2</span>
+                <span>第 2 件事：做多宫格场景图</span>
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setMultiGridMode('4-grid')}
+                  className={`text-[9px] font-mono px-1.5 py-0.5 rounded transition ${
+                    multiGridMode === '4-grid' ? 'bg-amber-500/30 text-amber-200 border border-amber-500/50' : 'bg-slate-900 text-slate-500'
+                  }`}
+                >
+                  4宫格
+                </button>
+                <button
+                  onClick={() => setMultiGridMode('9-grid')}
+                  className={`text-[9px] font-mono px-1.5 py-0.5 rounded transition ${
+                    multiGridMode === '9-grid' ? 'bg-amber-500/30 text-amber-200 border border-amber-500/50' : 'bg-slate-900 text-slate-500'
+                  }`}
+                >
+                  9宫格
+                </button>
+              </div>
+            </div>
+
+            {/* 4-Grid Multi-Perspective Scene Sheet Preview */}
+            <div className="aspect-[9/16] max-h-48 w-full rounded-lg overflow-hidden bg-black relative border border-slate-800 p-0.5 grid grid-cols-2 grid-rows-2 gap-0.5">
+              <div className="relative overflow-hidden rounded bg-slate-900">
+                <img
+                  src="https://images.unsplash.com/photo-1513694203232-719a280e022f?w=300&auto=format&fit=crop&q=80"
+                  alt="全景"
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute bottom-0.5 left-0.5 px-1 py-0.2 rounded bg-black/80 text-[8px] font-mono text-cyan-300">①全景大景</span>
+              </div>
+              <div className="relative overflow-hidden rounded bg-slate-900">
+                <img
+                  src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=300&auto=format&fit=crop&q=80"
+                  alt="逆光"
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute bottom-0.5 left-0.5 px-1 py-0.2 rounded bg-black/80 text-[8px] font-mono text-amber-300">②逆光窗口</span>
+              </div>
+              <div className="relative overflow-hidden rounded bg-slate-900">
+                <img
+                  src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&auto=format&fit=crop&q=80"
+                  alt="双侧陈设"
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute bottom-0.5 left-0.5 px-1 py-0.2 rounded bg-black/80 text-[8px] font-mono text-purple-300">③中景对峙</span>
+              </div>
+              <div className="relative overflow-hidden rounded bg-slate-900">
+                <img
+                  src="https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=300&auto=format&fit=crop&q=80"
+                  alt="局部纵深"
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute bottom-0.5 left-0.5 px-1 py-0.2 rounded bg-black/80 text-[8px] font-mono text-emerald-300">④暗角纵深</span>
+              </div>
+            </div>
+
+            <div className="space-y-1.5 text-[11px]">
+              <div className="flex items-center justify-between text-slate-300 font-medium">
+                <span>环境与空间结构锁定:</span>
+                <span className="text-amber-400 font-bold">Node 23 / 76 直通</span>
+              </div>
+              <p className="text-slate-400 text-[10px] leading-relaxed">
+                多机位母本同时掌握全景、逆光、双侧陈设与暗角，彻底防止换镜头变成另一个房间。
+              </p>
+            </div>
+
+            <button
+              onClick={handleGenerateCustomScene}
+              disabled={isGeneratingScene}
+              className="w-full py-1.5 rounded-lg bg-amber-600/30 hover:bg-amber-600 text-amber-200 hover:text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+            >
+              <Grid className="w-3.5 h-3.5" />
+              <span>{isGeneratingScene ? '正在生成多宫格母本...' : '重新生成多宫格场景图'}</span>
+            </button>
+          </div>
+
+          {/* Step 3: 做物品图、道具图 */}
+          <div className="p-4 rounded-xl bg-slate-950 border border-indigo-500/40 hover:border-indigo-400 transition-all space-y-3 relative group">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-cyan-300 font-mono flex items-center gap-1.5">
+                <span className="w-5 h-5 rounded-full bg-cyan-500/30 text-cyan-200 flex items-center justify-center text-[10px] font-bold">3</span>
+                <span>第 3 件事：做物品图、道具图</span>
+              </span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                Node 24 (图4)
+              </span>
+            </div>
+
+            <div className="aspect-[9/16] max-h-48 w-full rounded-lg overflow-hidden bg-black relative border border-slate-800 p-1 flex flex-col gap-1">
+              <div className="flex-1 relative overflow-hidden rounded bg-slate-900 border border-slate-800/80">
+                <img
+                  src="https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&auto=format&fit=crop&q=80"
+                  alt="关键道具"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                />
+                <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/85 text-[9px] font-mono text-cyan-300">
+                  道具A: 复古搪瓷茶杯与铜钥匙
+                </div>
+              </div>
+              <div className="h-14 relative overflow-hidden rounded bg-slate-900 border border-slate-800/80 flex items-center justify-between px-2 text-[10px] font-mono text-slate-300">
+                <span>道具B: 圆形玻璃烟灰缸与香烟</span>
+                <span className="text-emerald-400 font-bold">3D高精锁定</span>
+              </div>
+            </div>
+
+            <div className="space-y-1.5 text-[11px]">
+              <div className="flex items-center justify-between text-slate-300 font-medium">
+                <span>关键剧情物件质感锁定:</span>
+                <span className="text-cyan-400 font-bold">跨段交互不形变</span>
+              </div>
+              <p className="text-slate-400 text-[10px] leading-relaxed">
+                对剧情核心道具（武器、手机、手表、茶杯、钥匙、公文包）做高精材质形态渲染。
+              </p>
+            </div>
+
+            <label className="w-full py-1.5 rounded-lg bg-cyan-600/30 hover:bg-cyan-600 text-cyan-200 hover:text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors">
+              <Box className="w-3.5 h-3.5" />
+              <span>上传 / 添加剧情道具图</span>
+              <input type="file" className="hidden" accept="image/*" />
+            </label>
+          </div>
+        </div>
+
+        {/* Downstream Segment Auto-Inheritance Pipeline Tracker */}
+        <div className="p-4 rounded-xl bg-slate-950/90 border border-indigo-500/30 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-white font-mono flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>后续所有分段全自动调用与继承追踪 (Downstream Auto-Inheritance)</span>
+              </span>
+              <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono">
+                {isAssetsSyncedToDownstream ? '全段已自动挂载' : '待下发'}
+              </span>
+            </div>
+            <span className="text-[11px] text-slate-400 font-mono">
+              前置资产仅做一次 ➔ 后面各段自动挂载 + 15s 尾帧接力
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            {[
+              { id: 'P01', range: '00:00 - 00:15 (362帧)', role: '开场初态', status: '自动载入定妆卡+多宫格场景+道具图', padStatus: '生成第362帧尾帧切片' },
+              { id: 'P02', range: '00:15 - 00:30 (362帧)', role: '递进质问', status: '自动继承三大前置母本资产', padStatus: '自动垫入 P01 第362帧尾帧' },
+              { id: 'P03', range: '00:30 - 00:45 (362帧)', role: '高潮冲突', status: '自动继承三大前置母本资产', padStatus: '自动垫入 P02 第362帧尾帧' },
+              { id: 'P04', range: '00:45 - 01:00 (362帧)', role: '终章收尾', status: '自动继承三大前置母本资产', padStatus: '自动垫入 P03 第362帧尾帧' }
+            ].map((seg, idx) => (
+              <div key={seg.id} className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1.5 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white font-mono">{seg.id} · {seg.role}</span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300">
+                    第 {idx + 1} 段
+                  </span>
+                </div>
+                <div className="text-[10px] text-slate-400 font-mono">{seg.range}</div>
+                <div className="text-[11px] text-emerald-400 flex items-center gap-1 font-medium">
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{seg.status}</span>
+                </div>
+                <div className="text-[10px] text-cyan-300/90 flex items-center gap-1 border-t border-slate-800 pt-1">
+                  <Scissors className="w-3 h-3 text-cyan-400 shrink-0" />
+                  <span className="truncate">{seg.padStatus}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

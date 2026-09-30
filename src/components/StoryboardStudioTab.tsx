@@ -74,7 +74,7 @@ export const StoryboardStudioTab: React.FC<StoryboardStudioTabProps> = ({
         shot: activeShot,
         backgroundImageUrl: bgUrl,
         backgroundImageName: bgName,
-        onProgress: (prog, stage, _log) => {
+        onProgress: (prog: number, stage: string, _log?: string) => {
           setImg2imgProgress(prog);
           setImg2imgStage(stage);
         }
@@ -85,7 +85,7 @@ export const StoryboardStudioTab: React.FC<StoryboardStudioTabProps> = ({
         backgroundImageUrl: bgUrl,
         backgroundImageName: bgName,
         generatedKeyframeUrl: result.generatedImageUrl,
-        imageGenStatus: 'completed',
+        imageGenStatus: 'success',
         imageGenPlugin: 'buddy-multimodal-generation',
         imageGenLogs: result.logs
       });

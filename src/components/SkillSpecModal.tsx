@@ -201,13 +201,26 @@ F. 零冻结接力与双关制：逐段 15s 截取第 362 帧作为下段首帧�
     name: '三工作流短剧与广告 SOP (MD)',
     type: 'markdown',
     path: '/skills/mv-auto-pipeline/references/h3_short_drama_and_commercial_pipeline.md',
-    content: `# H3 竖版短剧与商业广告流水线 (三工作流与一致性锁定 SOP)
+    content: `# H3 竖版短剧与商业广告流水线 (长视频资产前置锁定与全段自动继承 SOP)
 
-## 三工作流中台闭环：
-1. Qwen-Image 2.1 文生图：全身人物立绘卡 (鞋底留地空带) + 母本场景卡 (5×4 纵深网格双侧圆桌，8位虚化宾客)
-2. Qwen-Image 2.1 Edit 图像编辑：场景为 image_1 画布，人物为 image_2，注入 CROWD_KEEP，彻底洗净影棚灰底
-3. MiniMax H3 Ref2VA：四段 (60.33s) 或八段 (120.67s) 每段固定灌入这 3 张合成卡，0.4MP (480×864)，精准 362 帧
-4. FFmpeg 0.35s 音频淡接拼接成片 + AI 合规标注角标`
+## 核心生产法则：
+做长视频时，刚拿到剧本，出了提示词后：
+- **第 1 件事**：做人物 1:1 定妆卡；
+- **第 2 件事**：做多宫格场景图；
+- **第 3 件事**：做物品图、道具图；
+- **后续分段**：后面那些段自动调用继承即可！
+
+## 三大资产前置工坊：
+1. **人物 1:1 定妆卡 (Node 18 & Node 35)**：
+   - 全身立绘 + 半身特写，鞋底留地空带，去摄影棚灰底反光，锁定五官长相与服装；
+2. **多宫格场景母本图 (Node 23 & Node 76)**：
+   - 4 宫格或 9 宫格多机位网格（大景、中景、对峙、局部陈设），锁定环境色温与空间纵深；
+3. **关键物品与道具图 (Node 24 & Node 32)**：
+   - 剧情关键物件（武器、手机、手表、重要道具）做高精 3D 材质质感锁定；
+
+## 后面分段全自动调用与接力闭环：
+- P01 (0~15s)、P02 (15~30s)、P03 (30~45s)、P04 (45~60s)... 自动挂载这套锁定的资产矩阵（<Subject 1> ~ <Subject 4>）；
+- 逐段 15s 截取第 362 帧尾帧自动作为下段首帧垫图，配合 FFmpeg select='gt(n\,0)' 剔除重影，全剧长相不变、场景不跳、道具不丢！`
   },
   {
     id: 'imgcheck_py',
@@ -416,7 +429,17 @@ def validate_h3_prompt(text: str) -> dict:
 3. **情绪靠动作带 (No Adjectives)**：
    - 别写“他很悲伤地说”，改写为“眼眶泛红、视线低垂、声音压低发闷地说”，用具体生理动作与微表情传达情绪；
 4. **接收先于反应**：
-   - 听者先听见触发微动作（视线停滞、手指搓动、深吸气），再开口接话。`
+   - 听者先听见触发微动作（视线停滞、手指搓动、深吸气），再开口接话。
+
+## 杜绝声音乱入与幽灵人声铁律门禁 (Strict Silent-Action & Foley-Only Iron Law)：
+- **核心铁律（ABSOLUTE IRONCLAD RULES）**：**只要没有指定谁说的话，生成画面+拟音。没有背景BGM。这些是铁律！**
+- **痛点成因**：H3 为原生音画一体模型，分镜若未明确声明对白与说话人，模型极易自由脑补乱入女声哭泣、喃喃自语或廉价罐头BGM！
+- **五重彻底杜绝铁律死锁**：
+  1. **【铁律 1】正向显式声明纯画面+动作物理拟音**：在【动作】与【音效】写入 \`mouth naturally closed, lips completely still, strictly no voiceover, no dialogue, no human speech\`，详写脚步、呼吸、摩擦与空间底噪；
+  2. **【铁律 2】声音设定区封死**：明确标注“声音设定（铁律：未指定说话人，严禁对白与声音乱入，纯画面+现场拟音，零BGM）：全片无说话人，无对白台词，无画外旁白”；
+  3. **【铁律 3】背景 BGM 彻底归零 (Zero BGM)**：\`[non_diegetic_music]\` 必须设为 \`None\`，绝对静止；
+  4. **【铁律 4】负向词库硬注入**：强制压制 \`phantom voices, voiceover, female vocal, male vocal, whisper, muttering, speech, background music, bgm, soundtrack, score\`；
+  5. **【铁律 5】口型视觉锁死**：负向压制 \`moving mouth, parted lips, talking head\`，防止因嘴微张而误触发语音合成。`
   },
   {
     id: 'fight_fx_skill_md',
@@ -440,7 +463,13 @@ def validate_h3_prompt(text: str) -> dict:
 4. **格斗拟音与声效矩阵**：
    - 肉体沉闷重击音 (heavy flesh impact thud)；
    - 刀剑金属交鸣火星声 (sharp metallic clashing with sparks)；
-   - 破空呼啸 (whooshing air drag) 与受击闭气闷哼声。`
+   - 破空呼啸 (whooshing air drag) 与受击闭气闷哼声。
+
+## 3. 动作打斗戏声音铁律 (Ironclad Fight Foley Law)
+- **【核心铁律】**：**只要没有指定谁说的话，生成画面+拟音。没有背景BGM。这些是铁律！**
+- **严禁编造台词**：打斗戏无指定台词时，严禁自行编造挑衅言语或自言自语，人物嘴唇全程闭合静止；
+- **纯粹打击拟音**：破空声、肉体闷响、骨骼受力声、撞击崩裂声、急促粗重呼吸拟音；
+- **零背景音乐**：\`[non_diegetic_music]\` 设为 None，负向压制 background music，保证纯粹动作打击张力。`
   }
 ];
 
