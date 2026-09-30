@@ -47,7 +47,7 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base tracking-wider text-slate-100 font-mono">H3PRO-onlyno999</span>
+                <span className="font-extrabold text-base tracking-wider text-slate-100 font-mono">mvH3-onlyno999</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/30">
                   官流终极版 V2.2
                 </span>

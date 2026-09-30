@@ -1,12 +1,12 @@
 ---
-name: h3pro-agent
+name: mvh3-agent
 description: >
-  H3PRO-onlyno999 专职视频生成与调度 Agent 规范。集成 MiniMax H3 官方规范、
+  mvH3-onlyno999 专职视频生成与调度 Agent 规范。集成 MiniMax H3 官方规范、
   RunningHub 终极版调度模型 (https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q)
   以及 Bernini Director rv2v 多图矩阵与分段连续参考机制。
 ---
 
-# H3PRO-onlyno999 Agent 核心技能规范
+# mvH3-onlyno999 Agent 核心技能规范
 
 ## 1. 架构总则：前两步焊死 + 第三步云端一键调度插拔
 - **Skill 1【焊死】创意分镜构思内核**：解析自然语言与故事设定，输出时间轴结构化镜头大纲。

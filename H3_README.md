@@ -50,24 +50,24 @@
 
 ---
 
-## 🔗 RunningHub (RH) MiniMax H3 官流终极版配置
+## 🔗 RunningHub (RH) mvH3 官方导演台云端配置
 
 * **平台官网**：[RunningHub (www.runninghub.cn)](https://www.runninghub.cn)
-* **官方工作流地址**：[H3 官流终极版](https://www.runninghub.cn/post/2084788947984666625/?inviteCode=zedwxo2q)
-* **工作流 ID**：`2084788947984666625`
-* **官方邀请码**：`zedwxo2q`（填写送 1000 RH 币）
+* **官方工作流地址**：[Bernini Director rv2v 导演台调度模型](https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q)
+* **工作流 ID**：`2079374352503631873`
+* **官方邀请码**：`zedwxo2q`（填写送 1000 RH 渲染币）
 * **核心节点与参数映射表**：
 
 | 模块 | 节点类型 | Node ID | 核心功能与字段配置 |
 | :--- | :--- | :--- | :--- |
-| **H3 视频参考总控** | `MiniMaxH3ReferenceToVideo` | **136** | **核心出片枢纽**：接收提示词、多图参考、视频参考、音频参考与画幅尺寸 |
-| **🎬 视频参考输入** | `VHS_LoadVideo` | **175** | **跨段一致性神器**：`video` 字段载入上一段视频路径，实现无缝接力 |
-| **多图参考矩阵** | `LoadImage` | **137 / 139 / 167 / 173 / 172 / 171** | 分别接入 `<Picture 1>` 至 `<Picture 6>` 角色/场景母本卡 |
-| **提示词输入** | `PrimitiveStringMultiline` | **138** | `value`: H3 官方六段式提示词 |
-| **时长控制器** | `PrimitiveFloat` + `ComfyMathExpression` | **132 / 131** | `value`: 10.0 / 15.0 秒，自动计算 17n+5 帧数 |
-| **画幅选择器** | `ResolutionSelector` | **115** | `aspect_ratio`: 9:16 (Portrait) / 16:9 (Widescreen) / 1:1 (Square) |
-| **音频参考** | `LoadAudio` | **174** | `audio`: 挂载角色专属音色参考干声 |
-| **音画合成与导出** | `VHS_VideoCombine` | **148** | 输出标准 24fps H.264 MP4 视频成片 |
+| **Bernini 导演总控** | `ComfyBerniniDirector` | **22** | **核心枢纽**：`rv2v` 任务、多图矩阵 `refs`、分段时空轴 `timeline_data`、LLM 增强 |
+| **双 UNet 模型载入** | `UNETLoader` | **18 / 17** | `Bernini_HIGH_fp8_e4m3fn_scaled` 与 `Bernini_LOW_fp8_e4m3fn_scaled` |
+| **高低噪 LoRA 加速** | `LoraLoaderModelOnly` | **9 / 10** | `Bernini-R_LightX2V_high_noise` 与 `low_noise` 模型专属加速 |
+| **时空位移采样** | `ModelSamplingSD3` | **11 / 12** | `shift: 5`，大幅强化复杂运动镜头稳定性 |
+| **多图主体参考矩阵** | `timeline_data.refs` | **22** | **支持动态多图（推荐 1~6 张）**：涵盖主角正面三视图、配角、道具与场景底图 |
+| **视频连续引导** | `referenceVideo` | **22** | `continuousReference: true`：载入上段视频动态引导，实现 100% 不变脸接力 |
+| **音画封包与导出** | `VHS_VideoCombine` | **5** | 输出标准 24fps MP4 视频成片 |
+| **运行报告输出** | `PreviewAny` | **6** | 输出实时显存占用与分段时序报告 |
 
 ---
 
@@ -81,7 +81,7 @@ python3 rh_h3.py --shot P01 --duration 10.0 \
   --prompt "铁蛋在菜地拔菜，语调欢快..." \
   --api-key "你的RunningHub_Key"
 
-# 2. 生成第 2 段 (P02) - 直接将 P01 成片作为视频参考 (Node 175) 连贯接力：
+# 2. 生成第 2 段 (P02) - 直接将 P01 成片作为连续视频参考 (Node 22 referenceVideo) 连贯接力：
 python3 rh_h3.py --shot P02 --duration 10.0 \
   --ref-video "workspace/tiedan_p01.mp4" \
   --prompt "承接上一段，铁蛋在木桥上被大黄奔跑追赶..." \

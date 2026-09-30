@@ -137,7 +137,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSwitchToStudio
                     <span className="text-xs text-slate-400">RunningHub 官流终极版智能管控后台</span>
                   </div>
                   <h2 className="text-xl sm:text-2xl font-black text-slate-100 mt-2">
-                    H3PRO-onlyno999 全自动化后台管理系统
+                    mvH3-onlyno999 全自动化后台管理系统
                   </h2>
                   <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
                     全面接入 MiniMax H3 官方 Ref2VA / FL2VA 视频参考规范与 RunningHub OpenAPI 调度集群。

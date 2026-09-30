@@ -1,4 +1,4 @@
-# H3PRO-onlyno999：MiniMax H3 全自动化视频生成平台与导演工作台中台
+# mvH3-onlyno999：MiniMax H3 全自动化视频生成平台与导演工作台中台
 
 > **工业级 AI 视频生成 SOP 与云端调度系统**  
 > 统合 **【音乐 MV】**、**【竖版短剧 (Short Drama)】** 与 **【商业广告 (Commercials)】** 三大影视题材生产。  
@@ -135,8 +135,8 @@ ffmpeg -y -v error \
 > **铁律原则**：本系统往后每一次增加功能、修改接口、调整节点或更新工作流配置，**必须严格同步更新本 README.md 文档及系统内部规范**。
 
 ### 最新更新记录：
-- **[2026-09-30] H3PRO-onlyno999 品牌与云端调度升级**：
-  1. 系统正式更名为 **H3PRO-onlyno999**（包含全页面标题、SEO 元数据、Logo 与后台管理系统）。
+- **[2026-09-30] mvH3-onlyno999 品牌与云端调度升级**：
+  1. 系统正式更名为 **mvH3-onlyno999**（包含全页面标题、SEO 元数据、Logo 与后台管理系统）。
   2. 云端调度全面接入 **RunningHub 官方 Bernini Director rv2v 架构**：
      - 工作流地址更新为：`https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q`
      - 核心总控节点升级为 Node 22 (`ComfyBerniniDirector`)。
@@ -144,4 +144,8 @@ ffmpeg -y -v error \
      - 底层采用动态 `refs` 数组及分镜头 `segments.refs` 独立绑定机制；
      - 明确工程标准最佳实践：一次上传推荐 **1 ~ 6 张** 参考图，杜绝注意力过度分散导致的画面噪点；
      - 完整规范同步写入 `/skills/h3pro-agent/SKILL.md` 及前端工作台 `SkillSpecModal.tsx`。
+  4. **全套旧版技能文档与脚本完成新模型同步升级**：
+     - `SKILL.md` 全面适配 Node 22 双 UNet 与分段时空架构；
+     - 导演台工作流规范全面升级为 Bernini Director rv2v 技术拓扑；
+     - `H3_README.md` 与前端工作台弹窗内 9 大 SOP 规范及质检脚本完成 100% 深度对齐。
 

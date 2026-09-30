@@ -12,7 +12,7 @@ const SPEC_FILES = [
     name: 'README.md (系统详细使用与架构总览)',
     type: 'markdown',
     path: '/README.md',
-    content: `# H3PRO-onlyno999：MiniMax H3 全自动化视频生成平台与导演工作台中台
+    content: `# mvH3-onlyno999：MiniMax H3 全自动化视频生成平台与导演工作台中台
 
 > **工业级 AI 视频生成 SOP 与云端调度系统**  
 > 统合 **【音乐 MV】**、**【竖版短剧 (Short Drama)】** 与 **【商业广告 (Commercials)】** 三大影视题材生产。  
@@ -142,30 +142,31 @@ const SPEC_FILES = [
   },
   {
     id: 'skill_md',
-    name: 'SKILL.md (V2.0 整合版)',
+    name: 'SKILL.md (mvH3 终极版)',
     type: 'markdown',
     path: '/skills/mv-auto-pipeline/SKILL.md',
     content: `---
-name: mv-auto-pipeline
+name: mvh3-agent
 description: >
-  全自动视频生成 SOP 与实战工作台 (V2.0)。全链打通【音乐 MV】、【竖版多段短剧 (Short Drama)】与【商业广告 (Commercials)】三大题材生产。
-  严格落实十二步工程全链、八道质量门禁、MiniMax H3 官方 Ref2VA 六段式提示词规范、Qwen 文生图+图像编辑+H3参考生视频三工作流资产中台、
-  跨段防裁头宽景与宾客同源锁定清单、无视觉像素级三验 (imgcheck/subprobe/vcheck)、以及 RunningHub 云端一键调度出片。
+  mvH3-onlyno999 专职视频生成与调度 Agent 规范 (V2.2 终极版)。全链打通【音乐 MV】、【竖版多段短剧 (Short Drama)】与【商业广告 (Commercials)】三大题材生产。
+  全面适配最新 RunningHub Bernini Director rv2v 调度架构 (https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q)，
+  严格落实 MiniMax H3 官方 Ref2VA 六段式提示词规范、多图参考矩阵 (1~6张)、分镜头独立局部参考与连续源视频接力、
+  无视觉像素级三验 (imgcheck/subprobe/vcheck) 与 15s 尾帧垫图零冻结 FFmpeg 终剪。
 ---
 
-# H3 全自动视频生成流水线 SOP (MV · 短剧 · 广告)
+# mvH3 全自动视频生成流水线 SOP (MV · 短剧 · 广告)
 
 > 核心使命：用 MV 的工程级严密流程（时间轴锚定、12步8关、对齐三验、成本台账、硬门禁拦截），
-> 统一扩展与赋能【音乐 MV】、【竖版短剧】与【商业广告】，全面接入 MiniMax H3 官方规范与三工作流资产中台，
+> 统一扩展与赋能【音乐 MV】、【竖版短剧】与【商业广告】，全面接入 MiniMax H3 官方规范与 Bernini Director 资产中台，
 > 彻底解决「音画漂移」、「对白裁头」、「反向字幕敏感」与「背景人忽有忽无」等痛点，直通 RunningHub 出片。
 
 ## 六大铁律：
-A. 时间是唯一的时间基准（MV 依歌词、短剧依 15s/362 帧节拍、广告依分镜表）
+A. 时间是唯一的时间基准（MV 依歌词、短剧依 15s/362 帧节拍、广告依分镜表，底层 17n+5 帧数公式）
 B. 只有中近景或宽景安全机位发声，发声时必须绑定 (Sx) 与 <d> 标签，人物嘴唇非发声时必须绝对静止
 C. 画面纯净与防反向陷阱：严禁在正负向中写 "no subtitles/no text"（H3 越点名越画字幕！）
-D. 同源场景派生：所有合成图都以同一张场景卡为画布派生，锁定建筑、天花板吊灯与宾客
+D. 多图矩阵同源锁定：主角三视图、配角道具、场景母图三位一体锁定，推荐配置 1~6 张参考图
 E. 防走廊构图：走道收窄至一张桌宽，圆桌与宾客铺满两侧，严禁单侧排布造成狭长走廊
-F. 双关制与对齐三验：机检硬门禁 + HTML 审查；成片必须经受滞后量、波形相关度与人声能量核验`
+F. 零冻结接力与双关制：逐段 15s 截取第 362 帧作为下段首帧垫图，FFmpeg select='gt(n\,0)' 消除卡顿叠影`
   },
   {
     id: 'h3_ref_md',
@@ -338,22 +339,33 @@ def validate_h3_prompt(text: str) -> dict:
   },
   {
     id: 'director_spec_md',
-    name: '导演台全工作流规范 (MD)',
+    name: 'Bernini 官方导演台架构规范 (MD)',
     type: 'markdown',
     path: '/skills/mv-auto-pipeline/references/runninghub_workflow_spec.md',
-    content: `# MiniMax H3 Director · 导演台全工作流技术规范
+    content: `# Bernini Director · 官方导演台 rv2v 调度规范 (RunningHub 2079374352503631873)
 
-## 8 大核心子图模块：
-1. 模型与双 VAE 加载：UNET (Ref2VA / FL2VA) + Qwen3-VL CLIP + Video VAE + Audio VAE
-2. 加速 LoRA 与 SageAttention：Turbo 8-step LoRA (Node 25) + SageAttention (Node 17/16)
-3. 主导演台核心总控 (Node 12 MiniMaxH3Director)：
-   - 支持 r2v, t2v, i2v, fl2v, v2v, rv2v 多模态任务
-   - timeline_data 分段时序、关键帧、多镜连续性重绘
-4. SelfLift 渐进采样模块 (Node 26)：highres_steps: 2 + 3D Latent Upscaler
-5. 二采 / 高清放大精修 (Node 18)：4x-UltraSharp.pth (0.25 denoise)
-6. YOLOv8 脸部检测修复 (Node 27)：face_yolov8m.pt，置信度 0.35，羽化 24
-7. 音画封装与导出 (Node 6, 7)：24fps sRGB 封装
-8. Director 实时运行报告 (Node 8)：实时输出显存与分段推理时序`
+## 核心拓扑架构与节点映射：
+1. **双 UNet 双噪声加载器 (Node 18 & Node 17)**：
+   - \`Bernini-R HIGH\` (\`Bernini_HIGH_fp8_e4m3fn_scaled.safetensors\`) + LoRA Node 9 (\`Bernini-R_LightX2V_high_noise\`)
+   - \`Bernini-R LOW\` (\`Bernini_LOW_fp8_e4m3fn_scaled.safetensors\`) + LoRA Node 10 (\`Bernini-R_LightX2V_low_noise\`)
+2. **时空采样调度 (Node 11 & Node 12 ModelSamplingSD3)**：
+   - 噪声位移 \`shift: 5\`，保障动态大范围运镜连贯稳定。
+3. **主导演台核心总控 (Node 22 ComfyBerniniDirector)**：
+   - 任务模式：\`rv2v — 参考素材改视频\`
+   - 内部集成 LLM 提示词增强模块 (可选 Ollama / OpenAI / Qwen3.5 接口)
+   - 默认规格：832×480 (长边 848)，总帧数 81 (24fps 3.375s) / 243 (10s) / 362 (15s)
+   - \`timeline_data\` 时间轴：全局注入 \`global.refs\` + 各分镜独立 \`segments[i].refs\`
+4. **多图参考输入机制与容量规范**：
+   - 动态数组机制，系统标准推荐一次上传 **1 ~ 6 张** 参考图：
+     * \`<Picture 1>\`：主角正面三视图立绘
+     * \`<Picture 2>\`：配角或关键交互道具
+     * \`<Picture 3>\`：母本场景底图
+     * \`<Picture 4~6>\`：分镜构图与动作引导
+5. **源视频连续引导 (Reference Video)**：
+   - 开启 \`continuousReference: true\`，将前段视频注入为动态时空引导，杜绝跨段变脸。
+6. **音画封包与报告输出 (Node 5 & Node 6)**：
+   - Node 5 \`VHS_VideoCombine\` 导出标准 H.264 24fps 封装；
+   - Node 6 \`PreviewAny\` 实时输出显存释放与时序报告。`
   },
   {
     id: 'h3_native_audio_spec_md',
