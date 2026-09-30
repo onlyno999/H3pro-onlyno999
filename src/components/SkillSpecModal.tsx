@@ -405,7 +405,42 @@ def validate_h3_prompt(text: str) -> dict:
 
 ## 镜头级 100% 物理拟音 (Foley In, Score Out)：
 - 每个分镜必须详写动作拟音（敲桌、搓烟纸、脚步、衣物摩擦）、呼吸换气与空间底噪
-- 彻底消灭死寂空窗，全片后期统一挂载无损 Master BGM 底轨！`
+- 彻底消灭死寂空窗，全片后期统一挂载无损 Master BGM 底轨！
+
+## 动作/语气/台词细化与防乱讲话规范 (Anti-Ramble & Dialogue Action)：
+1. **台词必须写进【动作】时间线**：
+   - 严禁孤立出现台词，格式为：\`【动作】<Subject N> (SN) [动作与具体肢体语言]，[语气/音量/语速描述] 说：<d>[中文] 精确台词原文</d>\`；
+2. **防乱讲话与闭嘴死锁 (Anti-Ramble Lock)**：
+   - 台词说完必须立即跟闭嘴锁唇指令：“说完嘴唇抿成一条线，喉结滚一下，把更多话咽回去；不再接话，保持沉默闭唇”；
+   - 非发声镜头与听者镜头，正向强制写入 \`mouth naturally closed, lips completely still, not moving along with vocals, no singing or talking\`，负向词库强制注入 \`singing, mouth open, lip-sync, talking, speaking, vocalizing, open lips\`；
+3. **情绪靠动作带 (No Adjectives)**：
+   - 别写“他很悲伤地说”，改写为“眼眶泛红、视线低垂、声音压低发闷地说”，用具体生理动作与微表情传达情绪；
+4. **接收先于反应**：
+   - 听者先听见触发微动作（视线停滞、手指搓动、深吸气），再开口接话。`
+  },
+  {
+    id: 'fight_fx_skill_md',
+    name: '动作打斗戏与特效锚定规范 (Fight FX Anchor)',
+    type: 'markdown',
+    path: '/skills/fight-fx-anchor-prompter/SKILL.md',
+    content: `# 动作打斗与特效锚定提示词专家规范 (Fight FX Anchor Prompter)
+
+## 1. 触发机制
+当用户在与 Agent 交互时出现打斗、格斗、搏击、武打、肉搏、刀剑交锋、受击反馈、冲击波/爆破特效时，**强制自动激活此 Skill**！
+
+## 2. 四大动作打斗锚定法则
+1. **物理轨迹与受力闭环**：
+   - 拒绝抽象“两人激烈打斗”，拆解为【发起动能 ➔ 碰撞落点 ➔ 物理受力与反作用力位移】；
+   - 精确受击点位（下颌、肋软骨、心窝）与生理反馈（肌肉剧烈凹陷、唾液水雾甩出、滑退两米）；
+2. **特效物理融合锚定 (FX Anchor)**：
+   - 光效类型（冷白电弧、赤红气浪、金属火花）与环境交互（地面水花飞溅、墙壁蛛网裂纹）；
+3. **动态运镜与变速齿轮**：
+   - 发力正常速 (1.0x) ➔ 击中微定格/慢动作 (0.3x) ➔ 倒地爆发加速 (1.5x)；
+   - 接触瞬间画面轻微震颤 (Camera Shake, amplitude: 3-5px)；
+4. **格斗拟音与声效矩阵**：
+   - 肉体沉闷重击音 (heavy flesh impact thud)；
+   - 刀剑金属交鸣火星声 (sharp metallic clashing with sparks)；
+   - 破空呼啸 (whooshing air drag) 与受击闭气闷哼声。`
   }
 ];
 

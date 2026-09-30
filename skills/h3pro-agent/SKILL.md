@@ -73,3 +73,34 @@ description: >
     -map "[vconcat]" -c:v libx264 -crf 18 -preset medium final_master.mp4
   ```
 - **消灭叠影**：通过 `select='gt(n\,0)'` 剔除第 2 段起的第 0 帧重复垫图帧，实现 100% 电影级无缝连续出片。
+
+---
+
+## 4. 台词优化与防乱讲话规范 (Dialogue & Anti-Ramble Guard)
+
+按 MiniMax H3 官方规范执行**动作/语气/台词细化与防乱讲话死锁**：
+1. **防乱讲话机制 (Strict Anti-Ramble)**：
+   - **台词时间线动作化**：台词严禁单独存在，必须嵌套在具体分镜 `【动作】` 中：
+     `【动作】<Subject N> (SN) [动作与具体肢体语言]，[语气/音量/语速描述] 说：<d>[中文] 精确台词原文</d>`
+   - **说完全程静止锁定**：台词结束后必须紧跟闭嘴防乱动指令（如：“说完嘴唇抿成一条线，喉结滚一下，把更多话咽回去；不再接话，保持沉默闭唇”），**彻底锁死嘴唇，杜绝模型自由发挥乱叽里咕噜讲话**；
+   - **非发声镜头闭嘴死锁**：非台词镜头/听者反应镜，正向强制注入 `mouth naturally closed, lips completely still, not moving along with vocals, no singing or talking`，负向词库强制注入 `singing, mouth open, lip-sync, talking, speaking, vocalizing, open lips`；
+2. **情绪靠动作带 (No Adjective Emotions)**：
+   - 严禁空洞形容词（不写“他很悲伤地说”）；
+   - 必须翻译成具体生理动作与微表情（如：“视线落在凉透的青菜上，右手指节轻敲桌面三下，压着情绪低沉发闷地说”）；
+3. **接收先于反应 (Receive Before React)**：
+   - 听者先听见、停顿或微动作（如搓烟纸、喉结滚动），再开口说话；
+4. **声音与说话人全局绑定**：
+   - 角色在 `subject_definitions` 绑定后，在 `声音设定` 明确：
+     `<Picture 2> 是说话人用 (S2) 标记，参考音频 2，并在全片保持一致`；
+   - 全片台词统一使用 `(S1)/(S2)` 锚定声线，杜绝跨镜头跳音色。
+
+---
+
+## 5. 动作打斗与特效戏自动调用机制 (Fight FX Sub-Skill Trigger)
+
+当用户在分镜创作、剧本输入或 Agent 交互中涉及**打斗、格斗、搏击、武术、兵器对决、受击反馈、冲击波/爆破特效**时，**Agent 必须强制自动调用 `/skills/fight-fx-anchor-prompter/SKILL.md`**：
+- **自动激活三段式动作矢量拆解**：发起动能 (Wind-up) ➔ 碰撞击打落点 (Impact) ➔ 物理受力与反作用力位移 (Reaction Displacement)；
+- **自动挂载格斗拟音矩阵**：沉重肉体闷击音 (`heavy flesh impact`)、金属交鸣火星音 (`metallic clashing`)、破空呼啸 (`whoosh drag`) 与骨骼受力声；
+- **动态运镜与变速齿轮**：低角度跟拍、接触瞬间微慢动作 (0.3x 定格强化)、受击瞬间画面轻微震颤 (camera shake)；
+- **打斗脱敏引擎联动**：在保证暴力美学与打击感的同时，自动转译为“影视级特技动作戏剧化表现”，100% 规避平台风控。
+
