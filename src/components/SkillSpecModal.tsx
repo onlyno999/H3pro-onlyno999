@@ -8,6 +8,67 @@ interface SkillSpecModalProps {
 
 const SPEC_FILES = [
   {
+    id: 'readme_md',
+    name: 'README.md (系统详细使用与架构总览)',
+    type: 'markdown',
+    path: '/README.md',
+    content: `# H3PRO-onlyno999：MiniMax H3 全自动化视频生成平台与导演工作台中台
+
+> **工业级 AI 视频生成 SOP 与云端调度系统**  
+> 统合 **【音乐 MV】**、**【竖版短剧 (Short Drama)】** 与 **【商业广告 (Commercials)】** 三大影视题材生产。  
+> 独创**「两段式规划法」**：文学剧本构思 ➔ 自动转译为 **MiniMax H3 官方 Ref2VA 规范**。  
+> **全面接入 RunningHub 官流终极版**（集成 Bernini Director rv2v 架构），搭载**影视级大白话安全脱敏**、**跨段多图矩阵参考接力（100% 杜绝变脸变装）**、**15s 尾帧垫图与 FFmpeg 零冻结缝合**，直通云端一键出片！
+
+---
+
+## 🔗 云端调度与工作流核心地址
+- **平台官网**：[RunningHub 开放平台 (www.runninghub.cn)](https://www.runninghub.cn)
+- **最新云端调度模型地址**：[https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q](https://www.runninghub.cn/post/2079374352503631873/?inviteCode=zedwxo2q)
+- **官方邀请码**：\`zedwxo2q\`（绑定即赠 1000 RH 渲染币）
+- **核心总控节点**：Node 22 (\`ComfyBerniniDirector\`)，双 UNet 高低噪采样与多分段连续时空控制。
+
+---
+
+## 🌟 核心功能与使用指南 (快速上手)
+
+### 模式一：创作者工作台 (Studio Workbench)
+
+#### 步骤 1：H3 提示词转译实验室 (Prompt Lab)
+1. **输入文学剧本 / 自然语言大白话**：
+   - 可以在输入框直接输入生活化、有戏剧冲突的大白话脚本（如“铁蛋追打野猪，最后摔在草垛上...”）。
+2. **大白话安全脱敏引擎 (Anti-integrity_check_failed)**：
+   - 系统自动对“打架”、“车祸”、“撞飞”、“吐血”等高危风控词进行影视级戏剧化平替，**100% 杜绝平台风控拦截**。
+3. **一键编译为官方 Ref2VA 六段式**：
+   - 自动生成 \`[subject_definitions]\`、\`[summary]\`、\`[retention_analysis]\`、\`[detailed_description]\`、\`[overall_soundscape]\`、\`[non_diegetic_music]\`。
+   - 严格落实**“零字幕硬门禁”**与**“(Sx) + <d> 口型对白标签”**。
+
+#### 步骤 2：三视图切片与融光资产工坊 (Asset Studio)
+1. **智能无损切片**：自动拆解为正面全身、半身面部特写、下肢道具细节卡。
+2. **Qwen 融光去棚底**：一键去除影棚纯白/浅灰底色反光与白边，注入环境暖光与接触阴影。
+3. **残差距从 47.6% 暴降至 0.8% 内**，实现 1:1 咬合。
+
+#### 步骤 3：多图参考矩阵与云端一键调度 (RunningHub Dispatch)
+1. **一次能上传多少张参考图？**
+   - **支持机制**：Node 22 (\`ComfyBerniniDirector\`) 采用动态 \`refs\` 数组及分镜头独立绑定机制；
+   - **推荐容量**：**标准配置 1 ~ 6 张**：
+     - \`ref_image_0\` / \`<Picture 1>\`：主角正面高保真立绘 / 三视图卡
+     - \`ref_image_1\` / \`<Picture 2>\`：第二主体 / 配角 / 核心道具卡
+     - \`ref_image_2\` / \`<Picture 3>\`：场景母本空间卡（虚化宾客、灯光基调）
+     - \`ref_image_3~5\` / \`<Picture 4~6>\`：起始构图与动作姿态卡
+   - **分镜头独立参考 (\`segments.refs\`)**：支持针对特定镜头切片动态追加局部特写图。
+   - **源视频连续引导 (\`referenceVideo\`)**：可载入上一段出片作为动态时空条件引导。
+2. **填入 RunningHub API Key**：点击保存即可调用 \`runninghubService\` 批量派发任务或直达 Web 端调试。
+
+#### 步骤 4：多段视频无缝接力与零冻结终剪 (Algorithm Lab)
+- **15.00s 尾帧垫图机制**：提取第 1 段末尾（第 362 帧）作为第 2 段首帧输入，物理硬锁视线、道具与服装。
+- **FFmpeg 零重影切片**：使用 \`[1:v]select='gt(n\\,0)',setpts=PTS-STARTPTS[v1]\` 自动切除第 2 段第 0 帧重复垫图。
+
+---
+
+## 📌 系统更新日志与文档同步维护规范 (Changelog & Sync Rule)
+> **铁律原则**：本系统往后每一次增加功能、修改接口、调整节点或更新工作流配置，**必须严格同步更新本 README.md 文档及系统内部规范**。`
+  },
+  {
     id: 'three_skills_chain_md',
     name: '三技能架构规范 (前两步焊死+云端接口可换)',
     type: 'markdown',
