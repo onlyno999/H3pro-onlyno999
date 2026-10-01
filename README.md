@@ -3,15 +3,15 @@
 > **工业级 AI 视频生成 SOP 与云端调度系统**  
 > 统合 **【音乐 MV】**、**【竖版短剧 (Short Drama)】** 与 **【商业广告 (Commercials)】** 三大影视题材生产。  
 > 独创**「两段式规划法」**：文学剧本构思 ➔ 自动转译为 **MiniMax H3 官方 Ref2VA 规范**。  
-> **全面接入 RunningHub MiniMax H3 导演台满血版工作流 (Workflow ID: 2099679213619073025)**，搭载**时序总控 (Node 12 MiniMaxH3Director)**、**Ref2VA 算子 (Node 75)**、**二采惰性超分开关 (Node 109)**、**17n+5 智能对齐**、**影视级大白话安全脱敏**、**15s 尾帧垫图与 FFmpeg 零重影终剪**，直通云端一键出片！
+> **全面接入 RunningHub MiniMax H3 满血加速工作流 (Workflow ID: 2105127972431818753)**，搭载**全模态多维参考矩阵 (9张图片 + 3路视频 + 3路音频)**、**17n+5 智能对齐**、**影视级大白话安全脱敏**、**15s 尾帧垫图与 FFmpeg 零重影终剪**，直通云端一键出片！
 
 ---
 
 ## 🔗 云端调度与工作流核心地址
 - **平台官网**：[RunningHub 开放平台 (www.runninghub.cn)](https://www.runninghub.cn)
-- **最新云端调度模型地址**：[https://www.runninghub.cn/post/2099679213619073025](https://www.runninghub.cn/post/2099679213619073025)
-- **工作流 ID**：`2099679213619073025`
-- **核心总控节点**：Node 12 (`MiniMaxH3Director`) 导演台时序总控 + Node 75 (`MiniMaxH3ReferenceToVideo`) Ref2VA 核心算子 + Node 109 (`LazySwitch1way`) 二采超分增强开关。
+- **最新云端调度模型地址**：[https://www.runninghub.cn/workflow/2105127972431818753](https://www.runninghub.cn/workflow/2105127972431818753)
+- **工作流 ID**：`2105127972431818753`
+- **核心总控节点**：Node 31 (`MiniMaxH3ReferenceToVideo`) 满血版核心调度算子，支持 9 张多维参考图、3 路参考视频与 3 路参考音频。
 
 ---
 

@@ -1,13 +1,13 @@
 ---
 name: mvh3-agent
 description: >
-  mvH3-onlyno999 专职视频生成与调度 Agent 规范 (V2.4 导演台满血版)。
-  集成 MiniMax H3 导演台满血版工作流 (https://www.runninghub.cn/post/2099679213619073025)、
-  Node 12 MiniMaxH3Director 时序总控、Node 75 Ref2VA 调度算子、Node 109 二采惰性超分开关、
-  1:1 角色定妆 + 多宫格场景 + 道具资产自动装载接力，以及 15s 尾帧接力零重影剪辑体系。
+  mvH3-onlyno999 专职视频生成与调度 Agent 规范 (V2.3 终极满血版)。
+  集成 MiniMax H3 官方满血加速工作流 (https://www.runninghub.cn/workflow/2105127972431818753)、
+  Node 31 MiniMaxH3ReferenceToVideo 全模态调度算子、
+  9图 + 3视频 + 3音频全维度参考矩阵、以及 15s 尾帧接力零重影剪辑体系。
 ---
 
-# mvH3-onlyno999 Agent 核心技能规范 (V2.4 导演台满血版)
+# mvH3-onlyno999 Agent 核心技能规范 (V2.3 满血版)
 
 ## 1. 架构总则：前两步焊死 + 第三步云端一键调度插拔
 - **Skill 1【焊死】创意分镜构思内核**：解析自然语言与故事设定，输出时间轴结构化镜头大纲、台词与音效。
@@ -15,12 +15,12 @@ description: >
   - 自动编译六段式结构：`[subject_definitions]` ➔ `[summary]` ➔ `[retention_analysis]` ➔ `[detailed_description]` ➔ `[overall_soundscape]` ➔ `[non_diegetic_music]`。
   - 角色音色 `(Sx)` 与 `<d>` 口型发音标签，防裁头中近景定位，零字幕反向词敏感清洗。
   - 影视级大白话脱敏引擎（规避 `integrity_check_failed`）。
-- **Skill 3【插拔】RunningHub 云端一键调度接口 (全新导演台满血版替换上线)**：
-  - **当前主工作流**：MiniMax H3 导演台满血版工作流｜Ref2va全能视频生成
-  - **工作流地址**：`https://www.runninghub.cn/post/2099679213619073025`
-  - **工作流 ID**：`2099679213619073025`
-  - **核心调度节点**：Node 12 (`MiniMaxH3Director`) 时序总控 + Node 75 (`MiniMaxH3ReferenceToVideo`) Ref2VA 核心算子 + Node 109 (`LazySwitch1way` 二采惰性开关)。
-  - **帧数对齐**：Node 12 `total_frames` 严格执行 `17n+5` 网格对齐 (10s=243帧, 15s=362帧)。
+- **Skill 3【插拔】RunningHub 云端一键调度接口 (全新满血版替换上线)**：
+  - **当前主工作流**：MiniMax H3 满血版 多模态生视频加速
+  - **工作流地址**：`https://www.runninghub.cn/workflow/2105127972431818753`
+  - **工作流 ID**：`2105127972431818753`
+  - **核心调度节点**：Node 31 (`MiniMaxH3ReferenceToVideo`)，直连 UNETLoader (Node 41/58)、CLIPLoader (Node 3/59)、VAELoader (Node 4/12)、SamplerCustomAdvanced (Node 6) 与 VHS_VideoCombine (Node 17)。
+  - **帧数对齐**：Node 28 (`PrimitiveFloat`) 输入时长秒数，直连 Node 29 (`ComfyMathExpression`) 执行 `17n+5` 网格对齐。
 
 ---
 

@@ -17,7 +17,7 @@ import {
   SlicedThreeViews
 } from '../utils/threeViewMattingEngine';
 
-export type FusionGenre = 'commercial' | 'short_drama' | 'cinematic';
+export type FusionGenre = 'commercial' | 'short_drama' | 'mv';
 export type ShotScaleType = 'ECU' | 'CU' | 'MCU' | 'MS' | 'FS';
 
 export interface CharacterIdentityAnchor {
@@ -248,11 +248,11 @@ export const COMPREHENSIVE_SCENE_PRESETS: FusionScenePreset[] = [
     }
   },
 
-  // 3. CINEMATIC LONG VIDEO (影视长片 / 连贯叙事舞台)
+  // 3. MUSIC MV (音乐 MV / 概念舞台)
   {
     id: 'cyberpunk_rain_street',
     name: '赛博霓虹雨夜街道 · 积水倒影漫步 (Cyberpunk Street)',
-    genre: 'cinematic',
+    genre: 'mv',
     category: 'urban_neon',
     description: '湿润反光的沥青路面，青蓝与琥珀金霓虹倒影，主体手持透明雨伞在雨中踱步，胸口标识与霓虹光波交相辉映',
     backgroundElements: ['雨滴飞溅的霓虹街道', '透明轻质机械雨伞', '远处摩天大厦全息广告', '地面积水水面倒影'],
@@ -269,8 +269,8 @@ export const COMPREHENSIVE_SCENE_PRESETS: FusionScenePreset[] = [
   },
   {
     id: 'acoustic_concert_stage',
-    name: '暗场光束剧情场景 · 丁达尔尘光 (Cinematic Stage)',
-    genre: 'cinematic',
+    name: '暗场光束演唱舞台 · 丁达尔尘光 (Concert Stage)',
+    genre: 'mv',
     category: 'stage',
     description: '顶置锥形追光、微尘光丁达尔效应、深黑色背景，大片级别舞台质感',
     backgroundElements: ['高空单点白色强光追光', '空气中悬浮光柱尘埃', '暗黑色吸光舞台地胶', '远处微弱舞台返听音响'],

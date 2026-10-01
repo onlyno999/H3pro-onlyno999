@@ -132,16 +132,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onSwitchToStudio
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                      MINIMAX H3 DIRECTOR V2.4
+                      MINIMAX H3 OFFICIAL V2.2
                     </span>
-                    <span className="text-xs text-slate-400">RunningHub 导演台满血版 (2099679213619073025)</span>
+                    <span className="text-xs text-slate-400">RunningHub 官流终极版智能管控后台</span>
                   </div>
                   <h2 className="text-xl sm:text-2xl font-black text-slate-100 mt-2">
-                    H3-Director-Pro 全自动化后台管理系统
+                    mvH3-onlyno999 全自动化后台管理系统
                   </h2>
                   <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
-                    全面接入 MiniMax H3 导演台满血版 (Ref2va 全能视频生成) 官方接口与 RunningHub OpenAPI 调度集群。
-                    长视频专属 SOP：剧本提示词 ➔ ① 定妆照 ➔ ② 多宫格场景图 ➔ ③ 道具物品图 ➔ 后续全段自动调用！
+                    全面接入 MiniMax H3 官方 Ref2VA / FL2VA 视频参考规范与 RunningHub OpenAPI 调度集群。
+                    实现 10秒/15秒标准节拍控制、三角度多细节定妆矩阵抽卡、大白话安全脱敏与多段零重影无缝终剪！
                   </p>
                 </div>
 

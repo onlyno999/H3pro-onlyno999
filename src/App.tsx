@@ -88,10 +88,7 @@ export function App() {
             )}
 
             {activeTab === 'prompt_lab' && (
-              <H3PromptLabTab
-                onJumpToDispatch={() => setActiveTab('runninghub')}
-                onJumpToAssetStudio={() => setActiveTab('asset_studio')}
-              />
+              <H3PromptLabTab onJumpToDispatch={() => setActiveTab('runninghub')} />
             )}
 
             {activeTab === 'asset_studio' && (

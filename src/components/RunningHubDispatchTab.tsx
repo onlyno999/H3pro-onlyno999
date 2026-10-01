@@ -53,7 +53,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
   onUpdateStoryboard
 }) => {
   const [selectedShotId, setSelectedShotId] = useState<string>(storyboard[0]?.id || 'shot_01');
-  const [selectedWorkflowProfile, setSelectedWorkflowProfile] = useState<'h3_director' | 'h3_official_ultimate'>('h3_director');
+  const [selectedWorkflowProfile, setSelectedWorkflowProfile] = useState<'h3_official_ultimate' | 'h3_director' | 'mv_selflift'>('h3_official_ultimate');
   const [apiKey, setApiKey] = useState<string>('');
   const [isSandbox, setIsSandbox] = useState<boolean>(true);
   const [isRunning, setIsRunning] = useState<boolean>(false);
@@ -68,7 +68,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
   const [pendingReviewShot, setPendingReviewShot] = useState<StoryboardShot | null>(null);
 
   // Director Sub-Module Toggles
-  const [taskType, setTaskType] = useState<string>('r2v — 参考生视频(Ref to Video)');
+  const [taskType, setTaskType] = useState<string>('r2v — 参考主体生视频(Reference to Video)');
   const [enableLoRA, setEnableLoRA] = useState<boolean>(true);
   const [enableSageAttention, setEnableSageAttention] = useState<boolean>(true);
   const [enableSelflift, setEnableSelflift] = useState<boolean>(true);
@@ -83,7 +83,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
   const [copiedFfmpegCmd, setCopiedFfmpegCmd] = useState<boolean>(false);
 
   // View modes
-  const [viewMode, setViewMode] = useState<'director_modules' | 'official_nodes' | 'timeline_data' | 'nodes' | 'fullJson' | 'payload' | 'director_report' | 'ffmpeg'>('director_modules');
+  const [viewMode, setViewMode] = useState<'official_nodes' | 'director_modules' | 'timeline_data' | 'nodes' | 'fullJson' | 'payload' | 'director_report' | 'ffmpeg'>('official_nodes');
 
   const selectedShot = storyboard.find(s => s.id === selectedShotId) || storyboard[0];
 
@@ -91,8 +91,8 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
     ? (selectedShot.generatedKeyframeUrl || selectedShot.backgroundImageUrl)
     : 'e642390157ec77fa5195a81d97c8147b4d62533425dff3e299f0391aeae11022.png';
 
-  const currentWorkflowId = selectedWorkflowProfile === 'h3_official_ultimate'
-    ? '2105127972431818753'
+  const currentWorkflowId = selectedWorkflowProfile === 'mv_selflift'
+    ? RUNNINGHUB_CONFIG.legacyMvWorkflowId
     : RUNNINGHUB_CONFIG.workflowId;
 
   const handleCopyWorkflowId = () => {
@@ -162,16 +162,25 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
         refImage2: 'tiedan_legs_detail.png',
         refVideoPrev: selectedShot.index > 1 ? `output_shot_${(selectedShot.index - 1).toString().padStart(2, '0')}.mp4` : undefined
       })
+    : selectedWorkflowProfile === 'h3_director'
+    ? buildCustomDirectorWorkflowJson({
+        globalPrompt: selectedShot.prompt,
+        width: selectedShot.shotScale.includes('16:9') ? 864 : 480,
+        height: selectedShot.shotScale.includes('16:9') ? 480 : 864,
+        totalFrames: Math.ceil(selectedShot.duration * 24),
+        seed: selectedShot.seed || 666,
+        enableSelflift,
+        enableRefine,
+        enableFaceRefine
+      })
     : selectedShot
-    ? buildCustomOfficialUltimateWorkflowJson({
+    ? buildCustomComfyWorkflowJson({
+        imageUrl: effectiveImageUrl,
+        audioUrl: '43dfda9eb46c40192b014d04105c760c86cb959780b7aa1126375cb0a942e4de.mp3',
         prompt: selectedShot.prompt,
-        durationSeconds: durationPreset,
-        aspectRatio: selectedShot.shotScale.includes('16:9') ? '16:9 (Landscape)' : '9:16 (Portrait Widescreen)',
-        seed: selectedShot.seed || 999,
-        refImage0: 'tiedan_character_full.png',
-        refImage1: effectiveImageUrl || 'tiedan_chest_detail_imagegen_fused.png',
-        refImage2: 'tiedan_legs_detail.png',
-        refVideoPrev: selectedShot.index > 1 ? `output_shot_${(selectedShot.index - 1).toString().padStart(2, '0')}.mp4` : undefined
+        durationSeconds: selectedShot.duration,
+        startIndex: selectedShot.start,
+        seed: selectedShot.seed || 999
       })
     : H3_OFFICIAL_ULTIMATE_WORKFLOW_TEMPLATE;
 
@@ -210,7 +219,9 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
         isSandbox,
         workflowType: selectedWorkflowProfile === 'h3_official_ultimate'
           ? 'official_ultimate'
-          : 'director',
+          : selectedWorkflowProfile === 'h3_director'
+          ? 'director'
+          : 'mv_digital_human',
         directorSettings: {
           enableSelflift,
           enableRefine,
@@ -357,164 +368,61 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-slate-300">云端工作流模板 (Workflow Profile)</label>
-              <span className="text-[10px] font-mono text-cyan-400">当前接口 ID: {currentWorkflowId}</span>
+              <span className="text-[10px] font-mono text-cyan-400">当前ID: {currentWorkflowId}</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedWorkflowProfile('h3_director')}
-                className={`py-2 px-3 rounded-xl text-xs font-semibold border transition text-left relative ${
-                  selectedWorkflowProfile === 'h3_director'
-                    ? 'bg-gradient-to-r from-purple-950/80 to-indigo-950/60 text-purple-200 border-purple-500/60 shadow-md ring-1 ring-purple-500/40'
-                    : 'bg-slate-800/40 text-slate-400 border-slate-700 hover:bg-slate-800'
-                }`}
-              >
-                <div className="font-bold flex items-center gap-1.5 text-[11px] text-purple-300">
-                  <Sliders className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                  <span>🎬 H3 导演台满血版 (主控接口)</span>
-                  <span className="text-[8px] bg-purple-500/30 text-purple-200 px-1 rounded ml-auto">推荐主控</span>
-                </div>
-                <div className="text-[9px] text-slate-400 mt-0.5 truncate">Node 12 时序总控 · Ref2va 全能视频生成</div>
-                <div className="text-[8px] font-mono text-purple-400/80 mt-0.5">2099679213619073025 (42 Nodes)</div>
-              </button>
-
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setSelectedWorkflowProfile('h3_official_ultimate')}
-                className={`py-2 px-3 rounded-xl text-xs font-semibold border transition text-left relative ${
+                className={`py-2 px-2.5 rounded-xl text-xs font-semibold border transition text-left relative ${
                   selectedWorkflowProfile === 'h3_official_ultimate'
                     ? 'bg-gradient-to-r from-emerald-950/80 to-cyan-950/60 text-emerald-200 border-emerald-500/60 shadow-md ring-1 ring-emerald-500/40'
                     : 'bg-slate-800/40 text-slate-400 border-slate-700 hover:bg-slate-800'
                 }`}
               >
-                <div className="font-bold flex items-center gap-1.5 text-[11px] text-emerald-300">
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span>🌟 H3 9图多模态纯净版</span>
+                <div className="font-bold flex items-center gap-1 text-[11px] text-emerald-300">
+                  <Sparkles className="w-3 h-3 text-emerald-400 shrink-0" />
+                  <span>🌟 H3 满血多模态版</span>
                 </div>
                 <div className="text-[9px] text-slate-400 mt-0.5 truncate">Node 31 · 9图+3视频+3音频</div>
                 <div className="text-[8px] font-mono text-emerald-400/80 mt-0.5">2105127972431818753</div>
               </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedWorkflowProfile('h3_director')}
+                className={`py-2 px-2.5 rounded-xl text-xs font-semibold border transition text-left ${
+                  selectedWorkflowProfile === 'h3_director'
+                    ? 'bg-gradient-to-r from-indigo-900/70 to-purple-900/50 text-purple-200 border-purple-500/50 shadow-md ring-1 ring-purple-500/30'
+                    : 'bg-slate-800/40 text-slate-400 border-slate-700 hover:bg-slate-800'
+                }`}
+              >
+                <div className="font-bold flex items-center gap-1 text-[11px] text-purple-300">
+                  <Sliders className="w-3 h-3 text-purple-400 shrink-0" />
+                  <span>🎬 H3 导演台</span>
+                </div>
+                <div className="text-[9px] text-slate-400 mt-0.5 truncate">Node 12 时序中台</div>
+                <div className="text-[8px] font-mono text-purple-400/80 mt-0.5">2104734128657756162</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedWorkflowProfile('mv_selflift')}
+                className={`py-2 px-2.5 rounded-xl text-xs font-semibold border transition text-left ${
+                  selectedWorkflowProfile === 'mv_selflift'
+                    ? 'bg-gradient-to-r from-cyan-900/70 to-blue-900/50 text-cyan-200 border-cyan-500/50 shadow-md ring-1 ring-cyan-500/30'
+                    : 'bg-slate-800/40 text-slate-400 border-slate-700 hover:bg-slate-800'
+                }`}
+              >
+                <div className="font-bold flex items-center gap-1 text-[11px] text-cyan-300">
+                  <Film className="w-3 h-3 text-cyan-400 shrink-0" />
+                  <span>🎵 音乐 MV 旧二采</span>
+                </div>
+                <div className="text-[9px] text-slate-400 mt-0.5 truncate">26 Nodes · 口型基线</div>
+                <div className="text-[8px] font-mono text-cyan-400/80 mt-0.5">2100506281638457345</div>
+              </button>
             </div>
           </div>
-
-          {/* Director Mode: Task Type Selection & Multi-module Toggles */}
-          {selectedWorkflowProfile === 'h3_director' && (
-            <div className="p-3.5 rounded-xl bg-slate-950 border border-purple-500/40 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-purple-300 font-mono flex items-center gap-1.5">
-                  <Cpu className="w-3.5 h-3.5 text-purple-400" />
-                  <span>MiniMax H3 导演台满血版 (Ref2va 全能视频生成)</span>
-                </span>
-                <a
-                  href="https://www.runninghub.cn/post/2099679213619073025"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[10px] text-cyan-400 hover:underline font-mono flex items-center gap-1 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-500/30"
-                >
-                  <span>2099679213619073025</span>
-                  <ExternalLink className="w-2.5 h-2.5" />
-                </a>
-              </div>
-
-              {/* Core Nodes Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px] font-mono">
-                <div className="p-2 rounded bg-slate-900/90 border border-slate-800">
-                  <div className="text-[10px] text-slate-400">Node 12 时序总控</div>
-                  <div className="text-purple-300 font-semibold truncate">MiniMaxH3Director</div>
-                </div>
-                <div className="p-2 rounded bg-slate-900/90 border border-slate-800">
-                  <div className="text-[10px] text-slate-400">Node 75 核心算子</div>
-                  <div className="text-emerald-300 font-semibold truncate">Ref2VA 视频生成</div>
-                </div>
-                <div className="p-2 rounded bg-slate-900/90 border border-slate-800">
-                  <div className="text-[10px] text-slate-400">Node 109 二采惰性开关</div>
-                  <div className="text-cyan-300 font-semibold truncate">{enableRefine ? 'TRUE (2MP增强)' : 'FALSE (原片输出)'}</div>
-                </div>
-                <div className="p-2 rounded bg-slate-900/90 border border-slate-800">
-                  <div className="text-[10px] text-slate-400">Node 100/16 动态模型</div>
-                  <div className="text-amber-300 font-semibold truncate">Ref2VA + Turbo 8步</div>
-                </div>
-              </div>
-
-              {/* Long Video SOP Auto Injection Banner */}
-              <div className="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-[10px] space-y-1">
-                <div className="text-emerald-300 font-semibold flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span>长视频铁律资产闭环：定妆 ➔ 多宫格场景 ➔ 物品道具 ➔ 分镜段落自动调用</span>
-                </div>
-                <div className="text-slate-300 leading-relaxed">
-                  已自动将<strong>① 角色 1:1 定妆卡</strong>、<strong>② 多宫格场景母本</strong>与<strong>③ 关键道具图</strong>编入 <code>timeline_data</code>，后续段落（P01 0~15s、P02 15~30s 等）自动继承装载，100% 杜绝变脸漂移与道具消失！
-                </div>
-              </div>
-
-              <div className="space-y-1.5 pt-1">
-                <label className="text-[11px] font-bold text-slate-300 font-mono flex items-center justify-between">
-                  <span>导演台任务模式 (task_type):</span>
-                  <span className="text-[10px] text-slate-500 font-normal">支持文/图/参考/首尾帧多模态</span>
-                </label>
-                <select
-                  value={taskType}
-                  onChange={(e) => setTaskType(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
-                >
-                  <option value="r2v — 参考生视频(Ref to Video)">r2v — 参考生视频(Ref to Video) [默认首选 · 支持多图与视频参考]</option>
-                  <option value="fl2v — 首尾帧生视频(First-Last to Video)">fl2v — 首尾帧生视频(First-Last to Video) [Node 98 FL2VA底模]</option>
-                  <option value="i2v — 图生视频(Image to Video)">i2v — 图生视频(Image to Video) [单图首帧起步]</option>
-                  <option value="t2v — 文生视频(Text to Video)">t2v — 文生视频(Text to Video) [纯文本高动态生视频]</option>
-                </select>
-              </div>
-
-              {/* 4 Director Sub-Module Switches */}
-              <div className="space-y-2 pt-2 border-t border-slate-800">
-                <div className="text-[11px] font-bold text-slate-400 font-mono">导演台高级增强模块装配:</div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEnableRefine(!enableRefine)}
-                    className={`p-2 rounded-lg text-[11px] font-mono font-semibold border text-left transition flex items-center justify-between ${
-                      enableRefine ? 'bg-indigo-950/50 border-indigo-500/50 text-indigo-300' : 'bg-slate-900 border-slate-800 text-slate-500'
-                    }`}
-                  >
-                    <span>🔍 二采超分 (Node 109 惰性开关)</span>
-                    <span>{enableRefine ? 'ON (2MP)' : 'OFF (原片)'}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setEnableLoRA(!enableLoRA)}
-                    className={`p-2 rounded-lg text-[11px] font-mono font-semibold border text-left transition flex items-center justify-between ${
-                      enableLoRA ? 'bg-amber-950/50 border-amber-500/50 text-amber-300' : 'bg-slate-900 border-slate-800 text-slate-500'
-                    }`}
-                  >
-                    <span>⚡ Turbo 8步 LoRA (Node 16)</span>
-                    <span>{enableLoRA ? 'ON (35%耗时)' : 'OFF'}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setEnableSageAttention(!enableSageAttention)}
-                    className={`p-2 rounded-lg text-[11px] font-mono font-semibold border text-left transition flex items-center justify-between ${
-                      enableSageAttention ? 'bg-cyan-950/50 border-cyan-500/50 text-cyan-300' : 'bg-slate-900 border-slate-800 text-slate-500'
-                    }`}
-                  >
-                    <span>🧠 SageAttention 补丁 (Node 14/15)</span>
-                    <span>{enableSageAttention ? 'ON (省显存)' : 'OFF'}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setEnableSelflift(!enableSelflift)}
-                    className={`p-2 rounded-lg text-[11px] font-mono font-semibold border text-left transition flex items-center justify-between ${
-                      enableSelflift ? 'bg-purple-950/50 border-purple-500/50 text-purple-300' : 'bg-slate-900 border-slate-800 text-slate-500'
-                    }`}
-                  >
-                    <span>📐 17n+5 帧数硬对齐 (362帧/15s)</span>
-                    <span>{enableSelflift ? '严格锁定' : '自由'}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Official Ultimate Mode Feature Panel */}
           {selectedWorkflowProfile === 'h3_official_ultimate' && (
@@ -549,9 +457,85 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
               </div>
 
               <p className="text-[10px] text-slate-400 leading-relaxed">
-                ✅ 已确认彻底绑定 RunningHub 工作流 <code>2105127972431818753</code> (<a href="https://www.runninghub.cn/workflow/2105127972431818753" target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline">点击查看</a>)。
-                支持 9 大维度图片、3 路视频与 3 路音频参考。
+                ✅ 已确认彻底绑定 RunningHub 满血加速工作流 <code>{RUNNINGHUB_CONFIG.workflowId}</code> (<a href={RUNNINGHUB_CONFIG.postUrlFull} target="_blank" rel="noreferrer" className="text-cyan-400 hover:underline">点击查看云端工作流</a>)。
+                全面支持 9 大维度图片（角色/场景/光影/产品/品牌/美术/UI/姿势/细节）、3 路视频（动作/运镜/节奏首尾帧）与 3 路音频参考（人声/歌唱/环境拟音）！
               </p>
+            </div>
+          )}
+
+          {/* Director Mode: Task Type Selection & Multi-module Toggles */}
+          {selectedWorkflowProfile === 'h3_director' && (
+            <div className="p-3.5 rounded-xl bg-slate-950 border border-indigo-500/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-200 font-mono flex items-center gap-1.5">
+                  <Cpu className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>导演台生视频模式 (Task Type)</span>
+                </span>
+                <span className="text-[10px] text-purple-300 font-mono">Node 12 task_type</span>
+              </div>
+
+              <select
+                value={taskType}
+                onChange={(e) => setTaskType(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"
+              >
+                <option value="r2v — 参考主体生视频(Reference to Video)">r2v — 参考主体生视频(Reference to Video) [需 ref2va 底模]</option>
+                <option value="t2v — 文生视频(Text to Video)">t2v — 文生视频(Text to Video) [需 fl2va 底模]</option>
+                <option value="i2v — 图生视频(Image to Video)">i2v — 图生视频(Image to Video)</option>
+                <option value="fl2v — 首尾帧生视频(First-Last to Video)">fl2v — 首尾帧生视频(First-Last to Video)</option>
+                <option value="v2v — 视频生视频(Video to Video)">v2v — 视频生视频(Video to Video)</option>
+                <option value="rv2v — 参考主体视频重绘(Ref Video to Video)">rv2v — 参考主体视频重绘</option>
+              </select>
+
+              {/* 4 Director Sub-Module Switches */}
+              <div className="space-y-2 pt-2 border-t border-slate-800">
+                <div className="text-[11px] font-bold text-slate-400 font-mono">导演台高级增强模块装配:</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEnableSelflift(!enableSelflift)}
+                    className={`p-2 rounded-lg text-[11px] font-mono font-semibold border text-left transition flex items-center justify-between ${
+                      enableSelflift ? 'bg-purple-950/50 border-purple-500/50 text-purple-300' : 'bg-slate-900 border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <span>📐 SelfLift 采样 (Node 26)</span>
+                    <span>{enableSelflift ? 'ON' : 'OFF'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setEnableRefine(!enableRefine)}
+                    className={`p-2 rounded-lg text-[11px] font-mono font-semibold border text-left transition flex items-center justify-between ${
+                      enableRefine ? 'bg-indigo-950/50 border-indigo-500/50 text-indigo-300' : 'bg-slate-900 border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <span>🔍 二采精修 (Node 18)</span>
+                    <span>{enableRefine ? 'ON' : 'OFF'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setEnableFaceRefine(!enableFaceRefine)}
+                    className={`p-2 rounded-lg text-[11px] font-mono font-semibold border text-left transition flex items-center justify-between ${
+                      enableFaceRefine ? 'bg-emerald-950/50 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <span>👤 YOLOv8 脸修 (Node 27)</span>
+                    <span>{enableFaceRefine ? 'ON' : 'OFF'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setEnableLoRA(!enableLoRA)}
+                    className={`p-2 rounded-lg text-[11px] font-mono font-semibold border text-left transition flex items-center justify-between ${
+                      enableLoRA ? 'bg-amber-950/50 border-amber-500/50 text-amber-300' : 'bg-slate-900 border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <span>⚡ Turbo 8步 LoRA (Node 25)</span>
+                    <span>{enableLoRA ? 'ON' : 'OFF'}</span>
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
@@ -563,7 +547,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
                 <span>分段时长规格 (Node 132 duration)</span>
               </label>
               <span className="text-[10px] text-cyan-400 font-mono bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
-                {durationPreset === 15 ? '362 帧 (15.08s 竖屏短剧推荐)' : '243 帧 (10.00s 广告/剧情推荐)'}
+                {durationPreset === 15 ? '362 帧 (15.08s 竖屏短剧推荐)' : '243 帧 (10.00s 广告/MV推荐)'}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -581,7 +565,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
                   <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-slate-800 text-cyan-400">243 帧</span>
                 </div>
                 <div className="text-[10px] text-slate-400 mt-1 leading-snug">
-                  短视频 · 广告片 · 连贯叙事 · 高动态运镜 · 算力省
+                  短视频 · 音乐MV · 广告 · 高动态运镜 · 算力省
                 </div>
               </button>
               <button
@@ -637,7 +621,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
             </div>
             <p className="text-[11px] text-slate-400">
               {isSandbox
-                ? `💡 沙箱模式模拟 RunningHub OpenAPI v2 ${selectedWorkflowProfile === 'h3_official_ultimate' ? 'MiniMax H3 9图多模态版 (ID: 2105127972431818753)' : 'MiniMax H3 导演台满血版 (ID: 2099679213619073025)'} 完整时序与节点调度，不扣真实算力点。`
+                ? `💡 沙箱模式模拟 RunningHub OpenAPI v2 ${selectedWorkflowProfile === 'h3_official_ultimate' ? 'MiniMax H3 官流终极版 (ID: 2104734128657756162)' : selectedWorkflowProfile === 'h3_director' ? 'H3 导演台 (ID: 2104734128657756162)' : 'MV数字人工作流 (ID: 2100506281638457345)'} 完整时序与节点调度，不扣真实算力点。`
                 : `⚡ 真实模式将通过 OpenAPI 调用 POST /openapi/v2/run/workflow/${currentWorkflowId} (Bearer Token 认证)。`}
             </p>
           </div>
@@ -1017,7 +1001,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
               </div>
             )}
 
-            {/* View Mode 1: Director Modules Dashboard (42 Nodes Workflow 2099679213619073025) */}
+            {/* View Mode 1: Director 8 Modules Dashboard */}
             {viewMode === 'director_modules' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[420px] overflow-y-auto pr-1">
                 {/* Module 1: Master Director Node 12 */}
@@ -1027,92 +1011,100 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
                       <Sliders className="w-3.5 h-3.5 text-purple-400" />
                       <span>1. MiniMax H3 Director (Node 12)</span>
                     </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">时序总控中台</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">主导演台</span>
                   </div>
                   <div className="text-xs text-slate-200 font-mono">task_type: {taskType.split(' ')[0]} · 24fps</div>
-                  <div className="text-[10px] text-slate-400">总帧数: {durationPreset === 15 ? 362 : 243} 帧 (17n+5 对齐) · 自动编排 timeline_data</div>
+                  <div className="text-[10px] text-slate-400">总帧数: {Math.ceil(selectedShot.duration * 24)} 帧 · 连续性重绘: 22帧 · shift_video: 12</div>
                 </div>
 
-                {/* Module 2: Ref2VA Core Operator Node 75 */}
-                <div className="p-3.5 rounded-xl bg-slate-950 border border-emerald-500/40 space-y-1.5">
-                  <div className="flex items-center justify-between text-xs font-mono">
-                    <span className="font-bold text-emerald-400 flex items-center gap-1.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>2. Ref2VA 核心算子 (Node 75)</span>
-                    </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">满血算子</span>
-                  </div>
-                  <div className="text-xs text-slate-200 font-mono">MiniMaxH3ReferenceToVideo · ref_image_size: max</div>
-                  <div className="text-[10px] text-slate-400">统筹 Qwen3-VL (Node 2) + Video VAE (Node 3) + Audio VAE (Node 4)</div>
-                </div>
-
-                {/* Module 3: Model & Dual Base Switch (Node 98, 99, 100) */}
+                {/* Module 2: Model & Dual VAE Loader */}
                 <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5">
                   <div className="flex items-center justify-between text-xs font-mono">
                     <span className="font-bold text-cyan-400 flex items-center gap-1.5">
                       <Layers className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>3. 双底模动态切换 (Node 98/99/100)</span>
+                      <span>2. 模型与双 VAE (Node 1, 2, 3, 4)</span>
                     </span>
-                    <span className="text-[10px] text-slate-500">CR Model Switch</span>
+                    <span className="text-[10px] text-slate-500">底模加载</span>
                   </div>
-                  <div className="text-xs text-slate-200 font-mono">Input 2: minimax_h3_ref2va_pruned_int8</div>
-                  <div className="text-[10px] text-slate-400">可动态切入 Input 1: MiniMax-H3-FL2VA-int8 (首尾帧)</div>
+                  <div className="text-xs text-slate-200 font-mono">minimax_h3_ref2va_bf16 + Qwen3-VL</div>
+                  <div className="text-[10px] text-slate-400">Video VAE (fp16) · Audio VAE (fp32) 直连</div>
                 </div>
 
-                {/* Module 4: Turbo LoRA & SageAttention (Node 16, 14, 15) */}
+                {/* Module 3: Turbo LoRA & Acceleration */}
                 <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5">
                   <div className="flex items-center justify-between text-xs font-mono">
                     <span className="font-bold text-amber-400 flex items-center gap-1.5">
                       <Zap className="w-3.5 h-3.5 text-amber-400" />
-                      <span>4. Turbo 8步 LoRA (Node 16, 14, 15)</span>
+                      <span>3. Turbo LoRA & SageAttention (Node 25, 17, 16)</span>
                     </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">极速采样</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">极速加速</span>
                   </div>
                   <div className="text-xs text-slate-200 font-mono">fl2v_turbo_8step_v1.0 (strength: 1.0)</div>
-                  <div className="text-[10px] text-slate-400">SageAttention + 显存优化补丁，大幅降低显存占用与等待时间</div>
+                  <div className="text-[10px] text-slate-400">SageAttention + 显存优化补丁，速度提升 2.8x</div>
                 </div>
 
-                {/* Module 5: 2nd Pass Lazy Switch (Node 109) */}
+                {/* Module 4: SelfLift Progressive Sampling (Node 26) */}
                 <div className={`p-3.5 rounded-xl bg-slate-950 border space-y-1.5 ${
-                  enableRefine ? 'border-indigo-500/40' : 'border-slate-800 opacity-60'
+                  enableSelflift ? 'border-purple-500/30' : 'border-slate-800 opacity-60'
+                }`}>
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="font-bold text-purple-300 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                      <span>4. SelfLift 渐进 3D 采样 (Node 26)</span>
+                    </span>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded ${enableSelflift ? 'bg-purple-500/20 text-purple-300' : 'bg-slate-800 text-slate-500'}`}>
+                      {enableSelflift ? '启用' : '绕过'}
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-200 font-mono">latent_upscaler_3d_bf16 · highres_steps: 2</div>
+                  <div className="text-[10px] text-slate-400">分块与平铺防爆显存 (chunking & tiling)</div>
+                </div>
+
+                {/* Module 5: Refine 2nd Pass (Node 18, 19, 20) */}
+                <div className={`p-3.5 rounded-xl bg-slate-950 border space-y-1.5 ${
+                  enableRefine ? 'border-indigo-500/30' : 'border-slate-800 opacity-60'
                 }`}>
                   <div className="flex items-center justify-between text-xs font-mono">
                     <span className="font-bold text-indigo-300 flex items-center gap-1.5">
                       <Maximize2 className="w-3.5 h-3.5 text-indigo-400" />
-                      <span>5. 二采惰性开关 (Node 109 LazySwitch)</span>
+                      <span>5. 二采精修 Refine (Node 18, 19, 20)</span>
                     </span>
                     <span className={`text-[10px] px-1.5 py-0.2 rounded ${enableRefine ? 'bg-indigo-500/20 text-indigo-300' : 'bg-slate-800 text-slate-500'}`}>
-                      {enableRefine ? 'TRUE (二采增强)' : 'FALSE (原片输出)'}
+                      {enableRefine ? '启用' : '绕过'}
                     </span>
                   </div>
-                  <div className="text-xs text-slate-200 font-mono">跟随画幅 · 2MP · 32倍数自适应计算 (Node 103/104)</div>
-                  <div className="text-[10px] text-slate-400">分辨率选择器 (Node 58) 自动匹配 9:16 / 16:9 画幅</div>
+                  <div className="text-xs text-slate-200 font-mono">4x-UltraSharp.pth · BasicScheduler (0.25 denoise)</div>
+                  <div className="text-[10px] text-slate-400">16:9 1376x768 / 9:16 768x1376 超清二次精修</div>
                 </div>
 
-                {/* Module 6: Sampler & Scheduler (Node 42, 51, 55, 48) */}
-                <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5">
+                {/* Module 6: YOLOv8 Face Refine (Node 27) */}
+                <div className={`p-3.5 rounded-xl bg-slate-950 border space-y-1.5 ${
+                  enableFaceRefine ? 'border-emerald-500/30' : 'border-slate-800 opacity-60'
+                }`}>
                   <div className="flex items-center justify-between text-xs font-mono">
                     <span className="font-bold text-emerald-300 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>6. 高级采样与调度 (Node 42, 51, 55)</span>
+                      <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>6. YOLOv8 脸部修复 (Node 27)</span>
                     </span>
-                    <span className="text-[10px] text-slate-500">Euler + Beta</span>
+                    <span className={`text-[10px] px-1.5 py-0.2 rounded ${enableFaceRefine ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-500'}`}>
+                      {enableFaceRefine ? '启用' : '绕过'}
+                    </span>
                   </div>
-                  <div className="text-xs text-slate-200 font-mono">KSamplerSelect (euler) · BasicScheduler (beta)</div>
-                  <div className="text-[10px] text-slate-400">RandomNoise (Node 48) · 8步 Turbo 采样</div>
+                  <div className="text-xs text-slate-200 font-mono">face_yolov8m.pt · largest_face 裁切</div>
+                  <div className="text-[10px] text-slate-400">羽化 24 · 色彩匹配 1.0 · 杜绝换脸与崩脸</div>
                 </div>
 
-                {/* Module 7: Output Dual Combine (Node 72, 150, 107) */}
+                {/* Module 7: Output Packaging (Node 6, 7) */}
                 <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5">
                   <div className="flex items-center justify-between text-xs font-mono">
                     <span className="font-bold text-slate-200 flex items-center gap-1.5">
                       <Film className="w-3.5 h-3.5 text-slate-400" />
-                      <span>7. 双通道视频导出 (Node 72 & 150)</span>
+                      <span>7. 音画封装与导出 (Node 6, 7)</span>
                     </span>
-                    <span className="text-[10px] text-slate-500">VHS_VideoCombine</span>
+                    <span className="text-[10px] text-slate-500">CreateVideo</span>
                   </div>
-                  <div className="text-xs text-slate-200 font-mono">Node 72: 原片输出 ｜ Node 150: H3_Ref2VA二采超分</div>
-                  <div className="text-[10px] text-slate-400">24fps H.264 MP4 · SaveVideo (Node 107) 规范封包</div>
+                  <div className="text-xs text-slate-200 font-mono">CreateVideo (24fps, sRGB) + SaveVideo</div>
+                  <div className="text-[10px] text-slate-400">前缀: video/MiniMaxH3_Director_t2v</div>
                 </div>
 
                 {/* Module 8: Director Report (Node 8 PreviewAny) */}
@@ -1124,8 +1116,8 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
                     </span>
                     <span className="text-[10px] text-slate-500">PreviewAny</span>
                   </div>
-                  <div className="text-xs text-slate-200 font-mono">实时输出 MiniMax H3 导演台调度报告</div>
-                  <div className="text-[10px] text-slate-400">直通 Gate 8 对齐三验与音画质检系统</div>
+                  <div className="text-xs text-slate-200 font-mono">实时抓取各分段推理报告与显存消耗</div>
+                  <div className="text-[10px] text-slate-400">直通 Gate 8 对齐三验系统</div>
                 </div>
               </div>
             )}
@@ -1295,7 +1287,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
                   </span>
                 </h4>
                 <p className="text-xs text-slate-400">
-                  工作流模式: {activeTask.workflowType === 'director' ? 'MiniMax H3 导演台满血版 (Node 12 时序总控)' : 'MiniMax H3 9图多模态版 (Node 31)'}
+                  工作流模式: {activeTask.workflowType === 'director' ? 'MiniMax H3 导演台 (8大模块)' : '音乐 MV 数字人'}
                 </p>
               </div>
             </div>

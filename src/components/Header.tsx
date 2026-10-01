@@ -47,12 +47,12 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base tracking-wider text-slate-100 font-mono">H3Director-Pro</span>
+                <span className="font-extrabold text-base tracking-wider text-slate-100 font-mono">mvH3-onlyno999</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/30">
-                  导演台满血版 V2.4
+                  官流终极版 V2.2
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">剧本出词 ➔ 定妆/多宫格场景/道具 ➔ 全段自动调用 (Ref2va 2099679213619073025)</p>
+              <p className="text-[11px] text-slate-400 hidden sm:block">多图矩阵 · 视频潜空间接力 · 安全脱敏 · 零重影终剪</p>
             </div>
           </div>
 
@@ -145,7 +145,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-1.5 overflow-x-auto py-2 scrollbar-none border-t border-slate-800/80 text-xs">
             {/* Genre selector integrated inline */}
             <div className="flex items-center gap-1 mr-2 pr-2 border-r border-slate-800 shrink-0">
-              {(['short_drama', 'commercial', 'cinematic'] as const).map((g) => {
+              {(['short_drama', 'mv', 'commercial'] as const).map((g) => {
                 const meta = PRODUCTION_GENRES[g];
                 const isSelected = genre === g;
                 return (
@@ -169,7 +169,7 @@ export const Header: React.FC<HeaderProps> = ({
               { id: 'prompt_lab', label: 'H3 提示词工坊与避坑', icon: Wand2, badge: '官方 Ref2VA' },
               { id: 'asset_studio', label: '三工作流资产中台', icon: Layers, badge: '去影棚底' },
               { id: 'audio_studio', label: '音频参考与音色锁', icon: Mic, badge: '音色一致' },
-              { id: 'timeline', label: genre === 'short_drama' ? '短剧台词节拍表' : genre === 'commercial' ? '广告分镜节拍' : '电影短片分镜节拍', icon: Clock },
+              { id: 'timeline', label: genre === 'mv' ? '歌词时间轴 (关 1)' : genre === 'short_drama' ? '短剧台词节拍表' : '广告分镜节拍', icon: Clock },
               { id: 'storyboard', label: '分镜设计与硬门禁', icon: Film, badge: '硬门禁' },
               { id: 'runninghub', label: 'RunningHub 云端出片', icon: Cpu, badge: 'RH 出片' },
               { id: 'algorithms', label: '17n+5换算与像素审计', icon: ShieldCheck },

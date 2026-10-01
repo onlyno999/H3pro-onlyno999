@@ -4,7 +4,7 @@ import { DEMO_DRAMA_SEGMENTS } from '../data/h3PipelineData';
 import { ProductionGenre } from '../data/h3PipelineData';
 import {
   Play, Pause, RotateCcw, Check, Volume2, VolumeX, ShieldCheck,
-  Music, Mic, Radio, Sparkles, Layers, Sliders, MessageSquare, Clock, ArrowRight, UserCheck, Film
+  Music, Mic, Radio, Sparkles, Layers, Sliders, MessageSquare, Clock, ArrowRight, UserCheck
 } from 'lucide-react';
 
 interface TimelineBeatTabProps {
@@ -172,18 +172,18 @@ export const TimelineBeatTab: React.FC<TimelineBeatTabProps> = ({ genre }) => {
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono text-xs font-semibold border border-cyan-500/30">
-                关 1 剧本对白时间轴与原声拟音对齐
+                关 1 歌词时间轴与母带对齐
               </span>
               <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-medium border border-emerald-500/30">
-                环境声态与影视声效贯穿保活
+                全曲伴奏底轨贯穿保活
               </span>
             </div>
             <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-              <Film className="w-5 h-5 text-cyan-400" />
-              <span>长视频剧本分镜对白与时间戳毫秒对齐表 (30.16s 影视长片)</span>
+              <Music className="w-5 h-5 text-cyan-400" />
+              <span>音乐 MV 官方歌词与时间戳毫秒对齐表 (32.0s 母带)</span>
             </h2>
             <p className="text-xs text-slate-400 max-w-3xl">
-              分镜对白与剧情散文双向纠偏，对白行首尾毫秒时间戳严格固化。场景环境声、物理拟音 100% 贯穿流淌，杜绝静音断层。
+              ASR 与官方歌词双向纠偏，歌词行首尾毫秒时间戳死死固化。前奏、间奏、尾奏由伴奏 100% 贯穿流淌，杜绝静音断层。
             </p>
           </div>
 
@@ -196,7 +196,7 @@ export const TimelineBeatTab: React.FC<TimelineBeatTabProps> = ({ genre }) => {
               }`}
             >
               {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
-              <span>{isPlaying ? '暂停现场拟音试听' : '播放分镜声轨与时间轴'}</span>
+              <span>{isPlaying ? '暂停伴奏试听' : '播放伴奏与时间轴'}</span>
             </button>
           </div>
         </div>
@@ -331,7 +331,7 @@ export const TimelineBeatTab: React.FC<TimelineBeatTabProps> = ({ genre }) => {
           </div>
         </div>
       ) : (
-        /* Cinematic Mode: Dialogue and Scene Beats Timeline */
+        /* MV Mode: Traditional Lyric Lines Timeline */
         <div className="space-y-4">
           <div className="p-4 rounded-xl bg-slate-900 border border-slate-800">
             <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">

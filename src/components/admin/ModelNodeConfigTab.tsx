@@ -170,7 +170,7 @@ export const ModelNodeConfigTab: React.FC = () => {
 
         <div className="flex items-center gap-2 text-xs text-slate-400 pr-2">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>RH 导演台满血版 ID: <a href="https://www.runninghub.cn/post/2099679213619073025" target="_blank" rel="noreferrer" className="text-cyan-400 font-mono hover:underline">2099679213619073025</a></span>
+          <span>官流终极版 ID: <code className="text-cyan-400 font-mono">2104734128657756162</code></span>
         </div>
       </div>
 
@@ -572,7 +572,7 @@ export const ModelNodeConfigTab: React.FC = () => {
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                 }`}
               >
-                H3 导演台满血版 (2MiniMax_H3导演台满血版工作流｜Ref2va全能视频生成.json)
+                H3 官流终极版 (h3_director_workflow.json)
               </button>
               <button
                 onClick={() => setSelectedJsonWorkflow('director_comfy')}
