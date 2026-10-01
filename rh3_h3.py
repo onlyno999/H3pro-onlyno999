@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 RunningHub OpenAPI v2 & MiniMax H3 官流终极版官方调度器 (rh_h3.py)
-工作流地址: https://www.runninghub.cn/ai-detail/2085677798773051394?inviteCode=esb3h8sr
-工作流 ID: 2085677798773051394 (H3 官流终极版)
+工作流地址: https://www.runninghub.cn/workflow/2086280720103858177?inviteCode=esb3h8sr
+工作流 ID: 2086280720103858177 (H3 官流终极版)
 
 支持全模态与自动抽帧链式接力体系：
 1. 10 秒/15 秒分段自动化生成与轮询
@@ -29,9 +29,9 @@ import ssl
 from typing import Dict, Any, Optional, List
 
 RUNNINGHUB_BASE_URL = "https://www.runninghub.cn"
-OFFICIAL_ULTIMATE_WORKFLOW_ID = "2085677798773051394"
+OFFICIAL_ULTIMATE_WORKFLOW_ID = "2086280720103858177"
 DEFAULT_INVITE_CODE = "esb3h8sr"
-CLOUD_DETAIL_URL = "https://www.runninghub.cn/ai-detail/2085677798773051394?inviteCode=esb3h8sr"
+CLOUD_WORKFLOW_URL = "https://www.runninghub.cn/workflow/2086280720103858177?inviteCode=esb3h8sr"
 
 class RunningHubH3UltimateDispatcher:
     def __init__(self, api_key: Optional[str] = None, base_url: str = RUNNINGHUB_BASE_URL):

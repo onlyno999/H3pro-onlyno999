@@ -362,7 +362,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
                   <span>🌟 H3 满血多模态官流版</span>
                 </div>
                 <div className="text-[9px] text-slate-400 mt-0.5 truncate">Node 31 · 9图+3视频+防杂音通道</div>
-                <div className="text-[8px] font-mono text-emerald-400/80 mt-0.5">2085677798773051394</div>
+                <div className="text-[8px] font-mono text-emerald-400/80 mt-0.5">2086280720103858177</div>
               </button>
 
               <button

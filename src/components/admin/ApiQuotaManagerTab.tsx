@@ -23,7 +23,7 @@ export const ApiQuotaManagerTab: React.FC = () => {
   const [apiKey, setApiKey] = useState<string>('rh_live_key_999888777666');
   const [showKey, setShowKey] = useState<boolean>(false);
   const [baseUrl, setBaseUrl] = useState<string>('https://www.runninghub.cn');
-  const [workflowId, setWorkflowId] = useState<string>('2085677798773051394');
+  const [workflowId, setWorkflowId] = useState<string>('2086280720103858177');
   const [inviteCode, setInviteCode] = useState<string>('esb3h8sr');
   const [webhookUrl, setWebhookUrl] = useState<string>('https://api.my-studio.run.app/v1/h3-webhook');
   const [maxConcurrency, setMaxConcurrency] = useState<number>(4);
@@ -123,7 +123,7 @@ export const ApiQuotaManagerTab: React.FC = () => {
             <span className="text-xl font-black text-white font-mono">{inviteCode}</span>
           </div>
           <a
-            href="https://www.runninghub.cn/ai-detail/2085677798773051394?inviteCode=esb3h8sr"
+            href="https://www.runninghub.cn/workflow/2086280720103858177?inviteCode=esb3h8sr"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[11px] text-cyan-400 hover:underline flex items-center gap-1 font-semibold"

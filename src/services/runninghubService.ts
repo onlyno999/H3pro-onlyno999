@@ -15,16 +15,17 @@
 import DIRECTOR_WORKFLOW_JSON from '../data/h3DirectorWorkflowConfig.json';
 import OFFICIAL_ULTIMATE_WORKFLOW_JSON from '../data/h3OfficialUltimateWorkflow.json';
 
-export const OFFICIAL_ULTIMATE_WORKFLOW_ID = '2085677798773051394';
+export const OFFICIAL_ULTIMATE_WORKFLOW_ID = '2086280720103858177';
 
 export const RUNNINGHUB_CONFIG = {
-  workflowId: OFFICIAL_ULTIMATE_WORKFLOW_ID, // 2085677798773051394 MiniMax H3 满血版 多模态生视频加速
+  workflowId: OFFICIAL_ULTIMATE_WORKFLOW_ID, // 2086280720103858177 MiniMax H3 满血版 多模态生视频加速
   inviteCode: 'esb3h8sr',
   postUrl: 'https://www.runninghub.cn',
-  postUrlFull: 'https://www.runninghub.cn/ai-detail/2085677798773051394?inviteCode=esb3h8sr',
-  aiDetailUrl: 'https://www.runninghub.cn/ai-detail/2085677798773051394?inviteCode=esb3h8sr',
+  postUrlFull: 'https://www.runninghub.cn/workflow/2086280720103858177?inviteCode=esb3h8sr',
+  workflowUrl: 'https://www.runninghub.cn/workflow/2086280720103858177?inviteCode=esb3h8sr',
+  aiDetailUrl: 'https://www.runninghub.cn/workflow/2086280720103858177?inviteCode=esb3h8sr',
   workflowName: 'MiniMax H3 满血版 多模态生视频加速 (9图+3视频+防杂音音频参考通道)',
-  workflowVersionId: 'official-ultimate-v2.4-esb3h8sr',
+  workflowVersionId: 'official-ultimate-v2.5-2086280720103858177',
   directorRepoUrl: 'https://github.com/onlyoyrao999/mvH3-onlyno999',
   author: 'MiniMax 官方 / RunningHub 终极版',
   apiVersion: 'OpenAPI v2',
