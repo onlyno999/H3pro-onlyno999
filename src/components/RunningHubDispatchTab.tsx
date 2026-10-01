@@ -362,7 +362,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
                   <span>🌟 H3 满血多模态官流版</span>
                 </div>
                 <div className="text-[9px] text-slate-400 mt-0.5 truncate">Node 31 · 9图+3视频+防杂音通道</div>
-                <div className="text-[8px] font-mono text-emerald-400/80 mt-0.5">2105127972431818753</div>
+                <div className="text-[8px] font-mono text-emerald-400/80 mt-0.5">2085677798773051394</div>
               </button>
 
               <button
@@ -947,14 +947,14 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
                   <div>
                     <div className="text-xs font-bold text-white flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                      <span>MiniMax H3 满血版完整拓扑 · ID: 2105127972431818753</span>
+                      <span>MiniMax H3 满血版完整拓扑 · ID: {RUNNINGHUB_CONFIG.workflowId}</span>
                     </div>
                     <div className="text-[11px] text-slate-400 mt-1">
-                      严格对齐 <code>rh3_h3.py</code> 与 RunningHub 官方规范，包含 9 张图片、3 路视频与 3 路音频全模态参考矩阵。
+                      严格对齐 <code>rh3_h3.py</code> 与 RunningHub 官方规范，包含 9 张图片、3 路视频与防杂音音频参考通道。
                     </div>
                   </div>
                   <a
-                    href="https://www.runninghub.cn/workflow/2105127972431818753"
+                    href={RUNNINGHUB_CONFIG.postUrlFull}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-mono flex items-center gap-1 shrink-0 hover:bg-emerald-500/30"
