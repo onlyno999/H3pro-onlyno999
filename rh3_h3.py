@@ -32,6 +32,7 @@ RUNNINGHUB_BASE_URL = "https://www.runninghub.cn"
 OFFICIAL_ULTIMATE_WORKFLOW_ID = "2086280720103858177"
 DEFAULT_INVITE_CODE = "esb3h8sr"
 CLOUD_WORKFLOW_URL = "https://www.runninghub.cn/workflow/2086280720103858177?inviteCode=esb3h8sr"
+SILENCE_5S_AUDIO_FILENAME = "silence_5s.wav"
 
 class RunningHubH3UltimateDispatcher:
     def __init__(self, api_key: Optional[str] = None, base_url: str = RUNNINGHUB_BASE_URL):
@@ -182,6 +183,7 @@ class RunningHubH3UltimateDispatcher:
         ref_image_5: str = "",
         ref_video_prev: str = "",
         ref_audio: str = "",
+        ref_node: int = 38,
         workflow_id: str = OFFICIAL_ULTIMATE_WORKFLOW_ID,
         poll_interval: int = 5,
         max_poll_time: int = 600,
@@ -241,11 +243,24 @@ class RunningHubH3UltimateDispatcher:
             print(f"[+] 启用视频参考 (Video-to-Video Continuity): 载入上一段视频 {ref_video_prev} -> Node 75 (视频2: 运镜与接力)")
             node_info_list.append({"nodeId": "75", "fieldName": "video", "fieldValue": ref_video_prev})
 
+        # 3 路音频槽位 (2026-10-01 实测铁律：5秒静音顶替防样音乱入与嘴部动作漂移)
+        # 节点语义: 38=对白/人声, 67=歌声/演唱, 68=第三路音频
+        # 规则:
+        # - 有参考音频: 指定节点注入用户参考音频，其余未指定节点全灌 5s 静音 wav (silence_5s.wav)
+        # - 无参考音频: 38, 67, 68 三条全灌 5s 静音 wav 彻底顶替预置样音
+        # 铁律: 绝不传空字符串 "" (会导致40秒失败)，每个 nodeId 严格只出现一次
+        node_38_val = ref_audio if (ref_audio and ref_node == 38) else SILENCE_5S_AUDIO_FILENAME
+        node_67_val = ref_audio if (ref_audio and ref_node == 67) else SILENCE_5S_AUDIO_FILENAME
+        node_68_val = ref_audio if (ref_audio and ref_node == 68) else SILENCE_5S_AUDIO_FILENAME
+
+        node_info_list.append({"nodeId": "38", "fieldName": "audio", "fieldValue": node_38_val})
+        node_info_list.append({"nodeId": "67", "fieldName": "audio", "fieldValue": node_67_val})
+        node_info_list.append({"nodeId": "68", "fieldName": "audio", "fieldValue": node_68_val})
+
         if ref_audio:
-            print(f"[+] 启用参考音频 (Node 38): {ref_audio}")
-            node_info_list.append({"nodeId": "38", "fieldName": "audio", "fieldValue": ref_audio})
+            print(f"[+] [🎙️ 音频通道定制] Node {ref_node} 注入用户参考音频: {ref_audio}，其余音频节点全灌 5s 静音 wav 顶替样音")
         else:
-            print(f"[+] [🛡️ 音频防乱入保护] 未指定参考音频，已彻底关闭 Node 38/67/68 音频通道，防止样音/杂音乱入！")
+            print(f"[+] [🛡️ 音频防乱入铁律] 无参考音频 -> Node 38/67/68 全部灌入 5s 静音 wav ({SILENCE_5S_AUDIO_FILENAME}) 顶替预置样音，YAMNet 预期 max_speech=0.00 (防嘴部乱动与杂音)")
 
         payload = {
             "apiKey": self.api_key,
@@ -372,7 +387,8 @@ def main():
     parser.add_argument("--ref-video", type=str, default="", help="上一段成片视频路径")
     parser.add_argument("--ref-image-0", type=str, default="", help="参考图 0 (Picture 1，可传入上一段抽取的人物卡)")
     parser.add_argument("--ref-image-1", type=str, default="", help="参考图 1 (Picture 2，若有新角色则传入文生图卡)")
-    parser.add_argument("--ref-audio", type=str, default="", help="可选参考音频路径 (不传则默认关闭音频通道防杂音乱入)")
+    parser.add_argument("--ref-audio", type=str, default="", help="可选参考音频路径 (不传则默认3条全灌5s静音wav防杂音乱入)")
+    parser.add_argument("--ref-node", type=int, default=38, choices=[38, 67, 68], help="参考音频绑定的节点 ID (38=对白人声, 67=歌声, 68=第三路音频，默认38)")
     parser.add_argument("--no-subtitles", action="store_true", default=True, help="严格禁止生成字幕 (默认开启，锁定 100% 纯净无字底片)")
     
     args = parser.parse_args()
@@ -387,6 +403,7 @@ def main():
         ref_image_0=args.ref_image_0,
         ref_image_1=args.ref_image_1,
         ref_audio=args.ref_audio,
+        ref_node=args.ref_node,
         workflow_id=args.workflow_id,
         no_subtitles=args.no_subtitles
     )

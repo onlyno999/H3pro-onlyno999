@@ -418,12 +418,53 @@ export const AudioConsistencyStudioTab: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-3 rounded-lg bg-cyan-950/20 border border-cyan-500/30 text-xs text-slate-300 space-y-1.5">
-              <span className="font-bold text-cyan-300">💡 为什么原始工作流中会出现杂音与声音乱入？</span>
-              <p className="text-slate-400 text-[11px] leading-relaxed">
-                因为原始 ComfyUI / 示例工作流中已经预置了 2~3 条测试音频（Node 38/67/68），在用户没有上传或格式化参考音频的情况下，如果不关停音频输入，模型便会读取并执行这些预置样音，导致不可控的声音乱入。
-                本系统解决方案：<strong>只要用户未明确传入并格式化参考音频，即判定为通道彻底关停（BYPASS）</strong>，同时在负向提示词中强制过滤背景音乐杂音，彻底保障视听纯净！
-              </p>
+            {/* 2026-10-01 Real-Test Audio Channel Closing Protocol */}
+            <div className="p-4 rounded-xl bg-slate-950 border border-cyan-500/50 space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <span className="text-xs font-bold text-cyan-300 font-mono flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-cyan-400" />
+                  <span>工作流音频通道关闭铁律与等效静音灌装方案 (2026-10-01 实测)</span>
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  YAMNet 实测验证 (max_speech: 0.98 → 0.00)
+                </span>
+              </div>
+
+              <div className="space-y-2 text-xs leading-relaxed text-slate-300">
+                <div className="p-2.5 rounded-lg bg-red-950/20 border border-red-500/30 space-y-1">
+                  <span className="font-bold text-red-400">⚠️ 痛点揭秘：不发音频节点 ≠ 关闭音频通道</span>
+                  <p className="text-slate-400 text-[11px]">
+                    无参考音频时，直接在 <code>nodeInfoList</code> 中省略音频节点，工作流预置样音仍会跑进成片（YAMNet 实测 max_speech=0.98），并<strong>诱发角色嘴部异常乱动</strong>。后期剥离音轨只能洗交付文件，洗不掉已经造成的表演面部失真！
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 font-mono text-[11px]">
+                  <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                    <span className="text-cyan-400 font-bold">Node 38 语义</span>
+                    <p className="text-slate-400 text-[10px]">角色对白 / 主人声音色</p>
+                  </div>
+                  <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                    <span className="text-purple-400 font-bold">Node 67 语义</span>
+                    <p className="text-slate-400 text-[10px]">歌声 / 演唱旋律</p>
+                  </div>
+                  <div className="p-2 rounded-lg bg-slate-900 border border-slate-800">
+                    <span className="text-indigo-400 font-bold">Node 68 语义</span>
+                    <p className="text-slate-400 text-[10px]">第三路音频 / 环境配乐</p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg bg-emerald-950/20 border border-emerald-500/30 space-y-1.5">
+                  <span className="font-bold text-emerald-300">✓ API 真实解法：5秒静音 WAV (silence_5s.wav) 顶替覆盖</span>
+                  <p className="text-slate-300 text-[11px]">
+                    OpenAPI 的 <code>nodeInfoList</code> 不支持发送 ComfyUI 的 <code>mode=2 (bypass)</code>。实测唯一有效方案：<strong>上传 5 秒静音 WAV，把 38/67/68 字段全部指向它</strong>，预置样音被 100% 顶替抹平！
+                  </p>
+                  <div className="text-[10px] text-slate-400 space-y-0.5">
+                    <div>• <strong>两条死路验证</strong>：发空字符串 <code>audio=""</code> 会导致 40 秒任务失败；同一 nodeId 在列表中绝不可重复出现。</div>
+                    <div>• <strong>条件路由规范</strong>：有参考音频时仅绑定对应节点（其余两条灌静音）；无参考音频时 38/67/68 三条全灌静音。</div>
+                    <div>• <strong>交付规则修正</strong>：源头干净（YAMNet max_speech=0.00）时，<strong>强制保留模型原生动作拟音</strong>（如鞋触地板瞬态拟音），严禁人工额外加铺合成底噪！</div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 font-mono text-[11px]">

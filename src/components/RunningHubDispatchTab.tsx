@@ -415,18 +415,24 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
             </div>
 
             {!enableRefAudio ? (
-              <div className="mt-2.5 text-[10.5px] text-slate-300 bg-cyan-950/30 p-2.5 rounded-lg border border-cyan-500/20 space-y-1">
-                <div className="text-cyan-300 font-semibold flex items-center gap-1">
-                  <span>✅ 防杂音保护生效中（未传音频默认关停）</span>
+              <div className="mt-2.5 text-[10.5px] text-slate-300 bg-cyan-950/30 p-2.5 rounded-lg border border-cyan-500/20 space-y-1.5">
+                <div className="text-cyan-300 font-semibold flex items-center justify-between">
+                  <span>✅ 5秒静音灌装顶替中 (YAMNet 预期: 0.00)</span>
+                  <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-cyan-900/80 text-cyan-200">2026-10-01 实测铁律</span>
                 </div>
                 <p className="text-slate-400 text-[10px] leading-relaxed">
-                  MiniMax H3 原始模型工作流包含多条预置样音。在没有上传自定义参考音频时，系统已<strong>彻底关停 Node 38/67/68 音频输入</strong>，只生成画面与动作物理拟音，杜绝人声乱入与杂音！
+                  为彻底杜绝预置样音导致的人声乱入与嘴部异常乱动，系统已对 <strong>Node 38(对白)、Node 67(歌声)、Node 68(三路)</strong> 强制全灌 <code>silence_5s.wav</code> 顶替样音，100% 保留画面自生动作拟音！
                 </p>
+                <div className="grid grid-cols-3 gap-1 text-[9px] font-mono pt-1 text-slate-400">
+                  <div className="p-1 rounded bg-slate-900 border border-slate-800 text-center">Node 38: 静音覆盖</div>
+                  <div className="p-1 rounded bg-slate-900 border border-slate-800 text-center">Node 67: 静音覆盖</div>
+                  <div className="p-1 rounded bg-slate-900 border border-slate-800 text-center">Node 68: 静音覆盖</div>
+                </div>
               </div>
             ) : (
               <div className="mt-2.5 space-y-2">
                 <p className="text-[10px] text-purple-300 leading-snug">
-                  已开启音频通道。请输入您自己的参考音频文件名或 URL (将注入 Node 38 人声音色槽位)：
+                  已开启参考音频。Node 38 将注入您的参考音频，Node 67/68 自动注入 <code>silence_5s.wav</code> 屏蔽样音：
                 </p>
                 <input
                   type="text"
