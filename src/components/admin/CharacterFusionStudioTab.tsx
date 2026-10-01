@@ -283,17 +283,17 @@ export const CharacterFusionStudioTab: React.FC = () => {
 
           <button
             onClick={() => {
-              setActiveGenre('mv');
+              setActiveGenre('cinematic');
               setSelectedScene(COMPREHENSIVE_SCENE_PRESETS[6]); // cyberpunk street
             }}
             className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
-              activeGenre === 'mv'
+              activeGenre === 'cinematic'
                 ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
             }`}
           >
-            <Music className="w-4 h-4 text-cyan-300" />
-            <span>音乐 MV 与舞台 (Music Video)</span>
+            <Film className="w-4 h-4 text-cyan-300" />
+            <span>电影概念短片 (Cinematic Film)</span>
           </button>
         </div>
 

@@ -1,4 +1,4 @@
-export type ProductionGenre = 'short_drama' | 'mv' | 'commercial';
+export type ProductionGenre = 'short_drama' | 'cinematic' | 'commercial';
 
 export interface GenreMeta {
   id: ProductionGenre;
@@ -22,15 +22,15 @@ export const PRODUCTION_GENRES: Record<ProductionGenre, GenreMeta> = {
     keyFeature: '1:1 锁颜定妆 + 15s尾帧无缝拼合',
     description: '4段×15.08秒 (362帧/段) 竖屏连续叙事，严格锁定角色长相与环境光影。'
   },
-  mv: {
-    id: 'mv',
-    name: '音乐 MV',
-    badge: '音频锁+节拍',
-    tagline: '节奏节拍对齐 · 音频音色锁',
-    defaultDuration: 32.0,
+  cinematic: {
+    id: 'cinematic',
+    name: '电影概念短片',
+    badge: '多模态时空运镜',
+    tagline: 'Ref2VA 时空连续 · 防杂音纯净拟音',
+    defaultDuration: 30.16,
     segmentCount: 2,
-    keyFeature: '纯现场拟音 + Master BGM 外部铺底',
-    description: '精准音画同步，非发声段嘴唇自然闭合，零杂音无缝拼剪。'
+    keyFeature: '电影级景别调度 + 零预置样音干扰',
+    description: '横屏 16:9 影视级多镜头运镜叙事，音频通道默认屏蔽防杂音，纯净动作拟音。'
   },
   commercial: {
     id: 'commercial',

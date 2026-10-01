@@ -410,12 +410,20 @@ export const AudioConsistencyStudioTab: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-200 font-mono">
-                  🔇 静止/禁止出现背景音乐 · H3 提示词与 Negative 编写准则
+                  🔇 静止/禁止出现背景音乐 · H3 提示词与 Negative 编写准则 (防杂音乱入)
                 </span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono">
-                  MV 铁律 C 深度执行
+                <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-mono">
+                  防杂音铁律深度执行
                 </span>
               </div>
+            </div>
+
+            <div className="p-3 rounded-lg bg-cyan-950/20 border border-cyan-500/30 text-xs text-slate-300 space-y-1.5">
+              <span className="font-bold text-cyan-300">💡 为什么原始工作流中会出现杂音与声音乱入？</span>
+              <p className="text-slate-400 text-[11px] leading-relaxed">
+                因为原始 ComfyUI / 示例工作流中已经预置了 2~3 条测试音频（Node 38/67/68），在用户没有上传或格式化参考音频的情况下，如果不关停音频输入，模型便会读取并执行这些预置样音，导致不可控的声音乱入。
+                本系统解决方案：<strong>只要用户未明确传入并格式化参考音频，即判定为通道彻底关停（BYPASS）</strong>，同时在负向提示词中强制过滤背景音乐杂音，彻底保障视听纯净！
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 font-mono text-[11px]">

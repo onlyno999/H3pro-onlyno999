@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { StoryboardShot } from '../data/mockPipelineData';
 import {
   RUNNINGHUB_CONFIG,
-  RUNNINGHUB_WORKFLOW_TEMPLATE,
   H3_DIRECTOR_WORKFLOW_TEMPLATE,
   H3_OFFICIAL_ULTIMATE_WORKFLOW_TEMPLATE,
   OFFICIAL_ULTIMATE_WORKFLOW_ID,
@@ -12,8 +11,7 @@ import {
   buildOfficialUltimatePayload,
   buildCustomOfficialUltimateWorkflowJson,
   buildDirectorOpenApiPayload,
-  buildCustomDirectorWorkflowJson,
-  buildCustomComfyWorkflowJson
+  buildCustomDirectorWorkflowJson
 } from '../services/runninghubService';
 import {
   ExternalLink,
@@ -53,11 +51,15 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
   onUpdateStoryboard
 }) => {
   const [selectedShotId, setSelectedShotId] = useState<string>(storyboard[0]?.id || 'shot_01');
-  const [selectedWorkflowProfile, setSelectedWorkflowProfile] = useState<'h3_official_ultimate' | 'h3_director' | 'mv_selflift'>('h3_official_ultimate');
+  const [selectedWorkflowProfile, setSelectedWorkflowProfile] = useState<'h3_official_ultimate' | 'h3_director'>('h3_official_ultimate');
   const [apiKey, setApiKey] = useState<string>('');
   const [isSandbox, setIsSandbox] = useState<boolean>(true);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [activeTask, setActiveTask] = useState<RunningHubTaskDispatchResult | null>(null);
+
+  // Audio Reference Channel & Anti-Noise Guard (防杂音乱入保护，默认彻底关闭)
+  const [enableRefAudio, setEnableRefAudio] = useState<boolean>(false);
+  const [refAudioUrl, setRefAudioUrl] = useState<string>('');
 
   // Duration Preset: 10s (243 frames) vs 15s (362 frames)
   const [durationPreset, setDurationPreset] = useState<10 | 15>(15);
@@ -91,9 +93,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
     ? (selectedShot.generatedKeyframeUrl || selectedShot.backgroundImageUrl)
     : 'e642390157ec77fa5195a81d97c8147b4d62533425dff3e299f0391aeae11022.png';
 
-  const currentWorkflowId = selectedWorkflowProfile === 'mv_selflift'
-    ? RUNNINGHUB_CONFIG.legacyMvWorkflowId
-    : RUNNINGHUB_CONFIG.workflowId;
+  const currentWorkflowId = RUNNINGHUB_CONFIG.workflowId;
 
   const handleCopyWorkflowId = () => {
     navigator.clipboard.writeText(currentWorkflowId);
@@ -113,7 +113,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
         refImage1: effectiveImageUrl || 'tiedan_chest_detail_imagegen_fused.png',
         refImage2: 'tiedan_legs_detail.png',
         refVideoPrev: selectedShot.index > 1 ? `output_shot_${(selectedShot.index - 1).toString().padStart(2, '0')}.mp4` : undefined,
-        refAudio: selectedShot.isLipSync ? 'tiedan_audio_voiceprint.wav' : undefined
+        refAudio: enableRefAudio && refAudioUrl ? refAudioUrl : undefined
       })
     : null;
 
@@ -136,20 +136,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
 
   const currentPayload = selectedWorkflowProfile === 'h3_official_ultimate'
     ? officialPayload
-    : selectedWorkflowProfile === 'h3_director'
-    ? directorPayload
-    : selectedShot
-    ? buildRunningHubPayload({
-        shotId: selectedShot.id,
-        imageUrl: effectiveImageUrl,
-        audioUrl: '43dfda9eb46c40192b014d04105c760c86cb959780b7aa1126375cb0a942e4de.mp3',
-        prompt: selectedShot.prompt,
-        negativePrompt: selectedShot.negativePrompt,
-        durationSeconds: durationPreset,
-        startIndex: selectedShot.start,
-        seed: selectedShot.seed || 999
-      })
-    : null;
+    : directorPayload;
 
   const customWorkflowJson = selectedWorkflowProfile === 'h3_official_ultimate'
     ? buildCustomOfficialUltimateWorkflowJson({
@@ -160,10 +147,10 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
         refImage0: 'tiedan_character_full.png',
         refImage1: effectiveImageUrl || 'tiedan_chest_detail_imagegen_fused.png',
         refImage2: 'tiedan_legs_detail.png',
-        refVideoPrev: selectedShot.index > 1 ? `output_shot_${(selectedShot.index - 1).toString().padStart(2, '0')}.mp4` : undefined
+        refVideoPrev: selectedShot.index > 1 ? `output_shot_${(selectedShot.index - 1).toString().padStart(2, '0')}.mp4` : undefined,
+        refAudio: enableRefAudio && refAudioUrl ? refAudioUrl : undefined
       })
-    : selectedWorkflowProfile === 'h3_director'
-    ? buildCustomDirectorWorkflowJson({
+    : buildCustomDirectorWorkflowJson({
         globalPrompt: selectedShot.prompt,
         width: selectedShot.shotScale.includes('16:9') ? 864 : 480,
         height: selectedShot.shotScale.includes('16:9') ? 480 : 864,
@@ -172,17 +159,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
         enableSelflift,
         enableRefine,
         enableFaceRefine
-      })
-    : selectedShot
-    ? buildCustomComfyWorkflowJson({
-        imageUrl: effectiveImageUrl,
-        audioUrl: '43dfda9eb46c40192b014d04105c760c86cb959780b7aa1126375cb0a942e4de.mp3',
-        prompt: selectedShot.prompt,
-        durationSeconds: selectedShot.duration,
-        startIndex: selectedShot.start,
-        seed: selectedShot.seed || 999
-      })
-    : H3_OFFICIAL_ULTIMATE_WORKFLOW_TEMPLATE;
+      });
 
   const handleCopyPayload = () => {
     if (currentPayload) {
@@ -219,9 +196,9 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
         isSandbox,
         workflowType: selectedWorkflowProfile === 'h3_official_ultimate'
           ? 'official_ultimate'
-          : selectedWorkflowProfile === 'h3_director'
-          ? 'director'
-          : 'mv_digital_human',
+          : 'director',
+        enableRefAudioChannel: enableRefAudio,
+        refAudioUrl: enableRefAudio ? refAudioUrl : undefined,
         directorSettings: {
           enableSelflift,
           enableRefine,
@@ -370,7 +347,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
               <label className="text-xs font-semibold text-slate-300">云端工作流模板 (Workflow Profile)</label>
               <span className="text-[10px] font-mono text-cyan-400">当前ID: {currentWorkflowId}</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setSelectedWorkflowProfile('h3_official_ultimate')}
@@ -382,9 +359,9 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
               >
                 <div className="font-bold flex items-center gap-1 text-[11px] text-emerald-300">
                   <Sparkles className="w-3 h-3 text-emerald-400 shrink-0" />
-                  <span>🌟 H3 满血多模态版</span>
+                  <span>🌟 H3 满血多模态官流版</span>
                 </div>
-                <div className="text-[9px] text-slate-400 mt-0.5 truncate">Node 31 · 9图+3视频+3音频</div>
+                <div className="text-[9px] text-slate-400 mt-0.5 truncate">Node 31 · 9图+3视频+防杂音通道</div>
                 <div className="text-[8px] font-mono text-emerald-400/80 mt-0.5">2105127972431818753</div>
               </button>
 
@@ -399,29 +376,67 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
               >
                 <div className="font-bold flex items-center gap-1 text-[11px] text-purple-300">
                   <Sliders className="w-3 h-3 text-purple-400 shrink-0" />
-                  <span>🎬 H3 导演台</span>
+                  <span>🎬 H3 导演台 (8大子图模块)</span>
                 </div>
-                <div className="text-[9px] text-slate-400 mt-0.5 truncate">Node 12 时序中台</div>
+                <div className="text-[9px] text-slate-400 mt-0.5 truncate">Node 12 时序中台 · 3D采样</div>
                 <div className="text-[8px] font-mono text-purple-400/80 mt-0.5">2104734128657756162</div>
               </button>
+            </div>
+          </div>
 
+          {/* Audio Reference Channel & Anti-Noise Guard Controller */}
+          <div className={`p-3.5 rounded-xl border transition-all ${
+            enableRefAudio
+              ? 'bg-slate-950 border-purple-500/50 shadow-md'
+              : 'bg-slate-950 border-cyan-500/40'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className={`w-4 h-4 ${enableRefAudio ? 'text-purple-400' : 'text-cyan-400'}`} />
+                <span className="text-xs font-bold text-slate-200 font-mono">
+                  参考音频通道 & 防杂音乱入保护
+                </span>
+              </div>
               <button
                 type="button"
-                onClick={() => setSelectedWorkflowProfile('mv_selflift')}
-                className={`py-2 px-2.5 rounded-xl text-xs font-semibold border transition text-left ${
-                  selectedWorkflowProfile === 'mv_selflift'
-                    ? 'bg-gradient-to-r from-cyan-900/70 to-blue-900/50 text-cyan-200 border-cyan-500/50 shadow-md ring-1 ring-cyan-500/30'
-                    : 'bg-slate-800/40 text-slate-400 border-slate-700 hover:bg-slate-800'
+                onClick={() => setEnableRefAudio(!enableRefAudio)}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-bold font-mono transition flex items-center gap-1.5 ${
+                  enableRefAudio
+                    ? 'bg-purple-600 text-white shadow'
+                    : 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/40'
                 }`}
               >
-                <div className="font-bold flex items-center gap-1 text-[11px] text-cyan-300">
-                  <Film className="w-3 h-3 text-cyan-400 shrink-0" />
-                  <span>🎵 音乐 MV 旧二采</span>
-                </div>
-                <div className="text-[9px] text-slate-400 mt-0.5 truncate">26 Nodes · 口型基线</div>
-                <div className="text-[8px] font-mono text-cyan-400/80 mt-0.5">2100506281638457345</div>
+                {enableRefAudio ? (
+                  <span>🎙️ 音频通道: 已开启</span>
+                ) : (
+                  <span>🛡️ 防乱入保护: 通道已关停</span>
+                )}
               </button>
             </div>
+
+            {!enableRefAudio ? (
+              <div className="mt-2.5 text-[10.5px] text-slate-300 bg-cyan-950/30 p-2.5 rounded-lg border border-cyan-500/20 space-y-1">
+                <div className="text-cyan-300 font-semibold flex items-center gap-1">
+                  <span>✅ 防杂音保护生效中（未传音频默认关停）</span>
+                </div>
+                <p className="text-slate-400 text-[10px] leading-relaxed">
+                  MiniMax H3 原始模型工作流包含多条预置样音。在没有上传自定义参考音频时，系统已<strong>彻底关停 Node 38/67/68 音频输入</strong>，只生成画面与动作物理拟音，杜绝人声乱入与杂音！
+                </p>
+              </div>
+            ) : (
+              <div className="mt-2.5 space-y-2">
+                <p className="text-[10px] text-purple-300 leading-snug">
+                  已开启音频通道。请输入您自己的参考音频文件名或 URL (将注入 Node 38 人声音色槽位)：
+                </p>
+                <input
+                  type="text"
+                  value={refAudioUrl}
+                  onChange={(e) => setRefAudioUrl(e.target.value)}
+                  placeholder="例如: custom_voice_reference.wav"
+                  className="w-full bg-slate-900 border border-purple-500/40 rounded-lg px-2.5 py-1.5 text-xs font-mono text-purple-200 placeholder-slate-600 focus:outline-none focus:border-purple-400"
+                />
+              </div>
+            )}
           </div>
 
           {/* Official Ultimate Mode Feature Panel */}
@@ -621,7 +636,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
             </div>
             <p className="text-[11px] text-slate-400">
               {isSandbox
-                ? `💡 沙箱模式模拟 RunningHub OpenAPI v2 ${selectedWorkflowProfile === 'h3_official_ultimate' ? 'MiniMax H3 官流终极版 (ID: 2104734128657756162)' : selectedWorkflowProfile === 'h3_director' ? 'H3 导演台 (ID: 2104734128657756162)' : 'MV数字人工作流 (ID: 2100506281638457345)'} 完整时序与节点调度，不扣真实算力点。`
+                ? `💡 沙箱模式模拟 RunningHub OpenAPI v2 ${selectedWorkflowProfile === 'h3_official_ultimate' ? 'MiniMax H3 官流终极版 (ID: 2105127972431818753)' : 'H3 导演台 (ID: 2104734128657756162)'} 完整时序与节点调度，不扣真实算力点。`
                 : `⚡ 真实模式将通过 OpenAPI 调用 POST /openapi/v2/run/workflow/${currentWorkflowId} (Bearer Token 认证)。`}
             </p>
           </div>
@@ -1287,7 +1302,7 @@ export const RunningHubDispatchTab: React.FC<RunningHubDispatchTabProps> = ({
                   </span>
                 </h4>
                 <p className="text-xs text-slate-400">
-                  工作流模式: {activeTask.workflowType === 'director' ? 'MiniMax H3 导演台 (8大模块)' : '音乐 MV 数字人'}
+                  工作流模式: {activeTask.workflowType === 'director' ? 'MiniMax H3 导演台 (8大模块)' : 'MiniMax H3 满血多模态版 (Ref2VA / 9图+3视频+防杂音通道)'}
                 </p>
               </div>
             </div>

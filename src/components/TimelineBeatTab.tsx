@@ -172,18 +172,18 @@ export const TimelineBeatTab: React.FC<TimelineBeatTabProps> = ({ genre }) => {
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono text-xs font-semibold border border-cyan-500/30">
-                关 1 歌词时间轴与母带对齐
+                关 1 电影分镜时序与台词节拍
               </span>
               <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-medium border border-emerald-500/30">
-                全曲伴奏底轨贯穿保活
+                时序严密对齐 · 防杂音纯净拟音
               </span>
             </div>
             <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
               <Music className="w-5 h-5 text-cyan-400" />
-              <span>音乐 MV 官方歌词与时间戳毫秒对齐表 (32.0s 母带)</span>
+              <span>电影概念短片分镜时序与台词对齐表 (30.16s / 2段)</span>
             </h2>
             <p className="text-xs text-slate-400 max-w-3xl">
-              ASR 与官方歌词双向纠偏，歌词行首尾毫秒时间戳死死固化。前奏、间奏、尾奏由伴奏 100% 贯穿流淌，杜绝静音断层。
+              影视级镜头时序严格锚定，台词行首尾毫秒时间戳精准对齐。未传入音频时音频通道自动关闭，杜绝预置样音导致的人声与杂音乱入。
             </p>
           </div>
 
@@ -196,7 +196,7 @@ export const TimelineBeatTab: React.FC<TimelineBeatTabProps> = ({ genre }) => {
               }`}
             >
               {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
-              <span>{isPlaying ? '暂停伴奏试听' : '播放伴奏与时间轴'}</span>
+              <span>{isPlaying ? '暂停环境配乐试听' : '播放时序与环境声'}</span>
             </button>
           </div>
         </div>

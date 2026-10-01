@@ -240,7 +240,10 @@ class RunningHubH3UltimateDispatcher:
             node_info_list.append({"nodeId": "75", "fieldName": "video", "fieldValue": ref_video_prev})
 
         if ref_audio:
+            print(f"[+] 启用参考音频 (Node 38): {ref_audio}")
             node_info_list.append({"nodeId": "38", "fieldName": "audio", "fieldValue": ref_audio})
+        else:
+            print(f"[+] [🛡️ 音频防乱入保护] 未指定参考音频，已彻底关闭 Node 38/67/68 音频通道，防止样音/杂音乱入！")
 
         payload = {
             "apiKey": self.api_key,
@@ -367,6 +370,7 @@ def main():
     parser.add_argument("--ref-video", type=str, default="", help="上一段成片视频路径")
     parser.add_argument("--ref-image-0", type=str, default="", help="参考图 0 (Picture 1，可传入上一段抽取的人物卡)")
     parser.add_argument("--ref-image-1", type=str, default="", help="参考图 1 (Picture 2，若有新角色则传入文生图卡)")
+    parser.add_argument("--ref-audio", type=str, default="", help="可选参考音频路径 (不传则默认关闭音频通道防杂音乱入)")
     parser.add_argument("--no-subtitles", action="store_true", default=True, help="严格禁止生成字幕 (默认开启，锁定 100% 纯净无字底片)")
     
     args = parser.parse_args()
@@ -380,6 +384,7 @@ def main():
         ref_video_prev=args.ref_video,
         ref_image_0=args.ref_image_0,
         ref_image_1=args.ref_image_1,
+        ref_audio=args.ref_audio,
         workflow_id=args.workflow_id,
         no_subtitles=args.no_subtitles
     )

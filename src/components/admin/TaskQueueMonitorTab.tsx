@@ -440,7 +440,7 @@ export const TaskQueueMonitorTab: React.FC = () => {
                     className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-cyan-500"
                   >
                     <option value="short_drama">竖版短剧 (9:16)</option>
-                    <option value="mv">音乐 MV (16:9)</option>
+                    <option value="cinematic">电影概念短片 (16:9)</option>
                     <option value="commercial">商业广告 (16:9 / 9:16)</option>
                   </select>
                 </div>

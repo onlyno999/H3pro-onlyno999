@@ -145,7 +145,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-1.5 overflow-x-auto py-2 scrollbar-none border-t border-slate-800/80 text-xs">
             {/* Genre selector integrated inline */}
             <div className="flex items-center gap-1 mr-2 pr-2 border-r border-slate-800 shrink-0">
-              {(['short_drama', 'mv', 'commercial'] as const).map((g) => {
+              {(['short_drama', 'cinematic', 'commercial'] as const).map((g) => {
                 const meta = PRODUCTION_GENRES[g];
                 const isSelected = genre === g;
                 return (
@@ -168,8 +168,8 @@ export const Header: React.FC<HeaderProps> = ({
               { id: 'overview', label: '12步8关全景', icon: Sparkles },
               { id: 'prompt_lab', label: 'H3 提示词工坊与避坑', icon: Wand2, badge: '官方 Ref2VA' },
               { id: 'asset_studio', label: '三工作流资产中台', icon: Layers, badge: '去影棚底' },
-              { id: 'audio_studio', label: '音频参考与音色锁', icon: Mic, badge: '音色一致' },
-              { id: 'timeline', label: genre === 'mv' ? '歌词时间轴 (关 1)' : genre === 'short_drama' ? '短剧台词节拍表' : '广告分镜节拍', icon: Clock },
+              { id: 'audio_studio', label: '音频参考与防乱入', icon: Mic, badge: '防杂音' },
+              { id: 'timeline', label: genre === 'short_drama' ? '短剧台词节拍表 (关 1)' : genre === 'cinematic' ? '电影分镜时序表' : '广告分镜节拍', icon: Clock },
               { id: 'storyboard', label: '分镜设计与硬门禁', icon: Film, badge: '硬门禁' },
               { id: 'runninghub', label: 'RunningHub 云端出片', icon: Cpu, badge: 'RH 出片' },
               { id: 'algorithms', label: '17n+5换算与像素审计', icon: ShieldCheck },
