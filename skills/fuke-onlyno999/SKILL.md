@@ -1,6 +1,6 @@
 ---
 name: fuke-onlyno999
-description: 1:1 复刻通用法——用户给一条参考视频并点名演员（或附人物图），说"复刻一份/1:1复刻/照这个再做一份/换成XX复刻"时触发。逐帧读原片→源片直出锚点→演员脸/衣双锁→分段重演运镜→自检→原声拼接交付。已验证成功案例：悬崖坐姿复刻（鸡哥版/刁哥版）、斗法复刻。与动作迁移（motion-transfer）区分：复刻是照原片运镜分段重演，动作迁移是套原片人物动作。
+description: 1:1 复刻通用法——用户给一条参考视频并点名演员（或附人物图），说"复刻一份/1:1复刻/照这个再做一份/换成XX复刻"时触发。逐帧读原片→源片直出锚点→演员脸/衣双锁→分段重演运镜→自检→只注入环境噪声交付。已验证成功案例：悬崖坐姿复刻（鸡哥版/刁哥版）、斗法复刻。与动作迁移（motion-transfer）区分：复刻是照原片运镜分段重演，动作迁移是套原片人物动作。
 version: 1.0.0
 ---
 
@@ -33,16 +33,15 @@ version: 1.0.0
 5. **提示词（Ref2VA 六段式，照 h3pro 格式）**
    - 主体定义：演员特征＋定妆装＋"与参考图 1:1 一致"写死。
    - 每段动作/运镜照第 1 步的逐帧记录写：方向、速度、起止状态；人物占位显式写（画面左/中/右 × 前/中/后景，跨段继承，不许瞬移、不越轴）。
-   - 无对白段走静默铁律：声音设定声明无对白＋具体拟音清单＋中英三重禁 BGM＋尾部三约束；负向矩阵含 subtitles / on-screen text / watermark / sunglasses / face morphing。
-   - **提示词只写短句声音设计，不写整段操作纪律**：要什么环境音、不要音乐/对白，一两句说清即可——成段的规则文字写进提示词会被模型当内容念出来（实测会生成念提示词的含糊人声）。
+   - 无对白段：声音设定只写一两句短句（只有何种环境声、无人声、无音乐）；负向矩阵含 subtitles / on-screen text / watermark / sunglasses / face morphing。
+   - **提示词不写规则段**：不出现"铁律："这类成段文字，约束只用短句＋negative 短语——成段规则会被模型当台词念出来（连"铁律"二字都念，实测翻车）。
    - 模板骨架见文末。
 
 6. **派发（已验证线路）**
    - 加速版 App `2086289185186603010`，派发器 `~/workspace/h3_dispatch/h3full_dispatch.py`，画幅与原片一致，固定种子。
    - 段 1：`--ref0 演员照 --ref7 脸特写 --ref1 场景九宫格 --ref2 起始锚帧`
    - 段 2+：`--ref0 演员照 --ref7 脸特写 --ref1 转场关键帧 --ref2 上段尾帧`
-   - **无对白片不注入任何参考音频**（不传 `--ref-audio*`），用模型原声。
-   - **音频铁律：只注入环境音，绝不注入任何背景音乐**——不挂音乐类参考音频、后期不外挂 BGM/配乐。
+   - **无对白片不注入任何参考音频**（不传 `--ref-audio*`）。模型自带音轨必含念提示词的含糊人声，不可直接交付，组装时整轨换环境噪声床（见第 8 步）。
 
 7. **逐段质检（自己跑完，不打扰用户）**
    - 抽帧查五项：①**脸——必须放大裁脸与演员原图比对，是本人，不是"有点像"**；②衣服是定妆装；③运镜方向与占位对原片；④无烧字/水印；⑤段尾状态能接下段。
@@ -50,7 +49,7 @@ version: 1.0.0
 
 8. **组装**
    - 视频：第 2 段起剔第 0 帧再 concat（零重影）。
-   - 音频：**PCM 级拼接**两段原生音频（样本级对齐；禁用 `-ss` 快进测试对齐，会假错位）。
+   - 音频：**整轨换环境噪声床**——`make_ambience.py` 按场景选 preset（山地=mountain）生成与成片等长的干净环境噪声，显式 `-map 0:v:0 -map 1:a:0` 封装；交付前 audio_screen（YAMNet）验 max_speech≈0、max_music≈0。
    - 总时长裁到与原片一致；拼接点前后抽帧验无闪跳。
 
 9. **交付**
@@ -67,24 +66,21 @@ version: 1.0.0
 起始帧参考（Node 22）为本段<起始机位/上段尾帧>锚点，人物占位与机位严格按该图开场。
 
 声音设定：
-本视频为无对白环境镜头，全片无指定说话人，无任何对白台词，无画外旁白；仅保留现场物理拟音与环境底噪贯穿。<Subject 1> 全程嘴唇自然紧闭，完全静止不发声。
+无对白：只有<环境声，如山风>，无人声、无音乐。
 
 [detailed_description]
 <Subject 1> <占位：画面X侧>，<照逐帧记录的动作与坐姿>，全程<动/不动>，只有<微动作>。嘴唇自然紧闭（lips completely still and naturally closed, strictly no speaking, no vocalization）。
 <运镜：起始机位→方向→速度→结束状态，绝不越轴>。
-<拟音清单>；绝无对白、无画外旁白、无背景音乐。no music, no background music, no instruments, no melody, only natural foley sounds.
+只有<拟音清单>，别无其他声音。only natural foley sounds, no music, no voice.
 画面纯净无字幕、无文字、无水印；面部无任何遮挡；关节自然无多余肢体；亮场。
-
-铁律：
-- <Subject 1> 与参考图1:1一致，服装发型全程锁定；占位继承不许瞬移。
-- 绝对禁止任何背景音乐/乐器声/旋律，只保留真实环境声音；保持无字幕；人物不得念旁白、不得对旁白对口型。
-- negative prompts: background music, bgm, score, subtitles, closed captions, on-screen text, title card, watermark, dialogue, speaking, talking, voiceover, narration, humming, singing, mouth open, lip-sync, sunglasses, eyeglasses, extra fingers, extra limbs, face morphing, gibberish text.
+服装发型全程锁定，占位继承不许瞬移。
+negative prompts: background music, bgm, score, subtitles, closed captions, on-screen text, title card, watermark, dialogue, speaking, talking, voiceover, narration, humming, singing, mouth open, lip-sync, sunglasses, eyeglasses, extra fingers, extra limbs, face morphing, gibberish text.
 ```
 
 ## Operating Rules
 - **复刻 ≠ 动作迁移**：用户说"复刻"走本技能；说"套动作/动作迁移"走 `motion-transfer`。
 - **别人的半成品不可信**：兄弟会话/旧目录已出的段，接手前必须自己抽帧验；坏的（如在定妆照与原片人之间来回变的）直接按本流程重做，不替它背书。
 - **节点先验证后使用**：未实测存在的节点不许带参派发（803 node_not_found = 不存在且 0 花费；如 Node 20 在加速版 App 上就是幻影节点）。
-- **原声主义**：保留模型原生音频。YAMNet/ASR 只做知情检查；用户明确说用原声时以用户为准，不许自作主张剥轨换合成床。
-- **音频铁律（只环境音、零背景音乐）**：复刻片的声音只许有环境音——环境底噪与现场拟音。不注入任何背景音乐：派发不挂音乐参考、后期不铺 BGM 床。模型原声若检出音乐污染，按污染处理（整轨换干净环境床），不许带着背景音乐交付。
+- **音频铁律（只注入环境噪声）**：复刻片交付的音轨只许有环境噪声（环境底噪＋现场拟音），绝不注入任何背景音乐。模型原生音频在加速版 App 上必带"念提示词"的含糊人声（连提示词里的规则段都会被念进去），一律视为污染：**整轨换成干净环境噪声床**（`make_ambience.py` 按场景选 preset），交付前过 audio_screen 验 max_speech≈0、max_music≈0 才许交付。
+- **提示词不写规则段**：提示词里不出现"铁律："这类成段规则文字，约束只用一两句短句＋negative 短语表达——成段文字会被模型当台词念出来。
 - **成本纪律**：同段最多一次干净重拍；修不好先报告，不无限烧币。
