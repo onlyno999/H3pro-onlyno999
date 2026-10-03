@@ -190,6 +190,28 @@ H3 是原生的**音画一体模型**（Video + Audio 同步生成），具有�
    - **执行与判定**：落实不靠在提示词里写禁令（见铁律 8 改版）——【音效】只正面列出要的声音，就是全部声学要求；成片音轨检测出音乐或旁白/人声 = 污染，带病不许交付（重跑或剥离替换后重过门禁）。
    - **落地方式**：本铁律是写给 agent 的执行规则；派发提示词通篇只写需要的内容，禁令句（成段的、短句的）一律不进提示词正文，negative 短语保留为约束字段的既有做法，派发器不自动追加任何禁令文字。
 
+### 【定版样例】无对白环境声短片·成功配方（2026-10-03 用户 payload 实测 PASS，照此结构执行）
+
+- **实测背书**：以下配置＋提示词在 v2.5 工作流（2086280720103858177）跑 5 秒：YAMNet 人声 0.10 / 音乐 0.02，门禁 PASS，画面与拟音（风声、衣料声）都对。同题只灌 67 一路的对照版人声 0.99 FAIL——本配方是唯一验过的干净写法。
+- **派发配置要点**：
+  - `nodeInfoList` 里 **38 / 67 / 68 三个 `audio` 条目一个不能少**，`fieldValue` 指向同一份与分段等长的静音 WAV（服务器 `~/workspace/h3_dispatch/silence_cache/`，GitHub 仓库 `skills/h3pro-agent/assets/silence/` 备份）。
+  - 其余节点：25 = 提示词正文、28 = 时长秒数、26 = 画幅、5 = noise_seed、18 = 定妆参考、23 = 场景参考。本样例是无锚点帧的极简版；正式分段生产按第 3 节三锚规则补齐 22 / 24 / 32。
+- **提示词定版写法（原文样例，场景内容按片替换，结构与声音设定句式不许改）**：
+  ```
+  subject_definitions（主体定义）:
+  <Subject 1> 是 <Picture 1> 定妆照中的男子，以第一格大头照的面部为准：脸型、眉眼、鼻、唇 1:1 一致；酒红色纯色无字棒球帽，黑红拼色赛车风极限运动连体服，腰间专业高空安全吊带，黑红运动鞋；
+  <Subject 2> 是场景九宫格锁定的千米高空扁带场景：两座灰褐色岩石高峰相对而立，红白色高空扁带横跨两峰，深谷底部云海翻滚，清晨金色侧光。
+
+  声音设定：
+  纯现场环境声与拟音（Pure environmental foley only）：强劲呼啸的深谷山风、布料剧烈被风吹动的猎猎声、微弱沉稳的呼吸声，仅限自然白噪音。
+
+  detailed_description:
+  9:16竖屏，无人机从中远景缓慢推近到中景：<Subject 1> 站在画面左侧高峰边缘、扁带锚点旁，身体面向云海深渊，山风吹得衣料猎猎作响；他缓缓转头看向镜头方向，嘴唇自然紧闭，站姿稳定。脚下是翻滚的云海与千米深渊，清晨金光照在岩峰上。
+  人物面部与定妆照1:1一致；无烧字，无水印。
+  negative prompts: music, background music, bgm, soundtrack, score, melody, tune, instrumental, singing, song, musical instruments, rhythm, dialogue, speaking, talking, voiceover, narration, humming, mouth open, lip-sync, extra fingers, extra limbs, face morphing, gibberish text, hat text, logo, subtitles, watermark
+  ```
+- **写法要点（为什么这版干净）**：①声音设定只写一句拟音白名单（中英双语标签＋具体声音清单＋"仅限自然白噪音"），不写音乐行、不写 N/A 声明、不写任何"禁止……"句；②禁音乐、禁人声的意思全部落在结尾 `negative prompts:` 一行的封堵词里；③画面段正面写"嘴唇自然紧闭"，不写台词、不写旁白。
+
 ---
 
 ## 7. 长视频全自动化生产 SOP：前置三大资产锁定与后段自动继承调用机制 (Long-Video Asset Pre-Lock & Auto-Inheritance Pipeline)
