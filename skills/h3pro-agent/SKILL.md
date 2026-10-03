@@ -148,6 +148,11 @@ H3 是原生的**音画一体模型**（Video + Audio 同步生成），具有�
 3. **【铁律 3】背景 BGM 彻底清零 (Zero Background Music)**：
    - 当没有显式要求配乐时，音乐通道必须严格锁死为 `None`：
      `[non_diegetic_music] None. There is no non-diegetic background music in this video track, absolute silence on the music channel to allow clean external master score mixing.`
+   - **音乐字段三分支写法（2026-10-03 用户给的参考代码定版）**：编译提示词时按「音乐风格」的值分支处理，只允许这三种写法——
+     - 含「不指定」→ 什么都不写（pass，提示词里不出现音乐行）；
+     - 含「禁止音乐」→ 只写这一行结构化声明：`- 背景音乐：禁止任何背景音乐，non_diegetic_music 必须严格输出 "N/A"，不得写任何配乐/旋律/节奏`；
+     - 指定了某种风格 → 写 `- 背景音乐风格：<风格名> — <该风格的提示描述>`。
+     禁配乐的意思只以「禁止音乐」分支的这一行出现在音乐字段里，正文其他地方不写禁配乐句（与铁律 8 改版一致）。
 
 4. **【铁律 4】负向提示词 (Negative Prompt)：强制死锁 20 项发声与 BGM 抑制词**
    - 必须强力注入负向死锁矩阵：
