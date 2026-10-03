@@ -57,6 +57,22 @@ description: >
 | **参考音 2** (Node 67) | **歌声 / 演唱** | 歌唱音色、旋律律动、演唱风格 | 注入歌曲人声干声切片，让画面中的角色严格按该歌声“对口型”歌唱 |
 | **参考音 3** (Node 68) | **音乐风格 / 环境音效** | 摇滚/古典/电子配乐，雨声/风声/空间拟音 | 注入背景音乐风格或空间拟音（脚步、雷雨、电子嗡鸣），匹配音画合一氛围 |
 
+### 2.4 📝 官方提示词写法（2026-10-03 用户令：合并官方技能 h3-prompt-writing，提示词写法以此为准）
+
+> 来源：MiniMax 官方仓库 `MiniMax-AI/MiniMax-H3` 的技能 `h3-prompt-writing`，已与本技能合并。官方全文规范存本技能 `references/official_base_en.txt`（基础四模式）与 `references/official_ref_en.txt`（全参考模式），写作时以全文为准，本节是合并后的执行摘要。原样独立副本另存 `~/workspace/skills/h3-prompt-writing/`。
+
+- **先判模式**：T2VA（纯文本）/ I2VA（首帧）/ FL2VA（首尾帧）/ L2VA（尾帧）/ Ref2VA（全参考）。模式决定结构，结构与字段名、段序、标签、时间戳记法一律照官方，不许自创。
+- **基础四模式结构**：首行是对齐指令（T2VA 无指令、直接进正文；I2VA 固定句 `For the target video, at 0.00 seconds into the target video, <Picture 1> (from [Shot 1]) is fully referenced.`；FL2VA / L2VA 用官方 `How the reference pictures align with the target video — …` 句式，时间写 S.SS 两位小数），空一行后接三核心字段，顺序固定：`integrated_multimodal_description` → `overall_soundscape` → `non_diegetic_music`。
+- **Ref2VA 六段式**（顺序固定）：`subject_definitions` → `summary` → `retention_analysis` → `detailed_description` → `overall_soundscape` → `non_diegetic_music`。
+  - `subject_definitions`：四类标签 `<Subject N>`（可复用的可见内容）/ `<Picture N>`（作具体帧锚的图片）/ `<Video N>`（整片结构来源）/ `<Audio N>`（音频信号或参考），逐条定义；只作来源引用的图片写进对应 Subject 定义里、不单列；标签一经分配全篇同义、不重编。
+  - `summary`：一段英文，开头带方括号任务类型前缀，按实际关系从 `keyframe completion` / `reference generation` / `video editing` / `video continuation` / `audio reuse` / `audio reference` 里选，可用 ` + ` 组合、不重复；只用已定义的标签。
+  - `retention_analysis`：每个标签一行，用官方固定标记——可见内容：`fully_preserved` / `partially_preserved` / `attribute_transfer` / `weak_reference`；音频：`fully_copy` / `partially_copy` / `reference` / `weak_reference`。
+  - `detailed_description`：正文主体。先用 1–2 句英文定风格基调再进 `[Shot 1]`；`[Shot 1]` 不带时间戳，后续镜头 `[Shot N] At MM:SS.mmm`；按播放顺序逐镜写构图、主体外观与位置、环境光线、动作与状态变化、运镜、当前声音，并在参考内容实际出现处插入其标签；生成类任务正文 350–500 英文词，对白密集时以台词时间线完整为准。
+  - `overall_soundscape`：1–4 句英文一段，只汇总全片环境声、物理动作声与非言语人声；对白、歌唱、剧情内音乐已在正文里，不在这里重复；仅当用户明令全程静音才写 `N/A`。
+  - `non_diegetic_music`：1–3 句英文，只写观众听得见、角色听不见的配乐（乐器、速度、节奏、动态变化），不用抽象情绪词；角色能听到的音乐（收音机、电视、现场演奏）属剧情内事件、写进正文；**无配乐写 `N/A`**。
+- **通用写作规则**：改写正文一律英文；台词、歌词、画面可见文字保留原文（画面文字用英文双引号原样引用、不翻译）。说话人用 `(S1)`、`(S2)` 全片稳定编号（合唱 `(S1,S2)`），首次出现要交代身份线索（角色类型、年龄、性别、音高、音色、语速、口音等）；台词只写 `<d>[语言] 原文</d>`，逐字保留、不翻译不改写，标点规范化，未听清处写 `[unclear]` 不许猜。画外旁白必须用固定句式 `says in an off-screen voiceover`，且其 `<d>` 后紧跟一句对应角色嘴唇保持闭合。台词跨镜用 `<scenetrans>` 并写明声音跨镜延续，被片尾截断用 `<cutoff>`。运镜写成自然英文句子（运动类型＋幅度＋速度，如 `pushes in with small amplitude at slow speed`），不许把运镜词堆在句尾当标签。
+- **与本技能生产规则的衔接（合并口径）**：本节管「提示词怎么写」；派发与音频关闭仍按本技能既有生产定版走（铁律 7 三路等长静音、§3 三锚接力、§6 执行总则与定版样例）。§6 定版样例是无对白环境声片在 RunningHub 派发字段里已实测通过的落地形态（其「声音设定」句即 overall_soundscape 的拟音内容、结尾 negative 行是工作流字段层封堵），与官方六段式的关系是：编译/改写环节按官方结构与标签规范写，派发环节按定版样例落字段；两边冲突时先停下问用户，不许自作主张。
+
 ---
 
 ## 3. 跨段无缝接力与 15s 零重影终剪规则
