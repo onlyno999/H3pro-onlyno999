@@ -10,7 +10,8 @@ description: >
 # mvH3-onlyno999 Agent 核心技能规范 (V2.4 导演台满血版)
 
 ## 1. 架构总则：前两步焊死 + 第三步云端一键调度插拔
-- **Skill 1【焊死】创意分镜构思内核**：解析自然语言与故事设定，输出时间轴结构化镜头大纲、台词与音效。
+- **Skill 1【焊死】导演工作台·设计 = OpenMontage（用户 2026-10-05 换定）**：第 1 步由 OpenMontage（`https://github.com/onlyno999/OpenMontage`，本地克隆 `~/repos/OpenMontage`）担任导演工作台，负责创意设计：解析自然语言与故事设定，按其设计流水线产出设计稿（brief 创意简报 ➔ script 剧本 ➔ scene_plan 分镜计划：时间轴结构化镜头大纲、台词与音效设计）。
+  - **交接链（焊死）**：OpenMontage 设计稿 ➔ Skill 2（H3 提示词编译器）转译为 H3 规范提示词 ➔ Skill 3（RunningHub 云端调度）出片。OpenMontage 只做设计，不写 H3 提示词、不做云端派发。
 - **Skill 2【焊死】MiniMax H3 Ref2VA 规范编译器**：
   - 自动编译六段式结构：`[subject_definitions]` ➔ `[summary]` ➔ `[retention_analysis]` ➔ `[detailed_description]` ➔ `[overall_soundscape]` ➔ `[non_diegetic_music]`。
   - 角色音色 `(Sx)` 与 `<d>` 口型发音标签，防裁头中近景定位，零字幕反向词敏感清洗。
